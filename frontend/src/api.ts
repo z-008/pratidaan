@@ -344,6 +344,8 @@ export const api = {
     post<{ status: string; reasons: string[]; visitId: string; components: string[] }>(`/donors/${id}/appointments/${appointmentId}/checkin`, vitals),
   /** `chat` says which Chat the question was asked in (General, a Goal's or a Habit's) */
   copilot: (id: string, message: string, history: unknown[] | null, chat = 'general') => post<CopilotReply>(`/donors/${id}/copilot`, { message, history, chat }),
+  chatRecord: (id: string, body: { userText: string; assistantText: string; chat?: string }) =>
+    post<{ recorded: boolean }>(`/donors/${id}/chat/record`, body),
   chatActive: (id: string, chat = 'general') => request<{ cycleId: string; turns: { at: string; user: string; assistant: string }[]; history: unknown[] | null }>(`/donors/${id}/chat/active?chat=${encodeURIComponent(chat)}`),
   chatCurrentCycle: (id: string) => request<{
     cycleId: string; label: string; startedOn: string;

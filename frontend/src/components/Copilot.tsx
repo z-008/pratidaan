@@ -3,7 +3,7 @@
  * two sentences plus at most one Card (a chart, check-up slots or a reminder),
  * memory lines and receipts. Cards it opens also appear on Home.
  */
-import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { api, fmtDate, isStaleCard, type Appointment, type ChartPoint, type CopilotAction, type DropBooking, type DropCard, type DropView } from '../api';
 import { Icon, Thinking } from '../ui';
@@ -134,21 +134,33 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
   const [turns, setTurns] = useState<Turn[]>(() => conversations.get(key)?.turns || []);
   const [history, setHistory] = useState<unknown[] | null>(() => conversations.get(key)?.history || null);
   useEffect(() => { conversations.set(key, { turns, history }); }, [key, turns, history]);
-  useEffect(() => {
+  const historyRef = useRef<unknown[] | null>(history);
+  const persistTurn = useCallback((userText: string, assistantText: string) => {
+    api.chatRecord(donorId, { userText, assistantText, chat }).catch(() => {});
+  }, [donorId, chat]);
+  const syncServerChat = useCallback(() => {
     let alive = true;
     api.chatActive(donorId, chat).then((active) => {
-      if (!alive || conversations.get(key)?.turns.length) return;
+      if (!alive) return;
       const fromServer = active.turns.flatMap((t) => [
         { role: 'user' as const, text: t.user },
         { role: 'ai' as const, text: t.assistant },
       ]);
-      if (fromServer.length) setTurns(fromServer);
+      const localLen = conversations.get(key)?.turns.length ?? 0;
+      if (fromServer.length && fromServer.length >= localLen) setTurns(fromServer);
       if (active.history?.length) { historyRef.current = active.history; setHistory(active.history); }
     }).catch(() => {});
     return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, donorId, chat]);
-  const historyRef = useRef<unknown[] | null>(history);
+  useEffect(() => {
+    const stop = syncServerChat();
+    return stop;
+  }, [syncServerChat]);
+  useEffect(() => {
+    const onChanged = () => syncServerChat();
+    window.addEventListener('drop:changed', onChanged);
+    return () => window.removeEventListener('drop:changed', onChanged);
+  }, [syncServerChat]);
   function recordLocal(userText: string, reply: string) {
     const updated = [...(historyRef.current || []), { role: 'user', content: userText }, { role: 'assistant', content: reply }];
     historyRef.current = updated;
@@ -180,12 +192,17 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
 
   function book(said?: string) {
     setInput('');
-    if (said) recordLocal(said, "Let's book your donation. It takes about a minute.");
+    const reply = `Let's book your ${firstTime ? 'first ' : ''}donation. It takes about a minute.`;
+    if (said) {
+      recordLocal(said, reply);
+      persistTurn(said, reply);
+    }
     setTurns((t) => [
       ...t.filter((x) => !x.booking),
       ...(said ? [{ role: 'user' as const, text: said }] : []),
-      { role: 'ai', text: `Let's book your ${firstTime ? 'first ' : ''}donation. It takes about a minute.`, booking: true },
+      { role: 'ai', text: reply, booking: true },
     ]);
+    changed();
   }
 
   async function offerCheckup(said?: string, text = 'Here are the next free check-up times. Tap one to book.') {
@@ -196,12 +213,20 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
       chatCards.add(r.cardId);
       setView(r.view);
       changed();
-      if (said) recordLocal(said, text);
+      if (said) {
+        recordLocal(said, text);
+        persistTurn(said, text);
+      }
       setTurns((t) => [...t, { role: 'ai', text, actions: [{ type: 'card', cardId: r.cardId }] }]);
+      changed();
     } catch (e) {
       const errorText = `I couldn't load check-up times just now: ${(e as Error).message}`;
-      if (said) recordLocal(said, errorText);
+      if (said) {
+        recordLocal(said, errorText);
+        persistTurn(said, errorText);
+      }
       setTurns((t) => [...t, { role: 'ai', text: errorText }]);
+      changed();
     }
   }
 
@@ -214,7 +239,9 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
     // A fixed reply by rules, such as when an Up next Goal starts
     if (answers[message]) {
       recordLocal(message, answers[message]);
+      persistTurn(message, answers[message]);
       setTurns((t) => [...t, { role: 'user', text: message }, { role: 'ai', text: answers[message] }]);
+      changed();
       return;
     }
     setTurns((t) => [...t, { role: 'user', text: message }]);
@@ -232,7 +259,9 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
     } catch (e) {
       const errorText = `Sorry, something went wrong: ${(e as Error).message}`;
       recordLocal(message, errorText);
+      persistTurn(message, errorText);
       setTurns((t) => [...t, { role: 'ai', text: errorText }]);
+      changed();
     } finally {
       setBusy(false);
     }

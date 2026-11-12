@@ -179,6 +179,25 @@ router.post('/:donorId/appointments/:appointmentId/checkin', async (req, res) =>
 });
 
 // ---- GenAI / agentic features
+router.post('/:donorId/chat/record', async (req, res) => {
+  try {
+    const { userText, assistantText, chat } = req.body || {};
+    if (!userText || typeof userText !== 'string' || !assistantText || typeof assistantText !== 'string') {
+      return fail(res, 400, 'userText and assistantText are required');
+    }
+    await chatCycles.ensureScope(req.user, req.donor.id);
+    const chatId = typeof chat === 'string' ? chat.slice(0, 40) : 'general';
+    chatCycles.recordTurn(req.user, req.donor.id, chatId, {
+      userText: userText.slice(0, 2000),
+      assistantText: assistantText.slice(0, 8000),
+      history: null,
+    });
+    ok(res, { recorded: true });
+  } catch (error) {
+    fail(res, 500, error.message);
+  }
+});
+
 router.get('/:donorId/chat/active', async (req, res) => {
   try {
     await chatCycles.ensureScope(req.user, req.donor.id);
