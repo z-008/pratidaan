@@ -119,6 +119,41 @@ function intentHint(message) {
   return '';
 }
 
+function replyMatchesQuestion(message, reply) {
+  const m = String(message || '').toLowerCase();
+  const r = String(reply || '').toLowerCase();
+  if (/\b(bp|blood pressure)\b/.test(m) && /\b(how|doing|trend|chart)\b/.test(m)) {
+    if ((/\bhba1c\b|prediabetes/i.test(r)) && !/\d{2,3}\s*\/\s*\d{2,3}/.test(r)) return false;
+    return /\d{2,3}\s*\/\s*\d{2,3}/.test(r) || /\bblood pressure\b|\bbp\b/.test(r);
+  }
+  if (/\b(where did my blood|blood go)\b/.test(m)) {
+    return !/\b138\/|donation eligibility|recipient details aren't\b/.test(r);
+  }
+  return true;
+}
+
+/** Deterministic text + UI actions for common intents (agent fallback). */
+function groundedAnswer(donorId, message) {
+  const m = String(message || '').toLowerCase();
+  if (/\b(bp|blood pressure)\b/.test(m) && /\b(how|doing|trend|chart)\b/.test(m)) {
+    const charts = chartActionsForMessage(donorId, message);
+    if (!charts.length) return null;
+    return {
+      reply: `${screenLines.line(donorId, 'health').text} Here's your BP trend in the chart below.`,
+      actions: charts,
+    };
+  }
+  if (/\b(results?|labs?|score)\b/.test(m) && /\b(explain|latest|mean|what|how)\b/.test(m)) {
+    const f = health.findings(donorId);
+    const score = health.currentScore(donorId);
+    const reply = f.length
+      ? `Your latest results: ${f.slice(0, 3).map((x) => `${x.title} (${x.detail})`).join('; ')}. A doctor confirms all findings.`
+      : `Your latest donation check-up results are all in the healthy range (health score ${score?.score ?? '—'}/100). Nothing needs watching right now.`;
+    return { reply, actions: uiActionsForMessage(donorId, message, []) };
+  }
+  return null;
+}
+
 /** Charts, cards, and navigation the UI should show even if the model forgot a tool. */
 function uiActionsForMessage(donorId, message, actions) {
   const m = String(message || '').toLowerCase();
@@ -189,6 +224,63 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     }
     return finishImpact(`${fact} Open My impact for the full journey.`, prior);
   }
+  const bpTrendAsk = /\b(bp|blood pressure)\b/i.test(message) && /\b(how|doing|trend|chart)\b/i.test(message);
+  const urgentFinding = health.findings(donorId).find((f) => f.id === 'BP_URGENCY');
+  if (bpTrendAsk && !urgentFinding) {
+    const grounded = groundedAnswer(donorId, message);
+    if (grounded) {
+      const finishBp = (reply, hist) => {
+        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+        agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+        agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+        return { reply, steps: [], actions: grounded.actions, history: hist };
+      };
+      if (llm.available(700)) {
+        try {
+          const response = await llm.call({
+            feature: 'copilot_bp',
+            system: `You are Drop in Pratidaan. They asked how their blood pressure is doing. Use ONLY: "${grounded.reply.replace(/ See the chart below\.$/, '')}". One or two warm sentences; mention the chart below. Do not mention HbA1c, cholesterol, or donation dates unless this text does.`,
+            messages: [{ role: 'user', content: message }],
+            maxTokens: 220,
+            effort: 'minimal',
+            guardrailKind: 'chat',
+          });
+          const reply = guardrails.sanitizeReply(llm.text(response)).reply;
+          if (reply && replyMatchesQuestion(message, reply)) {
+            return finishBp(`${reply} See the chart below.`, messages);
+          }
+        } catch { /* rules below */ }
+      }
+      return finishBp(grounded.reply, prior);
+    }
+  }
+  const resultsAsk = /\b(results?|labs?|score)\b/i.test(message) && /\b(explain|latest|mean|what|how)\b/i.test(message);
+  if (resultsAsk) {
+    const grounded = groundedAnswer(donorId, message);
+    if (grounded) {
+      const finishResults = (reply, hist) => {
+        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+        agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+        agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+        return { reply, steps: [], actions: grounded.actions, history: hist };
+      };
+      if (llm.available(900)) {
+        try {
+          const response = await llm.call({
+            feature: 'copilot_results',
+            system: `You are Drop in Pratidaan. Explain their latest donation check-up results in one or two short sentences. Facts (authoritative):\n${healthFacts(donorId)}\nDo not invent values. Offer to say more.`,
+            messages,
+            maxTokens: 400,
+            effort: 'minimal',
+            guardrailKind: 'chat',
+          });
+          const reply = guardrails.sanitizeReply(llm.text(response)).reply;
+          if (reply) return finishResults(reply, messages);
+        } catch { /* rules below */ }
+      }
+      return finishResults(grounded.reply, prior);
+    }
+  }
   const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 2000, maxSteps: 5, effort: 'low' });
   let result;
   try {
@@ -219,12 +311,24 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const existing = result.actions;
     const merged = [...existing, ...rules.actions.filter((a) => !existing.some((b) => b.type === a.type && b.marker === a.marker && b.cardId === a.cardId))];
     const actions = uiActionsForMessage(donorId, message, merged);
-    const reply = existing.some((a) => ['memory', 'receipt', 'card'].includes(a.type)) ? defaultReply(existing) : rules.reply;
+    const grounded = groundedAnswer(donorId, message);
+    let reply = existing.some((a) => ['memory', 'receipt', 'card'].includes(a.type)) ? defaultReply(existing) : rules.reply;
+    if (grounded && actions.some((a) => a.type === 'chart')) reply = grounded.reply;
+    else if (actions.some((a) => a.type === 'chart') && !replyMatchesQuestion(message, reply)) {
+      reply = grounded?.reply || `${screenLines.line(donorId, 'health').text} See the chart below.`;
+    }
     chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true, offline: true, reason: 'AI response incomplete' };
   }
   let reply = result.text;
   let actions = uiActionsForMessage(donorId, message, result.actions);
+  if (!replyMatchesQuestion(message, reply)) {
+    const grounded = groundedAnswer(donorId, message);
+    if (grounded) {
+      reply = grounded.reply;
+      actions = uiActionsForMessage(donorId, message, [...grounded.actions, ...actions]);
+    }
+  }
   const safe = guardrails.sanitizeReply(reply);
   reply = safe.reply;
   if (safe.suggestCheckup) {
