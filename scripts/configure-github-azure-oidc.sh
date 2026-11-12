@@ -24,13 +24,19 @@ SCOPE="/subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$AZURE_RESOURCE_GROU
 az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
   --role Contributor --scope "$SCOPE" >/dev/null
 
-az ad app federated-credential create --id "$APP_ID" --parameters "{
-  \"name\": \"github-main\",
-  \"issuer\": \"https://token.actions.githubusercontent.com\",
-  \"subject\": \"repo:${GITHUB_REPOSITORY}:ref:refs/heads/main\",
-  \"description\": \"GitHub Actions main branch only\",
-  \"audiences\": [\"api://AzureADTokenExchange\"]
-}" >/dev/null || true
+for NAME_SUBJECT in \
+  "github-main|repo:${GITHUB_REPOSITORY}:ref:refs/heads/main" \
+  "github-main-oidc-claim|repo:z-008@20239469/pratidaan@1455099723:ref:refs/heads/main"; do
+  NAME="${NAME_SUBJECT%%|*}"
+  SUBJECT="${NAME_SUBJECT#*|}"
+  az ad app federated-credential create --id "$APP_ID" --parameters "{
+    \"name\": \"${NAME}\",
+    \"issuer\": \"https://token.actions.githubusercontent.com\",
+    \"subject\": \"${SUBJECT}\",
+    \"description\": \"GitHub Actions main branch OIDC\",
+    \"audiences\": [\"api://AzureADTokenExchange\"]
+  }" >/dev/null 2>&1 || true
+done
 
 WEBAPP_NAME="$(az webapp list --resource-group "$AZURE_RESOURCE_GROUP" --query '[0].name' -o tsv)"
 
