@@ -223,14 +223,18 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
         {menu && <div className="sheet-menu-catch" onClick={() => setMenu(false)} aria-hidden="true" />}
 
         <div className="sheet-switch" role="tablist" aria-label="Your Chats">
-          <button role="tab" aria-selected={chat === 'general'} className={`chip ${chat === 'general' ? 'on' : ''}`} onClick={() => show('general', 'open')}>General</button>
-          {goals.map((g) => (
-            <button key={g.id} role="tab" aria-selected={chat === `goal:${g.id}`} className={`chip ${chat === `goal:${g.id}` ? 'on' : ''}`} onClick={() => openGoal(g)}>
-              {hasOpen(g) && <span className="dot" aria-label="Something open" />}{g.name}{g.state !== 'active' && <span className="chip-state"> · {STATE[g.state]}</span>}
-            </button>
-          ))}
-          {HABITS.map((h) => <button key={h} role="tab" aria-selected={habit === h} className={`chip ${habit === h ? 'on' : ''}`} onClick={() => openHabit(h)}>{h}</button>)}
-          <button role="tab" aria-selected={chat === 'past'} className={`chip ${chat === 'past' ? 'on' : ''}`} onClick={() => show('past', 'open')}><Icon name="history" size={16} /> Past Cycles</button>
+          <div className="sheet-switch-scroll">
+            <button role="tab" aria-selected={chat === 'general'} className={`chip ${chat === 'general' ? 'on' : ''}`} onClick={() => show('general', 'open')}>General</button>
+            {goals.map((g) => (
+              <button key={g.id} role="tab" aria-selected={chat === `goal:${g.id}`} className={`chip ${chat === `goal:${g.id}` ? 'on' : ''}`} onClick={() => openGoal(g)}>
+                {hasOpen(g) && <span className="dot" aria-label="Something open" />}{g.name}{g.state !== 'active' && <span className="chip-state"> · {STATE[g.state]}</span>}
+              </button>
+            ))}
+            {HABITS.map((h) => <button key={h} role="tab" aria-selected={habit === h} className={`chip ${habit === h ? 'on' : ''}`} onClick={() => openHabit(h)}>{h}</button>)}
+          </div>
+          <div className="sheet-switch-past">
+            <button role="tab" aria-selected={chat === 'past'} className={`chip ${chat === 'past' ? 'on' : ''}`} onClick={() => show('past', 'open')}><Icon name="history" size={16} /> Past Cycles</button>
+          </div>
         </div>
 
         {goal && goal.state !== 'done' && (
@@ -273,7 +277,7 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
               );
             }
             return (
-              <div className="sheet-past" style={{ padding: 16, overflow: 'auto', flex: 1 }}>
+              <div className="sheet-past">
                 <b className="small">This cycle (live)</b>
                 <p className="small muted" style={{ margin: '4px 0 8px' }}>
                   <strong>Demo today:</strong> {thisCycle?.demoToday || '…'}
