@@ -112,7 +112,21 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}`;
-  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 900, maxSteps: 4, effort: 'low' });
+  const wantsTools = /\b(book|slot|calendar|chart|remind|navigate|journey|insurance|community|badge)\b/i.test(message);
+  if (message.length <= 220 && !wantsTools && llm.available(500)) {
+    const liteSystem = `You are Drop in Pratidaan for blood donors in India. Answer in at most two short, warm sentences. ${context(donorId, userName, chatId)}`;
+    try {
+      const response = await llm.call({ feature: 'copilot_lite', system: liteSystem, messages, maxTokens: 400, effort: 'minimal', guardrailKind: 'chat' });
+      let reply = guardrails.sanitizeReply(llm.text(response)).reply;
+      if (reply) {
+        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: messages });
+        agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+        agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+        return { reply, steps: [], actions: [], history: messages };
+      }
+    } catch { /* full agent below */ }
+  }
+  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 1200, maxSteps: 4, effort: 'low' });
   let result = await run(system, CHAT_TOOLS);
   // A reply that is the model's own notes ("The user wants…", "Plan: …") or tool code written as text gets one more try:
   // no tools this time, told to answer the donor directly

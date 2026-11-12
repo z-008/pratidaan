@@ -119,7 +119,7 @@ function normalise(raw) {
       cache_read_input_tokens: raw.usage?.prompt_tokens_details?.cached_tokens || 0 } };
 }
 
-async function call({ feature, system, messages, tools, maxTokens = 4000, outputSchema, guardrailKind = 'donor_copy' }) {
+async function call({ feature, system, messages, tools, maxTokens = 4000, effort = 'low', outputSchema, guardrailKind = 'donor_copy' }) {
   if (!available(maxTokens)) throw new LLMUnavailable(status().reason || 'AI budget unavailable');
   await acquire();
   usage.calls += 1;
@@ -132,6 +132,8 @@ async function call({ feature, system, messages, tools, maxTokens = 4000, output
     messages: [{ role: 'system', content: !outputSchema || jsonMode ? baseSystem : `${baseSystem}\n\nFinish by calling ${SUBMIT} with the final result.` },
       ...toMessages(messages)],
     max_completion_tokens: Math.min(maxTokens, 6000),
+    // GPT-5 on Azure bills hidden reasoning tokens against this budget; keep effort low for tools.
+    reasoning_effort: defs.length ? 'low' : effort,
   };
   if (defs.length) body.tools = defs;
   if (jsonMode) body.response_format = { type: 'json_schema', json_schema: { name: 'pratidaan_result', strict: true, schema: outputSchema } };

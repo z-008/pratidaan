@@ -78,7 +78,7 @@ resource model 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = i
   parent: openAi
   name: openAiDeploymentName
   // The smallest deployment capacity keeps demo throughput deliberately low.
-  sku: { name: 'GlobalStandard', capacity: 1 }
+  sku: { name: 'GlobalStandard', capacity: 5 }
   properties: {
     model: { format: 'OpenAI', name: openAiModelName, version: openAiModelVersion }
     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
