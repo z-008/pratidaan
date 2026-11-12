@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   --bg: #f6f5f3;
@@ -59,7 +58,7 @@ html, body { margin: 0; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -79,7 +78,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .login-card h1 { font-size: 28px; letter-spacing: -0.03em; margin: 8px 0 10px; }
 .login-script { font-size: 22px; margin: 4px 0 0; color: var(--muted); letter-spacing: 0.02em; }
 .login-tagline { font-size: 14px; font-style: italic; color: var(--faint); margin: 0 0 4px; }
-.login-google { min-height: 44px; margin-top: 22px; }
 .login-or { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; color: var(--muted); font-size: 13px; }
 .login-or::before, .login-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .login-guest { width: 100%; justify-content: center; min-height: 44px; }

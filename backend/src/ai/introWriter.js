@@ -1,5 +1,5 @@
 /**
- * The Intro in the donor's language: Gemini translates each step's words and buttons
+ * The Intro in the donor's language: Azure OpenAI translates each step's words and buttons
  * (and the Intro's own words: the bar, Skip, coming back) when they are first shown,
  * once per language. A translation is used only if every number and every {placeholder}
  * survives; otherwise that text stays in English.
@@ -36,7 +36,7 @@ function system(language) {
   return `You translate the words of Drop, the warm, plain-spoken assistant in Pratidaan, an app for voluntary blood donors in India, into ${LANGUAGE_NAMES[language]}.
 Rules:
 - Translate each item's text; return every id once.
-- Keep every number as digits, and keep dates, "ml", BP, Hb, Pratidaan, Drop and Gemini as they are.
+- Keep every number as digits, and keep dates, "ml", BP, Hb, Pratidaan, Drop and Azure OpenAI as they are.
 - Keep anything in curly braces exactly as it is, e.g. {first}, {title}, {n}, {total}, {date}.
 - Button labels stay short (1-5 words). Use everyday words a person would say, not formal ones.`;
 }

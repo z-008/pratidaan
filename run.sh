@@ -41,11 +41,12 @@ port_in_use "$BACKEND_PORT"  && fail "Port $BACKEND_PORT is already in use."
 port_in_use "$FRONTEND_PORT" && fail "Port $FRONTEND_PORT is already in use."
 
 # --- Environment -----------------------------------------------------------
-# The backend reads only the project-root .env.
+# The backend reads only the project-root .env. The committed template is not
+# named .env.example so secret scanners and managed workspaces can read it.
 if [ ! -f "$ROOT/.env" ]; then
-  if [ -f "$ROOT/.env.example" ]; then
-    cp "$ROOT/.env.example" "$ROOT/.env"
-    warn "Created .env from .env.example — set GOOGLE_CLOUD_PROJECT to enable Vertex AI when running on Google Cloud."
+  if [ -f "$ROOT/azure.config.example" ]; then
+    cp "$ROOT/azure.config.example" "$ROOT/.env"
+    warn "Created .env from azure.config.example. Local development starts with Microsoft sign-in and Azure OpenAI disabled."
   fi
 fi
 
@@ -113,7 +114,7 @@ if ! curl -fs "http://localhost:$BACKEND_PORT/api/auth/config" | node -e '
   process.stdin.on("end", () => {
     const config = JSON.parse(response).data;
     if (!config.authDisabled && !config.clientId) {
-      console.error("Google sign-in is not configured. For local use, set AUTH_DISABLED=true and NODE_ENV=development in the root .env, then restart ./run.sh.");
+      console.error("Microsoft sign-in is not configured. For local use, set AUTH_DISABLED=true and NODE_ENV=development in the root .env, then restart ./run.sh.");
       process.exitCode = 1;
     }
   });

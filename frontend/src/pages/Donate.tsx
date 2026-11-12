@@ -36,7 +36,7 @@ export default function Donate({ donorId, go, version, refresh, clientId }: Page
       }
       const cancelled = await api.cancelAppointment(donorId, a.id, accessToken);
       appts.reload();
-      if (cancelled.calendarError) setErr(`Slot cancelled, but its Google Calendar event could not be confirmed removed: ${cancelled.calendarError}. Check Google Calendar and remove it there if present.`);
+      if (cancelled.calendarError) setErr(`Slot cancelled, but its Microsoft Calendar event could not be confirmed removed: ${cancelled.calendarError}. Check Microsoft Calendar and remove it there if present.`);
     } catch (e) {
       setErr((e as Error).message);
     } finally {
@@ -66,7 +66,7 @@ export default function Donate({ donorId, go, version, refresh, clientId }: Page
       <div className="page-head">
         <div>
           <div className="page-title">Donate</div>
-          <div className="page-sub">Try a simulated donation booking and check-in. Slots and centres are examples; no centre is reserved. Real Google Calendar access, if you choose to connect it, is a separate account integration.</div>
+          <div className="page-sub">Try a simulated donation booking and check-in. Slots and centres are examples; no centre is reserved. Real Microsoft Calendar access, if you choose to connect it, is a separate account integration.</div>
         </div>
       </div>
       <DropLine donorId={donorId} screen="donate" version={version} />
@@ -89,7 +89,7 @@ export default function Donate({ donorId, go, version, refresh, clientId }: Page
         </div>
       )}
       {err && <ErrorNote error={err} />}
-      {pendingCalendarRemoval.map((a) => <div key={a.id} className="callout callout-warn small">The slot on {fmtDate(a.date)} was cancelled, but its Google Calendar event could not be confirmed removed. Check Google Calendar and remove it there if present.</div>)}
+      {pendingCalendarRemoval.map((a) => <div key={a.id} className="callout callout-warn small">The slot on {fmtDate(a.date)} was cancelled, but its Microsoft Calendar event could not be confirmed removed. Check Microsoft Calendar and remove it there if present.</div>)}
 
       {booked.map((a) => (
         <Section key={a.id} title={<><Icon name="calendar" size={18} /> Donation booking on {fmtDate(a.date)}</>} sub={`${a.centre}, ${a.district} · not a centre reservation`}>

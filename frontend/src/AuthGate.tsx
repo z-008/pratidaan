@@ -1,5 +1,5 @@
 /**
- * Shows the login page until a Google session exists. The API enforces the same rule.
+ * Shows the login page until a Microsoft session exists. The API enforces the same rule.
  * When donating suits someone is asked in Drop's Intro, so there is no setup screen here.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { api, setUnauthorizedHandler, type AuthUser } from './api';
 import App from './App';
 import Login from './Login';
 import { APP_NAME } from './brand';
+import { setMicrosoftAuthority } from './microsoftAuth';
 
 type Phase = 'loading' | 'in' | 'out';
 
@@ -14,6 +15,7 @@ export default function AuthGate() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [user, setUser] = useState<AuthUser | null>(null);
   const [clientId, setClientId] = useState('');
+  const [authority, setAuthority] = useState('https://login.microsoftonline.com/common');
   const [sessionMinutes, setSessionMinutes] = useState(24 * 60);
 
   const signOut = useCallback((remote = true) => {
@@ -29,6 +31,8 @@ export default function AuthGate() {
     api.authConfig().then(async (config) => {
       if (!live) return;
       setClientId(config.clientId);
+      setAuthority(config.authority);
+      setMicrosoftAuthority(config.authority);
       setSessionMinutes(config.sessionMinutes);
       if (config.authDisabled) {
         setUser({ email: 'local-dev', name: 'Local development', picture: '', expiresAt: null, local: true });
@@ -58,7 +62,7 @@ export default function AuthGate() {
     return <div className="login"><p className="muted">{APP_NAME}</p></div>;
   }
   if (phase === 'out' || !user) {
-    return <Login clientId={clientId} sessionMinutes={sessionMinutes} onSignedIn={signedIn} />;
+    return <Login clientId={clientId} authority={authority} sessionMinutes={sessionMinutes} onSignedIn={signedIn} />;
   }
   return <App user={user} clientId={clientId} onSignOut={() => signOut(true)} />;
 }

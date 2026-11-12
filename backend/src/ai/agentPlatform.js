@@ -1,136 +1,64 @@
-/**
- * Vertex AI Agent Engine Sessions + Memory Bank (when configured), with a local
- * session log for judges and offline dev. Set AGENT_ENGINE_NAME to the full
- * reasoningEngine resource (projects/.../locations/.../reasoningEngines/...).
- */
+/** Azure-backed agent session and memory log used by the custom tool-calling loop. */
 
-const { GoogleAuth } = require('google-auth-library');
-const store = require('../data/store');
-const ENGINE = process.env.AGENT_ENGINE_NAME || '';
-const LOCATION = process.env.AGENT_ENGINE_LOCATION || 'us-central1';
+const blobs = require('../azure/blobStore');
 
-/** @type {Map<string, string>} donorId -> session resource name */
-const vertexSessions = new Map();
-/** @type {Map<string, number>} donorId -> last Memory Bank sync ms */
 const memorySyncAt = new Map();
+const touched = new Set();
 const MEMORY_DEBOUNCE_MS = 5 * 60 * 1000;
-
 let lastSessionError = null;
 let lastMemoryError = null;
 
 function status() {
+  const storage = blobs.status();
   return {
-    agentRuntime: ENGINE ? 'vertex-reasoning-engine' : 'custom-runAgent-on-vertex-gemini',
-    sessions: ENGINE ? 'vertex-agent-engine-sessions' : 'in-app-chatCycles',
-    memoryBank: ENGINE ? 'vertex-agent-engine-memory-bank' : 'drop-memory-and-firestore-preferences',
-    engineConfigured: Boolean(ENGINE),
-    engineLocation: ENGINE ? LOCATION : null,
+    agentRuntime: 'custom-tool-agent-on-azure-openai',
+    sessions: storage.provider === 'azure-blob-storage' ? 'azure-blob-session-log' : 'in-app-chatCycles',
+    memoryBank: storage.provider === 'azure-blob-storage' ? 'azure-blob-user-memory' : 'in-app-drop-memory',
+    storage,
     lastSessionError,
     lastMemoryError,
   };
 }
 
-async function token() {
-  const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
-  const client = await auth.getClient();
-  const res = await client.getAccessToken();
-  return res.token;
-}
-
-function sessionNameFromCreateBody(body) {
-  if (body.response?.name?.includes('/sessions/')) return body.response.name;
-  if (body.name?.includes('/sessions/')) return body.name;
-  return null;
-}
-
-async function ensureVertexSession(donorId) {
-  if (!ENGINE || vertexSessions.has(donorId)) return vertexSessions.get(donorId) || null;
-  try {
-    const accessToken = await token();
-    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1beta1/${ENGINE}/sessions`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: donorId, displayName: `pratidaan-${donorId}` }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const body = await res.json();
-    const name = sessionNameFromCreateBody(body);
-    if (name) vertexSessions.set(donorId, name);
-    return name || null;
-  } catch (e) {
-    lastSessionError = e.message;
-    console.warn('Agent Engine session create failed:', e.message);
-    return null;
-  }
+function key(kind, donorId) {
+  return `agents/${kind}/${Buffer.from(String(donorId)).toString('base64url')}.json`;
 }
 
 async function appendEvent(donorId, { role, text }) {
-  const sessionName = await ensureVertexSession(donorId);
-  if (!sessionName) return;
+  const name = key('sessions', donorId);
+  touched.add(name);
   try {
-    const accessToken = await token();
-    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1beta1/${sessionName}:appendEvent`;
-    const contentRole = role === 'assistant' ? 'model' : 'user';
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        author: contentRole,
-        invocationId: `pratidaan-${donorId}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-        timestamp: new Date().toISOString(),
-        content: { role: contentRole, parts: [{ text: String(text).slice(0, 4000) }] },
-      }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-  } catch (e) {
-    lastSessionError = e.message;
-    console.warn('Agent Engine appendEvent failed:', e.message);
+    const current = await blobs.readJson(name) || { donorId, events: [] };
+    current.events.push({ role: role === 'assistant' ? 'assistant' : 'user', text: String(text).slice(0, 4000), at: new Date().toISOString() });
+    current.events = current.events.slice(-100);
+    await blobs.writeJson(name, current);
+    lastSessionError = null;
+  } catch (error) {
+    lastSessionError = error.message;
+    console.warn('Azure agent session append failed:', error.message);
   }
 }
 
-/** Debounced Memory Bank sync from Drop “remember” lines — does not block chat. */
 async function syncMemoryFromDrop(donorId, memoryTexts) {
-  if (!ENGINE || !memoryTexts.length) return;
+  if (!memoryTexts.length) return;
   const now = Date.now();
   if (now - (memorySyncAt.get(donorId) || 0) < MEMORY_DEBOUNCE_MS) return;
   memorySyncAt.set(donorId, now);
-  const sessionName = await ensureVertexSession(donorId);
+  const name = key('memory', donorId);
+  touched.add(name);
   try {
-    const accessToken = await token();
-    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1beta1/${ENGINE}/memories:generate`;
-    const scope = { user_id: donorId };
-    const body = sessionName
-      ? { vertexSessionSource: { session: sessionName }, scope }
-      : {
-          scope,
-          directContentsSource: {
-            events: memoryTexts.slice(-8).map((t) => ({
-              content: { role: 'user', parts: [{ text: t }] },
-            })),
-          },
-        };
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(await res.text());
+    await blobs.writeJson(name, { donorId, memories: memoryTexts.slice(-50), updatedAt: new Date().toISOString() });
     lastMemoryError = null;
-  } catch (e) {
-    lastMemoryError = e.message;
-    console.warn('Memory Bank generateMemories failed:', e.message);
+  } catch (error) {
+    lastMemoryError = error.message;
+    console.warn('Azure agent memory sync failed:', error.message);
   }
 }
 
 function onDemoReset() {
-  vertexSessions.clear();
   memorySyncAt.clear();
+  for (const name of touched) blobs.deleteJson(name).catch(() => undefined);
+  touched.clear();
 }
 
-module.exports = {
-  status,
-  appendEvent,
-  syncMemoryFromDrop,
-  onDemoReset,
-};
+module.exports = { status, appendEvent, syncMemoryFromDrop, onDemoReset };

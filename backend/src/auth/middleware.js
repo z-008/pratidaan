@@ -7,7 +7,7 @@ function requireAuth(req, res, next) {
     return next();
   }
   const user = readRequest(req);
-  if (!user) return res.status(401).json({ success: false, error: 'Sign in with Google' });
+  if (!user) return res.status(401).json({ success: false, error: 'Sign in with Microsoft' });
   req.user = user;
   next();
 }

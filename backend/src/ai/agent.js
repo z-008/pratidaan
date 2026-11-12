@@ -1,7 +1,7 @@
 /**
  * Manual tool-use loop shared by Pratidaan's agents.
  *
- * Runs Gemini with a donor-scoped tool set until it stops calling tools,
+ * Runs Azure OpenAI with a donor-scoped tool set until it stops calling tools,
  * executing tool calls in parallel and returning the final text, the full
  * step trace (for the "how the agent decided" panel) and any UI actions the
  * agent requested via the navigate tool.
@@ -26,13 +26,13 @@ async function runAgent({ feature, system, messages, donorId, toolNames, maxToke
     try {
       response = await llm.call({ feature, system, messages: convo, tools: toolDefs, maxTokens, effort, outputSchema, guardrailKind: 'chat' });
     } catch (error) {
-      // Gemini Flash-Lite occasionally emits a malformed tool call; one retry almost always succeeds
+      // A model can occasionally emit a malformed tool call; one retry usually succeeds.
       if (/MALFORMED_FUNCTION_CALL/.test(error.message) && !retriedMalformed) {
         retriedMalformed = true;
         i -= 1;
         continue;
       }
-      // Gemini sometimes ends with no text right after a tool call. Ask once more for the answer
+      // A model can end with no text after a tool call. Ask once more for the answer.
       // (in the same turn as the tool results); if it is still empty, the caller answers from rules.
       if (i > 0 && !outputSchema && /no content/.test(error.message)) {
         const last = convo[convo.length - 1];

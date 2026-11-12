@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const { authDisabled, SESSION_MS } = require('../src/auth/policy');
 const { sign, verify } = require('../src/auth/session');
-const { acceptGoogleProfile } = require('../src/auth/googleProfile');
+const { profile } = require('../src/auth/microsoft');
 
 test('local auth bypass is ignored in production', () => {
   const previous = { node: process.env.NODE_ENV, flag: process.env.AUTH_DISABLED };
@@ -28,7 +28,7 @@ test('a session lasts one day and then must be signed in again', () => {
   assert.equal(verify(issued.token, now + SESSION_MS), null);
 });
 
-test('a guest session is signed and verified without Firestore fields', () => {
+test('a guest session is signed and verified without Azure account fields', () => {
   process.env.SESSION_SECRET = 'test-secret';
   const now = Date.parse('2026-10-11T10:00:00Z');
   const issued = sign({ sub: 'guest-abc', email: 'guest@tracedrop.app', name: 'Guest', guest: true }, now);
@@ -44,11 +44,10 @@ test('a tampered session cookie is rejected', () => {
   assert.equal(verify(`${body}.not-the-signature`), null);
 });
 
-test('only a verified Google account is accepted', () => {
-  const good = acceptGoogleProfile({
-    iss: 'https://accounts.google.com', sub: '9', email: 'a@gmail.com', email_verified: true, name: 'A',
-  });
-  assert.equal(good.email, 'a@gmail.com');
-  assert.throws(() => acceptGoogleProfile({ iss: 'https://accounts.google.com', sub: '9', email: 'a@gmail.com', email_verified: false }), /verified Google email/);
-  assert.throws(() => acceptGoogleProfile({ iss: 'https://example.com', sub: '9', email: 'a@gmail.com', email_verified: true }), /Google account/);
+test('only a Microsoft token from its tenant issuer is accepted', () => {
+  const good = profile({ tid: 'tenant-1', iss: 'https://login.microsoftonline.com/tenant-1/v2.0', oid: '9', preferred_username: 'a@example.com', name: 'A' });
+  assert.equal(good.email, 'a@example.com');
+  assert.equal(good.sub, 'tenant-1:9');
+  assert.throws(() => profile({ tid: 'tenant-1', iss: 'https://example.com', oid: '9', preferred_username: 'a@example.com' }), /issuer/);
+  assert.throws(() => profile({ tid: 'tenant-1', iss: 'https://login.microsoftonline.com/tenant-1/v2.0', oid: '9' }), /email/);
 });

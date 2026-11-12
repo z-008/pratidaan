@@ -1,0 +1,24 @@
+# Local Pratidaan configuration. ./run.sh copies this file to .env once.
+NODE_ENV=development
+AUTH_DISABLED=true
+SESSION_SECRET=local-development-only-change-before-sharing
+
+# Optional Microsoft sign-in on localhost. Set AUTH_DISABLED=false when used.
+AZURE_CLIENT_ID=
+AZURE_AUTHORITY=https://login.microsoftonline.com/common
+
+# Optional Azure OpenAI local testing. Prefer `az login` plus a temporary token;
+# production uses the App Service managed identity and never needs an API key.
+AZURE_OPENAI_ENDPOINT=
+AZURE_OPENAI_DEPLOYMENT=pratidaan-chat
+AZURE_OPENAI_API_VERSION=2024-10-21
+AZURE_ACCESS_TOKEN=
+
+# Leave storage unset locally to use the in-memory account repository.
+AZURE_STORAGE_ACCOUNT=
+AZURE_STORAGE_CONTAINER=pratidaan-data
+
+# Conservative per-process safeguards for Azure-credit use.
+LLM_RATE_LIMIT_RPS=2
+LLM_RATE_LIMIT_TOKENS_PER_DAY=20000
+LLM_MAX_CALLS_PER_DAY=100

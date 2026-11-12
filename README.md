@@ -4,9 +4,9 @@
 
 Pratidaan is an app for voluntary blood donors in India. A donation is split into parts (red cells, platelets, plasma) that reach different patients. Pratidaan follows each part and tells the donor when it helps someone, without ever revealing who. The same donation's sample doubles as a health check. Drop, Pratidaan's assistant, uses it to keep the donor well until they can give again, and a good health record can raise their health-insurance cover. Those are the reasons a donor comes back.
 
-- **Live prototype:** https://pratidaan-533106233193.asia-south1.run.app (Cloud Run **`pratidaan`**, asia-south1). Sign in with Google or **Continue as guest**. Judge briefing: attach [docs/05-submission/judge-instructions.html](docs/05-submission/judge-instructions.html) to your submission email (not served in the app).
+- **Azure deployment:** provision with [docs/AZURE_SETUP.md](docs/AZURE_SETUP.md). The app supports Microsoft sign-in or **Continue as guest**.
 - **Licence:** [MIT](LICENSE)
-- **Theme:** Sustainability & Social Impact (H2S × Google Cloud Gen AI hackathon)
+- **Origin:** Sustainability & Social Impact prototype, now migrated to an Azure-only runtime.
 - **Data:** entirely synthetic: 300 donors, 657 donation visits, 1,627 blood components and 8,541 lab results, generated with seed 42. Institutions, insurers and people are fictional. Nothing is sent to a blood centre, clinic or insurer.
 
 ## What a donor gets
@@ -15,7 +15,7 @@ Pratidaan is an app for voluntary blood donors in India. A donation is split int
 2. **Health between donations.** Drop explains each donation's results in plain words. A finding worth acting on becomes a **Goal** with one target and two or three steps, each citing the protocol or guidance behind it. Drop checks in every two weeks, offers check-up slots, sets reminders the donor asks for, and says when they can donate again. It sends at most one new Card a day and is silent at night.
 3. **Better cover for staying healthy** (illustrative). Like a credit limit that rises with good repayment, the modelled health-insurance cover steps up (₹5 lakh → 6 → 7 → 8) at the same premium as the health score holds. It needs two monitored visits in 12 months and the donor's consent, and only the score is ever shared.
 
-Around the donor: an **ecosystem view** (what all donors' blood did for blood centres, hospitals, labs and public health), guided **booking** with an optional Google Calendar event, and **Your data**, which shows everything kept and deletes any of it.
+Around the donor: an **ecosystem view** (what all donors' blood did for blood centres, hospitals, labs and public health), guided **booking** with an optional Microsoft Calendar event, and **Your data**, which shows everything kept and deletes any of it.
 
 ## Try it
 
@@ -35,7 +35,7 @@ The team guide in [docs/drop/](docs/drop/README.md) has 20 click-through test sc
 
 ## Where AI is used, and where it isn't
 
-All AI runs on **Gemini 3.1 Flash-Lite on Vertex AI**. If Gemini isn't configured or available, every feature still works: each one has a rule-based fallback and says so.
+All AI runs through **Azure OpenAI** using the web app's managed identity. If Azure OpenAI isn't configured or available, features with deterministic fallbacks continue to work and say so.
 
 | Feature | Where | What the model does |
 |---|---|---|
@@ -73,7 +73,9 @@ docker compose up --build
 # open http://localhost:5173
 ```
 
-`run.sh` copies `.env.example` to `.env` on first run. For local use without the Google login page, set `AUTH_DISABLED=true` and `NODE_ENV=development` in `.env`. To use Gemini from a laptop, follow [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md). Deployment is in [docs/CLOUD_RUN_VERTEX_SETUP.md](docs/CLOUD_RUN_VERTEX_SETUP.md).
+`run.sh` copies `azure.config.example` to `.env` on first run. For local use without Microsoft sign-in, keep `AUTH_DISABLED=true` and `NODE_ENV=development`. Azure deployment and CLI setup are in [docs/AZURE_SETUP.md](docs/AZURE_SETUP.md).
+
+For Azure CLI setup, run `./scripts/setup-azure-cli.sh`. Deployment remains blocked until you explicitly confirm the selected free-credit subscription has **Spending limit: On**.
 
 ## Architecture in brief
 
@@ -82,16 +84,17 @@ frontend/           React 19 + Vite + TypeScript + Recharts: the donor app
 backend/src/
   domain/           deterministic engines: health, eligibility, cover, impact (privacy), Circles,
                     Drop (Cards, budget, Goals), Intro, Stories, Badges, booking rank, concerns
-  ai/               Vertex AI gateway (rate limit, daily budgets, traces), agent loop, 19 tools,
+  ai/               Azure OpenAI gateway (rate limits, daily budgets, traces), agent loop, 19 tools,
                     Drop's chat, lab reader, Intro translation, Card wording, home insight
-  auth/             Google sign-in, guest sessions, Firestore records, "Your data" deletes
-  booking/ calendar/  slot booking, Google Calendar event and Gmail confirmation
+  auth/             Microsoft Entra sign-in, guest sessions, Azure records, "Your data" deletes
+  booking/ calendar/  slot booking, Microsoft Calendar event and Graph email confirmation
+  azure/            managed identity, private Blob Storage and account repository
   data/store.js     in-memory store over data/synthetic plus data/demo, and the demo clock
   routes/           REST API under /api
 data/               synthetic world (generate.py), demo overlay and seed, clinical protocols
 ```
 
-One container serves the API and the built app. GitHub Actions tests, builds and deploys every push to `main` to Cloud Run service **`pratidaan`** (asia-south1). Signed-in account data uses **Cloud Firestore** only — not Firebase Auth, Hosting, or other Firebase products. Full details are in [docs/03-architecture.md](docs/03-architecture.md).
+One Node process serves the API and built app from Azure App Service F1. GitHub Actions deploys with Azure OIDC and no stored cloud secret. Signed-in account data uses private Azure Blob Storage. Azure OpenAI and Blob access use the app's system-assigned managed identity.
 
 ## Tests
 
@@ -108,6 +111,7 @@ cd frontend && npm run type-check
 | [docs/01-problem-brief.md](docs/01-problem-brief.md) | The problem, who it's for, why Gen AI, trust and open questions |
 | [docs/02-product.md](docs/02-product.md) | What the app does, screen by screen; what is real and what is simulated; what isn't built |
 | [docs/03-architecture.md](docs/03-architecture.md) | How it is built: modules, rules, AI layer, data, API, security, deployment |
+| [docs/AZURE_SETUP.md](docs/AZURE_SETUP.md) | Azure CLI, free-credit guardrails, provisioning, deployment and GitHub OIDC |
 | [docs/04-pitch/](docs/04-pitch/) | Pitch narrative and deck (HTML and PDF) |
 | [docs/05-submission/](docs/05-submission/) | Submission checklist and demo video script |
 | [docs/drop/](docs/drop/README.md) | Team guide to Drop, with test scripts |

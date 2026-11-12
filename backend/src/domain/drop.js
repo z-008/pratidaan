@@ -7,7 +7,7 @@
  * rewrites the wording of open Cards; it never decides what is sent or when.
  *
  * State lives in memory per Donor, starts from data/demo/drop-seed.json and
- * resets with the demo clock. Pending after the demo: move it to Firestore.
+ * resets with the demo clock. Account-level data is persisted separately in Azure.
  */
 
 const store = require('../data/store');
@@ -772,7 +772,7 @@ function cancelBooking(donorId, bookingId, { reschedule = false } = {}) {
   const st = get(donorId);
   const b = st.bookings.find((x) => x.id === bookingId);
   if (!b) throw new Error('Booking not found');
-  if (b.kind === 'donate' && b.guided) throw new Error('To change or cancel this guided donation booking, use Donate. Any connected Google Calendar event must be handled there.');
+  if (b.kind === 'donate' && b.guided) throw new Error('To change or cancel this guided donation booking, use Donate. Any connected Microsoft Calendar event must be handled there.');
   st.bookings = st.bookings.filter((x) => x.id !== bookingId);
   // The "How did it go?" check-in for a cancelled visit never comes
   st.events.filter((e) => e.key === `postvisit:${bookingId}` && e.status === 'pending').forEach((e) => { e.status = 'cancelled'; });

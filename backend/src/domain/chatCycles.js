@@ -1,7 +1,7 @@
 /**
- * Demo-cycle chat history per signed-in account (guest sub or Google sub) and persona.
+ * Demo-cycle chat history per signed-in account (guest or Microsoft subject) and persona.
  * One "cycle" runs from timeline start until Reset. Past cycles are read-only archives.
- * Vertex Agent Engine Sessions mirror when configured (see agentPlatform.js).
+ * Azure Blob Storage mirrors events when configured (see agentPlatform.js).
  */
 
 const store = require('../data/store');
@@ -22,7 +22,7 @@ function accountSub(user) {
   return String(user.sub || 'anonymous');
 }
 
-/** Stable key: one browser session / Google account × demo persona. */
+/** Stable key: one browser session / Microsoft account × demo persona. */
 function scopeKey(user, donorId) {
   return `${accountSub(user)}|${donorId}`;
 }
@@ -135,7 +135,7 @@ function getPast(user, donorId, id) {
   return c;
 }
 
-/** Session id for Vertex Agent Engine (account × persona). */
+/** Session id for the Azure agent log (account x persona). */
 function agentSessionUserId(user, donorId) {
   return scopeKey(user, donorId);
 }

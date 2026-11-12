@@ -262,7 +262,7 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
                 <div className="sheet-empty">
                   <Icon name="history" size={28} />
                   <b>No cycles yet</b>
-                  <span className="small muted">Chat with Drop in General or a Goal — turns show under <strong>This cycle</strong>. Use <strong>Reset</strong> on the demo bar to archive them here (read-only). Vertex Agent Sessions mirror chat separately for compliance; this view is in-app history.</span>
+                  <span className="small muted">Chat with Drop in General or a Goal — turns show under <strong>This cycle</strong>. Use <strong>Reset</strong> on the demo bar to archive them here (read-only). Azure storage mirrors agent session events when configured.</span>
                 </div>
               );
             }

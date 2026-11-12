@@ -1,4 +1,4 @@
-/** Accounts that never touch Firestore: local dev bypass and guest browsers. */
+/** Accounts that never touch Azure storage: local dev bypass and guest browsers. */
 const { authDisabled } = require('./policy');
 
 function isGuest(user) {

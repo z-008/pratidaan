@@ -8,7 +8,7 @@
  *
  * Evidence comes only from data/ontology: the lead finding's protocol and the
  * lifestyle guidance. Grouping, the target and the order stay with goals.js.
- * The AI version waits on team decision D1 (Google Cloud's "no clinical purposes"
+ * The AI version waits on team decision D1 (Microsoft Azure's "no clinical purposes"
  * term); this rules version is what ships without it, and stays its fallback.
  */
 

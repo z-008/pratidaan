@@ -1,4 +1,4 @@
-/** One-day sessions. Local bypass never applies on Cloud Run. */
+/** One-day sessions. Local bypass never applies in the Azure production app. */
 const SESSION_MS = 24 * 60 * 60 * 1000;
 
 function authDisabled() {

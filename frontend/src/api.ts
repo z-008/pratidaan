@@ -175,7 +175,7 @@ export interface AuthUser {
   guest?: boolean;
 }
 
-/** What "Your data" shows about the Google account: profile, sign-in history and every booking. */
+/** What "Your data" shows about the Microsoft account: profile, sign-in history and every booking. */
 export interface AccountBooking { id: string; donorId: string; date: string; time: string; centre: string; district: string; status: string; calendar: boolean }
 export interface AccountData {
   local: boolean; guest?: boolean; name: string; email: string; picture: string;
@@ -306,9 +306,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const post = <T,>(path: string, data?: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(data || {}) });
 
 export const api = {
-  authConfig: () => request<{ authDisabled: boolean; clientId: string; sessionMinutes: number }>('/auth/config'),
+  authConfig: () => request<{ authDisabled: boolean; clientId: string; authority: string; sessionMinutes: number }>('/auth/config'),
   me: () => request<AuthUser>('/auth/me'),
-  googleSignIn: (credential: string) => post<AuthUser>('/auth/google', { credential }),
+  microsoftSignIn: (credential: string) => post<AuthUser>('/auth/microsoft', { credential }),
   guestSignIn: () => post<AuthUser>('/auth/guest'),
   logout: () => post<{ signedOut: boolean }>('/auth/logout'),
   preferences: () => request<BookingPreferences | null>('/auth/preferences'),

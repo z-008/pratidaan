@@ -1,6 +1,6 @@
 /**
  * "Your data": reading what is kept and deleting it, on the local path (sign-in off,
- * everything in the server's memory). The Firestore deletes run only on the live site.
+ * everything in the server's memory). Azure Blob deletes run only on the live site.
  */
 
 const test = require('node:test');

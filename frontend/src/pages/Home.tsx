@@ -11,7 +11,7 @@ import { introFocus } from '../components/intro/Intro';
 // The tiles each Intro step talks about; on the "Your data" step the account chip pulses instead
 const INTRO_TILES: Record<string, string[]> = { journey: ['helped'], health: ['score', 'checkup'], choices: ['cover'], donate: ['next'] };
 
-/** The New donor is the signed-in person themself: greet them by their Google first name ("Hello" with sign-in off). */
+/** The New donor is the signed-in person themself: greet them by their Microsoft first name ("Hello" with sign-in off). */
 function greeting(donor: { name: string; newUser?: boolean }, user: AuthUser) {
   if (!donor.newUser) return `Hello, ${donor.name.split(' ')[0]}`;
   const first = !user.local && !user.guest && user.name ? user.name.split(' ')[0] : '';

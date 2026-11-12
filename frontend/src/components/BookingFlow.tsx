@@ -232,9 +232,9 @@ export default function BookingFlow({ donorId, clientId, onBooked, onClose }: {
             </button>
           ))}
           {clientId && !token && slots.length > 0 && (
-            <button className="btn btn-ghost btn-sm" disabled={busy} onClick={connectCalendar}><Icon name="calendar" size={14} /> Hide times I am busy (connect Google Calendar)</button>
+            <button className="btn btn-ghost btn-sm" disabled={busy} onClick={connectCalendar}><Icon name="calendar" size={14} /> Hide times I am busy (connect Microsoft Calendar)</button>
           )}
-          {token && <div className="tiny muted">Your Google Calendar was checked. Busy times are hidden.</div>}
+          {token && <div className="tiny muted">Your Microsoft Calendar was checked. Busy times are hidden.</div>}
           <div className="row"><button className="btn" onClick={() => setStep('when')}>Change date or time</button></div>
         </div>
       )}
@@ -245,7 +245,7 @@ export default function BookingFlow({ donorId, clientId, onBooked, onClose }: {
           <div className="bflow-summary">
             <div><Icon name="calendar" size={15} /> {fmtDate(chosen.date)} at {chosen.time} (about 45 minutes)</div>
             <div><Icon name="pin" size={15} /> {chosen.centre}, {chosen.district}{chosen.distanceKm != null ? ` · ${chosen.distanceKm} km` : ''}</div>
-            <div><Icon name="info" size={15} /> This is not a reservation with the centre. {token ? 'With your consent, we also try to add a real Google Calendar event and send an email.' : 'You can add an optional calendar reminder on the next screen.'}</div>
+            <div><Icon name="info" size={15} /> This is not a reservation with the centre. {token ? 'With your consent, we also try to add a real Microsoft Calendar event and send an email.' : 'You can add an optional calendar reminder on the next screen.'}</div>
           </div>
           <div className="row">
             <button className="btn" onClick={() => setStep('slots')}>Back</button>

@@ -25,8 +25,8 @@ Every doc describes the build on `main` as of 16 Oct 2026 unless it says otherwi
 
 | Doc | What it covers |
 |---|---|
-| [RUN_LOCALLY.md](RUN_LOCALLY.md) | `./run.sh` or Docker, Gemini from a laptop, optional sign-in and Calendar |
-| [CLOUD_RUN_VERTEX_SETUP.md](CLOUD_RUN_VERTEX_SETUP.md) | One-time Google Cloud and GitHub setup, what each deploy sets, how to check it |
+| [RUN_LOCALLY.md](RUN_LOCALLY.md) | `./run.sh`, optional Azure OpenAI, Microsoft sign-in and Graph |
+| [AZURE_SETUP.md](AZURE_SETUP.md) | Azure CLI, free-credit guardrails, Azure provisioning and GitHub OIDC |
 | [AGENT_PLATFORM_SETUP.md](AGENT_PLATFORM_SETUP.md) | Minimal Agent Engine instance + Sessions/Memory Bank (no full agent deploy), env vars, cost controls |
 | [../data/ontology/README.md](../data/ontology/README.md) | The clinical protocols and guidance the rules cite |
 

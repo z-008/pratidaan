@@ -1,0 +1,64 @@
+name: Deploy Pratidaan to Azure
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: pratidaan-azure-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Test backend
+        run: |
+          npm ci --prefix backend
+          npm test --prefix backend
+      - name: Build frontend
+        run: |
+          npm ci --prefix frontend
+          npm run type-check --prefix frontend
+          npm run build --prefix frontend
+      - name: Build Azure release package
+        run: |
+          npm prune --omit=dev --prefix backend
+          mkdir -p release/backend release/frontend release/data
+          cp -R backend/src backend/node_modules backend/package.json release/backend/
+          cp -R frontend/dist release/frontend/
+          cp -R data/synthetic data/ontology data/demo release/data/
+          cd release
+          zip -qr ../pratidaan-azure.zip backend frontend data
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: pratidaan-azure.zip
+      - name: Check deployed service
+        run: |
+          HOST="$(az webapp show --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_WEBAPP_NAME" --query defaultHostName -o tsv)"
+          curl --fail --show-error --retry 8 --retry-delay 10 "https://${HOST}/api/health"

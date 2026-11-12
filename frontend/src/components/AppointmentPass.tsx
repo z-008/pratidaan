@@ -18,7 +18,7 @@ function details(a: Appointment) {
 
 const icsTime = (ms: number) => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
-/** A calendar file with an alarm 1 day before, for people who did not connect Google Calendar. */
+/** A calendar file with an alarm 1 day before, for people who did not connect Microsoft Calendar. */
 function icsFile(a: Appointment) {
   const start = Date.parse(`${a.date}T${a.time}:00+05:30`);
   const lines = [
@@ -70,9 +70,9 @@ export default function AppointmentPass({ appointment: a, compact }: { appointme
           {!a.eventId && <button className="btn btn-sm" onClick={download}><Icon name="calendar" size={14} /> Add to calendar</button>}
         </div>
         <div className="tiny muted mt-8">
-          <Icon name="info" size={12} /> {a.calendarError ? 'Google Calendar may not have saved this event; check your calendar before relying on reminders.' : a.eventId ? 'Added to your Google Calendar; any reminder depends on its settings.' : 'Add the optional calendar file to set a reminder on your device.'}
+          <Icon name="info" size={12} /> {a.calendarError ? 'Microsoft Calendar may not have saved this event; check your calendar before relying on reminders.' : a.eventId ? 'Added to your Microsoft Calendar; any reminder depends on its settings.' : 'Add the optional calendar file to set a reminder on your device.'}
         </div>
-        {a.calendarError && <div className="tiny muted mt-8">Google Calendar could not be confirmed: {a.calendarError}. Your slot remains saved.</div>}
+        {a.calendarError && <div className="tiny muted mt-8">Microsoft Calendar could not be confirmed: {a.calendarError}. Your slot remains saved.</div>}
         {a.emailError && <div className="tiny muted mt-8">No confirmation email was sent: {a.emailError}.</div>}
         {!compact && <div className="tiny faint mt-8">{PREP}</div>}
       </div>

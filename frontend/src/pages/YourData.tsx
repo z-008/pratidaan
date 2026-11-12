@@ -14,11 +14,11 @@ import { CHOICE_TEXT, ChoiceSwitch, type ChoiceKey } from '../components/Choices
 import './YourData.css';
 
 /** What happens to an item when you don't delete it here. */
-type Fate = 'account' | 'expires' | 'google' | 'centre' | 'booking' | 'above' | 'nothing';
+type Fate = 'account' | 'expires' | 'microsoft' | 'centre' | 'booking' | 'above' | 'nothing';
 const FATE: Record<Fate, { label: string; cls: string; icon: string }> = {
   account: { label: 'Goes when you delete your account', cls: 'pill-neutral', icon: 'lock' },
   expires: { label: 'Deletes itself', cls: 'pill-good', icon: 'clock' },
-  google: { label: 'You delete it in Google', cls: 'pill-warn', icon: 'globe' },
+  microsoft: { label: 'You delete it in Microsoft', cls: 'pill-warn', icon: 'globe' },
   centre: { label: 'Stays with the blood centre', cls: 'pill-neutral', icon: 'hospital' },
   booking: { label: 'Goes with its booking', cls: 'pill-neutral', icon: 'calendar' },
   above: { label: 'Change them above', cls: 'pill-ai', icon: 'arrow' },
@@ -133,7 +133,7 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
     setError('');
     let run = row.remove.run;
     if (row.remove.before) {
-      // e.g. a booking with a Calendar event: Google asks for Calendar access now, while you're here
+      // A booking with a Calendar event asks for Microsoft Graph access while the user is here.
       setBusy(true);
       try { run = await row.remove.before(); } catch (e) { setError((e as Error).message); return; } finally { setBusy(false); }
     }
@@ -159,9 +159,9 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
   const view = drop.data;
   const visible = (rows: Row[]) => rows.filter((r) => !gone.has(r.id));
 
-  // ---- With the Google account
-  const googleRows: Row[] = [
-    { id: 'profile', what: 'Name, email and photo', detail: a.local ? 'Sign-in is off on this computer, so there is no Google profile' : `${a.name} · ${a.email} · from your Google sign-in`, kept: a.local ? undefined : 'Until you delete your account', fate: a.local ? 'nothing' : 'account' },
+  // ---- With the Microsoft account
+  const accountRows: Row[] = [
+    { id: 'profile', what: 'Name and email', detail: a.local ? 'Sign-in is off on this computer, so there is no Microsoft profile' : `${a.name} · ${a.email} · from your Microsoft sign-in`, kept: a.local ? undefined : 'Until you delete your account', fate: a.local ? 'nothing' : 'account' },
     a.signIns
       ? { id: 'signins', what: 'Sign-in history', detail: `${a.signIns} sign-in${a.signIns === 1 ? '' : 's'}${a.firstSeen ? ` since ${fmtWhen(a.firstSeen)}` : ''}, each with the time and your browser${a.lastBrowser ? ` (last: ${a.lastBrowser})` : ''}`, kept: 'Until you delete it', remove: { label: 'Delete history', toast: 'Sign-in history deleted', run: () => api.deleteSignIns() } }
       : { id: 'signins', what: 'Sign-in history', detail: a.local ? 'Sign-in is off on this computer, so no sign-ins are recorded' : 'None kept', fate: 'nothing' },
@@ -172,7 +172,7 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
       const upcoming = b.status === 'booked';
       return {
         id: `booking-${b.id}`, what: `Donation booking, ${fmtDay(b.date)}`,
-        detail: `${b.centre}, ${b.time} · ${upcoming ? 'coming up (deleting cancels it first)' : b.status}${b.calendar && upcoming ? ' · in your Google Calendar' : ''}`,
+        detail: `${b.centre}, ${b.time} · ${upcoming ? 'coming up (deleting cancels it first)' : b.status}${b.calendar && upcoming ? ' · in your Microsoft Calendar' : ''}`,
         kept: 'Until you delete it (cancelling keeps the record)',
         remove: {
           label: 'Delete', toast: `Booking on ${fmtDay(b.date)} deleted`, run: () => api.deleteBooking(b.id),
@@ -182,12 +182,12 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
     }),
   ];
 
-  // ---- In your own Google account
+  // ---- In your own Microsoft account
   const events = a.bookings.filter((b) => b.calendar && b.status !== 'cancelled').length;
-  const inGoogleRows: Row[] = [
-    { id: 'calendar', what: 'Calendar events Pratidaan added', detail: events ? `${events} event${events === 1 ? '' : 's'}, for bookings made with Google Calendar connected. Deleting a booking, or your account, removes them (Google asks for Calendar access once more).` : 'None: no booking was made with Google Calendar connected', kept: events ? 'Until removed' : undefined, fate: events ? 'booking' : 'nothing' },
-    { id: 'gmail', what: 'Booking confirmation emails', detail: 'Sent from your Gmail to yourself, so they are in Sent and Inbox. Pratidaan can send mail for you, but not read or delete it.', kept: 'Until you delete them', link: { label: 'Open Gmail', href: 'https://mail.google.com' } },
-    { id: 'access', what: "Pratidaan's access to your Google account", detail: 'Sign-in, and the Calendar and send-email permissions you allowed', kept: 'Until you remove it', link: { label: 'Google Account settings', href: 'https://myaccount.google.com/connections' } },
+  const inMicrosoftRows: Row[] = [
+    { id: 'calendar', what: 'Calendar events Pratidaan added', detail: events ? `${events} event${events === 1 ? '' : 's'}, for bookings made with Microsoft Calendar connected. Deleting a booking, or your account, removes them after Microsoft asks for Calendar access once more.` : 'None: no booking was made with Microsoft Calendar connected', kept: events ? 'Until removed' : undefined, fate: events ? 'booking' : 'nothing' },
+    { id: 'gmail', what: 'Booking confirmation emails', detail: 'Sent from your Outlook to yourself, so they are in Sent and Inbox. Pratidaan can send mail for you, but not read or delete it.', kept: 'Until you delete them', link: { label: 'Open Outlook', href: 'https://outlook.live.com/mail/' } },
+    { id: 'access', what: "Pratidaan's access to your Microsoft account", detail: 'Sign-in, and the Calendar and send-email permissions you allowed', kept: 'Until you remove it', link: { label: 'Microsoft Account settings', href: 'https://account.live.com/consent/Manage' } },
   ];
 
   // ---- The demo donor (shared, in server memory)
@@ -207,8 +207,8 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
 
   // ---- Kept elsewhere, deleted on a timer
   const fixedRows = {
-    ai: [{ id: 'gemini', what: 'What you type to Drop, and lab report photos', detail: "Used only to answer you. Google doesn't train its AI on it, and it never gets your name or email.", kept: 'Up to 24 hours; up to 90 days only if Google flags it for an abuse check', fate: 'expires' as Fate }],
-    logs: [{ id: 'logs', what: 'Pages and actions you used, your IP address and browser', detail: 'Kept to find errors and stop misuse', kept: '30 days, then deleted automatically', fate: 'expires' as Fate }],
+    ai: [{ id: 'azure-openai', what: 'What you type to Drop, and lab report photos', detail: "Used only to answer you. Microsoft states it is not used to train foundation models, and the model never gets your name or email.", kept: 'Up to 30 days for Azure abuse monitoring, depending on account configuration', fate: 'expires' as Fate }],
+    logs: [{ id: 'logs', what: 'Application errors and request diagnostics', detail: 'Capped rolling logs in Azure App Service', kept: 'Until the rolling cap replaces them', fate: 'expires' as Fate }],
   };
   const saved = browserKeys();
   const browserRows: Row[] = [
@@ -227,7 +227,7 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
         </div>
       </div>
       <div className="yd-facts">
-        <span><Icon name="lock" size={15} /> Kept in Google Cloud</span>
+        <span><Icon name="lock" size={15} /> Kept in Microsoft Azure</span>
         <span><Icon name="sparkles" size={15} /> The AI doesn't learn from it</span>
         <span><Icon name="x" size={15} /> Delete anything with a button</span>
       </div>
@@ -239,16 +239,16 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
         {choices && (Object.keys(CHOICE_TEXT) as ChoiceKey[]).map((k) => <ChoiceSwitch key={k} donorId={donorId} choice={k} on={choices[k]} onChanged={consent.reload} />)}
       </section>
 
-      <Group icon="lock" title="With your Google account" where={a.local ? "This computer's server memory (sign-in is off)" : 'Google Cloud database (Firestore)'}
-        rows={visible(googleRows)} onRemove={remove} busy={busy} />
-      <Group icon="globe" title="In your own Google account" where="Your Google Calendar, Gmail and account settings" rows={visible(inGoogleRows)} onRemove={remove} busy={busy} />
+      <Group icon="lock" title="With your Microsoft account" where={a.local ? "This computer's server memory (sign-in is off)" : 'Azure Blob Storage'}
+        rows={visible(accountRows)} onRemove={remove} busy={busy} />
+      <Group icon="globe" title="In your own Microsoft account" where="Your Microsoft Calendar, Outlook and account settings" rows={visible(inMicrosoftRows)} onRemove={remove} busy={busy} />
       <Group icon="drop" title={`Donor you're viewing: ${donorName}`} where="Pratidaan's server memory, shared"
         note={overview.data?.donor.newUser
           ? 'Everyone using this preview shares the New donor; it resets when the timeline resets. In the real app this would be yours alone.'
           : `${donorName} is made up. Everyone using this preview shares the same ${donorName}; it resets when the timeline resets. In the real app this would be yours alone.`}
         rows={donorVisible} empty={donorVisible.length <= 1 ? 'Nothing else is kept for this donor yet.' : undefined} onRemove={remove} busy={busy} />
-      <Group icon="sparkles" title="Sent to Google's Gemini AI" where="Google Cloud (Vertex AI)" rows={fixedRows.ai} onRemove={remove} busy={busy} />
-      <Group icon="doc" title="Server logs" where="Google Cloud Logging" rows={fixedRows.logs} onRemove={remove} busy={busy} />
+      <Group icon="sparkles" title="Sent to Azure OpenAI" where="Microsoft Azure" rows={fixedRows.ai} onRemove={remove} busy={busy} />
+      <Group icon="doc" title="Server logs" where="Azure App Service logging" rows={fixedRows.logs} onRemove={remove} busy={busy} />
       <Group icon="cpu" title="This browser" where="Your browser on this device" rows={visible(browserRows)} onRemove={remove} busy={busy} />
 
       <DeleteAccount user={user} account={a} clientId={clientId} donorName={donorName} onDeleted={(result) => { pending.current = null; clearBrowserData(); onAccountDeleted(result); }} />
@@ -296,7 +296,7 @@ function DeleteAccount({ user, account, clientId, donorName, onDeleted }: { user
       <div className="card-title" style={{ color: 'var(--bad)' }}>Delete my account</div>
       {!open ? (
         <div className="row between wrap" style={{ gap: 12 }}>
-          <span className="small muted">Removes everything Pratidaan keeps with your Google account{user.local ? '' : ' and signs you out'}.</span>
+          <span className="small muted">Removes everything Pratidaan keeps with your Microsoft account{user.local ? '' : ' and signs you out'}.</span>
           <button className="btn yd-danger-btn" onClick={() => setOpen(true)}>Delete my account…</button>
         </div>
       ) : (
@@ -305,28 +305,28 @@ function DeleteAccount({ user, account, clientId, donorName, onDeleted }: { user
             <div>
               <h4><Icon name="x" size={14} /> Deleted straight away</h4>
               <ul>
-                <li>Your name, email and photo</li>
+                <li>Your name and email</li>
                 <li>Your sign-in history</li>
                 <li>Your donation preferences</li>
                 <li>Your bookings (upcoming ones are cancelled first)</li>
                 <li>What this browser saved</li>
               </ul>
               {offerCalendar && (
-                <label className="yd-check"><input type="checkbox" checked={calendar} onChange={(e) => setCalendar(e.target.checked)} /><span>Also remove my Google Calendar events <span className="tiny muted">(asks for Calendar access once more)</span></span></label>
+                <label className="yd-check"><input type="checkbox" checked={calendar} onChange={(e) => setCalendar(e.target.checked)} /><span>Also remove my Microsoft Calendar events <span className="tiny muted">(asks for Calendar access once more)</span></span></label>
               )}
             </div>
             <div>
               <h4><Icon name="clock" size={14} /> Deletes itself later</h4>
               <ul>
-                <li>Copies at Google's Gemini AI: within 24 hours, or 90 days if flagged for an abuse check</li>
-                <li>Server logs: within 30 days</li>
+                <li>Azure OpenAI abuse-monitoring data: according to the Azure account configuration</li>
+                <li>Server logs: when the rolling storage cap replaces them</li>
               </ul>
             </div>
             <div>
               <h4><Icon name="globe" size={14} /> You delete it yourself</h4>
               <ul>
-                <li>Confirmation emails in your Gmail</li>
-                <li>Pratidaan's access, in your Google Account settings</li>
+                <li>Confirmation emails in your Outlook</li>
+                <li>Pratidaan's access, in your Microsoft Account settings</li>
               </ul>
               <p className="tiny muted">The donor {donorName} is shared in this preview, so its records and choices stay.</p>
             </div>
@@ -360,8 +360,8 @@ export function AccountDeletedView({ result, onDone }: { result: AccountDeleted;
             This browser's saved data was cleared and you've been signed out. Signing in again starts a fresh account.
           </p>
         )}
-        {result.calendarFailed > 0 && <p className="small" style={{ color: 'var(--warn)' }}>{result.calendarFailed} Calendar event{result.calendarFailed === 1 ? '' : 's'} could not be removed. You can delete {result.calendarFailed === 1 ? 'it' : 'them'} in Google Calendar.</p>}
-        <p className="tiny muted">Still to go on their own: copies at Google's Gemini AI within 24 hours (up to 90 days if flagged for an abuse check) and server logs within 30 days. Confirmation emails in your Gmail stay until you delete them.</p>
+        {result.calendarFailed > 0 && <p className="small" style={{ color: 'var(--warn)' }}>{result.calendarFailed} Calendar event{result.calendarFailed === 1 ? '' : 's'} could not be removed. You can delete {result.calendarFailed === 1 ? 'it' : 'them'} in Microsoft Calendar.</p>}
+        <p className="tiny muted">Azure OpenAI abuse-monitoring data follows the Azure account's retention settings. Confirmation emails in Outlook stay until you delete them.</p>
         <button className="btn btn-primary" onClick={onDone}>{result.local ? 'Back to Pratidaan' : 'Back to sign in'}</button>
       </div>
     </div>

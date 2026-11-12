@@ -17,7 +17,7 @@ const { requireAuth } = require('./auth/middleware');
 const app = express();
 const FRONTEND_DIST = path.join(__dirname, '../../frontend/dist');
 
-// Google sign-in returns its result from a popup, which same-origin COOP would cut off
+// Microsoft sign-in returns from a popup, which same-origin COOP would cut off.
 app.use(helmet({ contentSecurityPolicy: false, crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' } }));
 app.use(cors());
 app.use(express.json({ limit: '8mb' })); // lab report photos arrive as base64
@@ -49,7 +49,7 @@ app.listen(PORT, () => {
   console.log(`Pratidaan API on http://localhost:${PORT}/api`);
   console.log(envLoaded ? `Config: ${ENV_FILE}` : `Config: no .env at ${ENV_FILE} — using shell environment only`);
   console.log(ai.live
-    ? `AI: ${ai.model} via ${ai.endpoint} (budget ${ai.dailyTokenBudget} tokens/day, ${ai.rateLimitRps} req/s)`
+    ? `AI: ${ai.model} via Azure OpenAI (budget ${ai.dailyTokenBudget} tokens/day, ${ai.rateLimitRps} req/s)`
     : `AI offline: ${ai.reason} — rule-based fallbacks active`);
   llm.verify().then((result) => console.log(result.ok ? `AI configured: ${ai.endpoint}; access checked on first request` : `AI check: ${result.reason}`));
 });

@@ -7,7 +7,7 @@
  * the New donor starts it; every other Persona has done it and can't replay it.
  * Answers land where they belong: the language becomes Drop's language, the Choices
  * become the donor's Choices, and "when can you donate" is saved with the signed-in
- * Google account through the same preferences store booking reads.
+ * Microsoft account through the same preferences store booking reads.
  */
 
 const store = require('../data/store');
@@ -113,12 +113,12 @@ function resultsPicture() {
 /** What is kept and where: the same groups as the "Your data" screen. */
 const DATA_PICTURE = {
   rows: [
-    { icon: 'lock', what: 'Your Google name, email and photo, and your sign-ins', where: 'With your Google account, in Google Cloud' },
-    { icon: 'calendar', what: 'When donating suits you, and your bookings', where: 'With your Google account, in Google Cloud' },
+    { icon: 'lock', what: 'Your Microsoft name, email and sign-ins', where: 'With your Microsoft account, in private Azure storage' },
+    { icon: 'calendar', what: 'When donating suits you, and your bookings', where: 'With your Microsoft account, in Microsoft Azure' },
     { icon: 'shield', what: 'Your choices, and things you ask me to remember', where: 'With your profile in this session. I never remember health facts, religion, caste or income' },
     { icon: 'flask', what: 'Donations and test results', where: 'From the blood centre. You have none yet' },
   ],
-  note: "When you chat with me or add a lab report, it goes to Google's Gemini AI to answer you. Google doesn't train its AI on it.",
+  note: "When you chat with me or add a lab report, it goes to Azure OpenAI to answer you. Microsoft states it isn't used to train foundation models.",
 };
 
 const CHOICE_ROWS = [

@@ -31,7 +31,7 @@ export default function AccountMenu({ user, donorLabel, onSignOut, onReplayIntro
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const name = user.local ? 'Local development' : user.guest ? 'Guest' : user.name || user.email;
-  const email = user.local ? 'Sign-in skipped' : user.guest ? 'Browsing without Google sign-in' : user.email;
+  const email = user.local ? 'Sign-in skipped' : user.guest ? 'Browsing without Microsoft sign-in' : user.email;
 
   useEffect(() => {
     if (!open) return undefined;

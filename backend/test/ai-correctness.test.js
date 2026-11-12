@@ -73,7 +73,7 @@ test('a saved reading receipt remains visible if the next model call fails', asy
   let calls = 0;
   llm.call = async () => {
     calls += 1;
-    if (calls > 1) throw new llm.LLMUnavailable('Vertex request failed');
+    if (calls > 1) throw new llm.LLMUnavailable('Azure OpenAI request failed');
     return { stop_reason: 'tool_use', content: [{ type: 'tool_use', id: 'log_reading:0', name: 'log_reading', input: { systolic: 133, diastolic: 84 } }] };
   };
   const result = await runAgent({ feature: 'test', system: '', messages: [{ role: 'user', content: 'My BP is 133/84' }], donorId: 'D-001', toolNames: ['log_reading'] });

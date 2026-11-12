@@ -7,7 +7,7 @@ const FEATURES = [
   { name: 'Drop copilot', kind: 'Agent', where: 'Chat button on every screen',
     why: 'Donors ask open questions that span impact, health and cover ("why didn\'t my cover go up?"). An agent decides which records to pull, combines them, answers in the donor\'s language and can navigate the app.' },
   { name: 'Goal write-up', kind: 'Rules', where: 'Health → a Goal',
-    why: 'Each Goal gets a two-sentence "why this matters" and 2-3 steps, each tagged with a Habit, a doctor or a reading and citing protocol or guidance evidence. Written from rules for now; an AI version waits on the team\'s call on Google Cloud\'s "no clinical purposes" term, and grouping, targets and order always stay rules.' },
+    why: 'Each Goal gets a two-sentence "why this matters" and 2-3 steps, each tagged with a Habit, a doctor or a reading and citing protocol or guidance evidence. Written from rules for now; an AI version waits on the team\'s call on Microsoft Azure\'s "no clinical purposes" term, and grouping, targets and order always stay rules.' },
   { name: 'Lab-report reader', kind: 'GenAI', where: 'Health → Add an outside lab report',
     why: 'Indian labs print results in endless formats, names and units, often as photos. Only a model can read any layout, map synonyms to LOINC codes and convert units reliably; schema-constrained output plus range checks keep it safe.' },
   { name: 'Impact stories', kind: 'Rules', where: 'Impact → a component → Write my story',
@@ -68,7 +68,7 @@ export default function AIConsole() {
             <li>Agents can only call donor-scoped tools; no tool exposes recipient identity or other donors' health.</li>
             <li>Structured outputs (JSON schema) for plans, lab extraction and insights, with local validation on the shared model path.</li>
             <li>Every agent answer shows its tool trace.</li>
-            <li>Local request pacing and daily call/token budgets; some features have rule-based fallback, while outside lab extraction requires AI. Cached token use is reported only if Vertex provides it.</li>
+            <li>Local request pacing and daily call/token budgets; some features have rule-based fallback, while outside lab extraction requires AI. Cached token use is reported when Azure OpenAI provides it.</li>
             <li>No diagnosis or prescribing; urgent findings route to a doctor.</li>
           </ul>
         </Section>

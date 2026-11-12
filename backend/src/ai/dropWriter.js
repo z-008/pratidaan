@@ -1,5 +1,5 @@
 /**
- * Drop's voice: Gemini rewrites the wording of open Cards (at most 3 at a
+ * Drop's voice: Azure OpenAI rewrites the wording of open Cards (at most 3 at a
  * time) in the Donor's language. The rules engine has already decided which
  * Cards exist and what they say; the AI only phrases them. A Card keeps its
  * rule wording if the AI is unavailable or cannot be checked safely.

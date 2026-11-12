@@ -1,17 +1,9 @@
-/** Booking preferences and appointments saved against the signed-in Google account (in memory with sign-in off). */
+/** Booking preferences and appointments stored in Azure Blob Storage. */
+
 const { isEphemeral } = require('./ephemeral');
+const users = require('../azure/userRepository');
 
 const memory = new Map();
-let db;
-
-function firestore() {
-  if (!db) {
-    const { Firestore } = require('@google-cloud/firestore');
-    const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT;
-    db = new Firestore(projectId ? { projectId } : {});
-  }
-  return db;
-}
 
 function memKey(user) {
   if (!user) return 'local';
@@ -21,35 +13,41 @@ function memKey(user) {
 }
 
 async function getPreferences(user) {
-  const key = memKey(user);
-  if (key) return memory.get(key) || null;
-  const snap = await firestore().collection('users').doc(user.sub).get();
-  return snap.exists && snap.data().booking ? snap.data().booking : null;
+  const local = memKey(user);
+  if (local) return memory.get(local)?.preferences || null;
+  return (await users.read(user.sub))?.preferences || null;
 }
 
 async function savePreferences(user, preferences) {
-  const key = memKey(user);
-  if (key) {
-    memory.set(key, preferences);
+  const local = memKey(user);
+  if (local) {
+    memory.set(local, { ...(memory.get(local) || {}), preferences });
     return preferences;
   }
-  await firestore().collection('users').doc(user.sub).set({ booking: preferences }, { merge: true });
+  await users.update(user.sub, (doc) => { doc.preferences = preferences; return doc; });
   return preferences;
 }
 
+function localAppointments(user) {
+  const store = require('../data/store');
+  const sub = user.sub || 'local';
+  return [...store.session.appointments.values()].flat().filter((item) => item.sub === sub || item.sub === 'local' || !item.sub);
+}
+
 async function listAppointments(user, donorId) {
-  const { session } = require('../data/store');
-  if (isEphemeral(user)) {
-    const sub = user.sub || 'local';
-    return (session.appointments.get(donorId) || []).filter((item) => item.sub === sub || item.sub === 'local' || !item.sub);
-  }
-  const snap = await firestore().collection('appointments').where('sub', '==', user.sub).get();
-  return snap.docs.map((doc) => doc.data()).filter((item) => item.donorId === donorId);
+  const rows = isEphemeral(user) ? localAppointments(user) : ((await users.read(user.sub))?.appointments || []);
+  return rows.filter((item) => item.donorId === donorId);
 }
 
 async function saveAppointment(user, appointment) {
   const store = require('../data/store');
-  if (!isEphemeral(user)) await firestore().collection('appointments').doc(appointment.id).set(appointment);
+  if (!isEphemeral(user)) {
+    await users.update(user.sub, (doc) => {
+      doc.appointments = (doc.appointments || []).filter((item) => item.id !== appointment.id);
+      doc.appointments.push(appointment);
+      return doc;
+    });
+  }
   const list = (store.session.appointments.get(appointment.donorId) || []).filter((item) => item.id !== appointment.id);
   list.push(appointment);
   store.session.appointments.set(appointment.donorId, list);
@@ -57,32 +55,29 @@ async function saveAppointment(user, appointment) {
 }
 
 async function deletePreferences(user) {
-  const key = memKey(user);
-  if (key) {
-    memory.delete(key);
+  const local = memKey(user);
+  if (local) {
+    memory.set(local, { ...(memory.get(local) || {}), preferences: null });
     return;
   }
-  const { FieldValue } = require('@google-cloud/firestore');
-  await firestore().collection('users').doc(user.sub).set({ booking: FieldValue.delete() }, { merge: true });
+  await users.update(user.sub, (doc) => { doc.preferences = null; return doc; });
 }
 
-/** Every appointment the account made, for any demo donor. */
 async function allAppointments(user) {
-  const { session } = require('../data/store');
-  if (isEphemeral(user)) {
-    const sub = user.sub || 'local';
-    return [...session.appointments.values()].flat().filter((item) => item.sub === sub || item.sub === 'local' || !item.sub);
-  }
-  const snap = await firestore().collection('appointments').where('sub', '==', user.sub).get();
-  return snap.docs.map((doc) => doc.data());
+  if (isEphemeral(user)) return localAppointments(user);
+  return (await users.read(user.sub))?.appointments || [];
 }
 
-/** Remove an appointment record for good (cancel it first if it is still booked). */
 async function deleteAppointment(user, appointment) {
   const store = require('../data/store');
   const list = store.session.appointments.get(appointment.donorId) || [];
   store.session.appointments.set(appointment.donorId, list.filter((item) => item.id !== appointment.id));
-  if (!isEphemeral(user)) await firestore().collection('appointments').doc(appointment.id).delete();
+  if (!isEphemeral(user)) {
+    await users.update(user.sub, (doc) => {
+      doc.appointments = (doc.appointments || []).filter((item) => item.id !== appointment.id);
+      return doc;
+    });
+  }
 }
 
 module.exports = { getPreferences, savePreferences, deletePreferences, listAppointments, allAppointments, saveAppointment, deleteAppointment };

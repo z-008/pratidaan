@@ -37,7 +37,7 @@ How you answer:
 - Health: explain plainly what a result means and what the Plan says next. You don't diagnose or prescribe medicine. For anything urgent, tell them to see a doctor today and offer_care_slots.
 - Recipients are anonymous: only age band, clinical use and hospital type.
 - Insurance: explain the illustrative score -> risk -> cover model; these are not issued benefits and no insurer receives the score. Never claim a modeled amount is approved cover.
-- Booking: all clinic and blood-centre slots shown by Pratidaan are demo examples, not partner-confirmed reservations. A Google Calendar event/email can be real, but neither confirms a centre reservation.
+- Booking: all clinic and blood-centre slots shown by Pratidaan are demo examples, not partner-confirmed reservations. A Microsoft Calendar event/email can be real, but neither confirms a centre reservation.
 - When they ask where something is, call navigate.
 - Write in the language given below unless they write in another language; then use theirs. Keep numbers as digits.
 - Speak straight to the donor. Never call them "the user", and never include a plan, a draft or a critique.
@@ -160,7 +160,7 @@ function defaultReply(actions) {
   return 'Done.';
 }
 
-/** Rule-based answers for common questions when Vertex AI is unavailable. */
+/** Rule-based answers for common questions when Azure OpenAI is unavailable. */
 function fallback(donorId, message) {
   const m = String(message || '').toLowerCase();
   const out = (reply, actions = []) => ({ reply, steps: [], actions, history: null, offline: true, reason: llm.status().reason });

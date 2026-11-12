@@ -1,9 +1,11 @@
-/** Gemini on Vertex AI. Cloud Run uses its service account; a laptop uses Application Default Credentials. No API key. */
-const { GoogleAuth } = require('google-auth-library');
-const MODEL = process.env.LLM_MODEL || 'gemini-3.1-flash-lite';
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT || '';
-const LOCATION = process.env.VERTEX_LOCATION || 'global';
-const ENDPOINT = LOCATION === 'global' ? 'aiplatform.googleapis.com' : `${LOCATION}-aiplatform.googleapis.com`;
+/** Azure OpenAI gateway with managed identity, deterministic budgets and fallbacks. */
+
+const { managedIdentityToken } = require('../azure/identity');
+
+const ENDPOINT = String(process.env.AZURE_OPENAI_ENDPOINT || '').replace(/\/$/, '');
+const DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT || '';
+const API_VERSION = process.env.AZURE_OPENAI_API_VERSION || '2024-10-21';
+const MODEL = DEPLOYMENT || 'azure-openai-not-configured';
 const RPS = Math.max(1, Number(process.env.LLM_RATE_LIMIT_RPS || 2));
 const DAILY_TOKENS = Math.max(1, Number(process.env.LLM_RATE_LIMIT_TOKENS_PER_DAY || 50000));
 const DAILY_CALLS = Math.max(1, Number(process.env.LLM_MAX_CALLS_PER_DAY || 200));
@@ -12,13 +14,14 @@ const usage = { day: today(), tokens: 0, calls: 0, cacheReadTokens: 0 };
 const traces = [];
 let verified = false;
 let lastError = null;
+
 class LLMUnavailable extends Error {}
 function today() { return new Date().toISOString().slice(0, 10); }
 function rollDay() {
   if (usage.day !== today()) Object.assign(usage, { day: today(), tokens: 0, calls: 0, cacheReadTokens: 0 });
 }
 function reason() {
-  if (!PROJECT) return 'Set GOOGLE_CLOUD_PROJECT to enable Vertex AI';
+  if (!ENDPOINT || !DEPLOYMENT) return 'Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_DEPLOYMENT to enable Azure OpenAI';
   if (usage.calls >= DAILY_CALLS) return 'Daily AI call limit reached';
   if (usage.tokens >= DAILY_TOKENS) return 'Daily AI token limit reached';
   return null;
@@ -29,7 +32,8 @@ function available(estimatedTokens = 0) {
 }
 function status() {
   rollDay();
-  return { model: MODEL, endpoint: ENDPOINT, live: available() && verified, reason: reason() || (!verified ? lastError || 'Vertex access not yet verified' : null),
+  return { model: MODEL, endpoint: ENDPOINT || null, provider: 'azure-openai', live: available() && verified,
+    reason: reason() || (!verified ? lastError || 'Azure OpenAI access not yet verified' : null),
     tokensUsedToday: usage.tokens, dailyTokenBudget: DAILY_TOKENS, callsToday: usage.calls,
     dailyCallBudget: DAILY_CALLS, cacheReadTokens: usage.cacheReadTokens, rateLimitRps: RPS };
 }
@@ -37,6 +41,7 @@ function record(trace) {
   traces.unshift({ id: `T-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, at: new Date().toISOString(), ...trace });
   traces.length = Math.min(traces.length, 200);
 }
+
 let bucket = RPS;
 let lastRefill = Date.now();
 async function acquire() {
@@ -48,66 +53,72 @@ async function acquire() {
     await new Promise((resolve) => setTimeout(resolve, Math.ceil(((1 - bucket) / RPS) * 1000)));
   }
 }
-function toPart(block) {
-  if (block.type === 'text') return { text: block.text };
-  if (block.type === 'image') return { inlineData: { mimeType: block.source.media_type, data: block.source.data } };
-  if (block.type === 'tool_use') return { functionCall: { name: block.name, args: block.input, ...(block.callId ? { id: block.callId } : {}) },
-    ...(block.thoughtSignature ? { thoughtSignature: block.thoughtSignature } : {}) };
-  if (block.type === 'tool_result') {
-    let value;
-    try { value = JSON.parse(block.content); } catch { value = block.content; }
-    // Gemini 3 matches each response to its call by id when the call carried one
-    return { functionResponse: { name: block.name || block.tool_use_id.split(':')[0], response: functionResponseBody(value),
-      ...(block.call_id ? { id: block.call_id } : {}) } };
+
+function parseJson(value, fallback = {}) {
+  try { return JSON.parse(value); } catch { return fallback; }
+}
+
+function userPart(block) {
+  if (block.type === 'text') return { type: 'text', text: block.text };
+  if (block.type === 'image') return { type: 'image_url', image_url: { url: `data:${block.source.media_type};base64,${block.source.data}` } };
+  return null;
+}
+
+/** Convert the app's provider-neutral messages to Azure OpenAI chat messages. */
+function toMessages(messages) {
+  const result = [];
+  for (const message of messages) {
+    const blocks = Array.isArray(message.content) ? message.content : [{ type: 'text', text: String(message.content) }];
+    if (message.role === 'assistant') {
+      const text = blocks.filter((block) => block.type === 'text').map((block) => block.text).join('\n\n');
+      const calls = blocks.filter((block) => block.type === 'tool_use').map((block) => ({
+        id: block.callId || block.id, type: 'function',
+        function: { name: block.name, arguments: JSON.stringify(block.input || {}) },
+      }));
+      result.push({ role: 'assistant', content: text || null, ...(calls.length ? { tool_calls: calls } : {}) });
+      continue;
+    }
+    const visible = blocks.map(userPart).filter(Boolean);
+    if (visible.length) result.push({ role: 'user', content: visible.length === 1 && visible[0].type === 'text' ? visible[0].text : visible });
+    for (const block of blocks.filter((candidate) => candidate.type === 'tool_result')) {
+      result.push({ role: 'tool', tool_call_id: block.call_id || block.tool_use_id, content: String(block.content || '{}') });
+    }
   }
-  throw new Error(`Unsupported message block: ${block.type}`);
+  return result;
 }
-function toContents(messages) {
-  return messages.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user',
-    parts: (Array.isArray(m.content) ? m.content : [{ type: 'text', text: String(m.content) }]).map(toPart) }));
-}
-/** Vertex requires functionResponse.response to be a JSON object, not a list or scalar. */
-function functionResponseBody(value) {
-  if (Array.isArray(value)) return { items: value };
-  if (value !== null && typeof value === 'object') return value;
-  return { result: value };
-}
-function cleanSchema(value) {
-  if (Array.isArray(value)) return value.map(cleanSchema);
-  if (!value || typeof value !== 'object') return value;
-  return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'additionalProperties')
-    .map(([key, child]) => [key, key === 'type' ? String(child).toUpperCase() : cleanSchema(child)]));
-}
+
 function declarations(tools, outputSchema) {
-  const defs = (tools || []).map((t) => ({ name: t.name, description: t.description, parameters: cleanSchema(t.input_schema) }));
-  if (outputSchema) defs.push({ name: SUBMIT, description: 'Submit the final structured result.', parameters: cleanSchema(outputSchema) });
-  return defs;
+  const values = (tools || []).map((tool) => ({ type: 'function', function: {
+    name: tool.name, description: tool.description, parameters: tool.input_schema,
+  } }));
+  if (outputSchema) values.push({ type: 'function', function: {
+    name: SUBMIT, description: 'Submit the final structured result.', parameters: outputSchema,
+  } });
+  return values;
 }
-const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
-async function accessToken() {
-  const client = await auth.getClient();
-  const result = await client.getAccessToken();
-  const token = typeof result === 'string' ? result : result && result.token;
-  if (!token) throw new Error('Google Cloud credentials unavailable. On a laptop run: gcloud auth application-default login');
-  return token;
+
+async function headers() {
+  if (process.env.AZURE_OPENAI_API_KEY) return { 'api-key': process.env.AZURE_OPENAI_API_KEY, 'Content-Type': 'application/json' };
+  const token = await managedIdentityToken('https://cognitiveservices.azure.com/');
+  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 }
+
 function normalise(raw) {
-  const candidate = raw.candidates?.[0];
-  const content = (candidate?.content?.parts || []).flatMap((p, index) => {
-    // Gemini marks its private reasoning as a part. It is not part of the reply.
-    if (p.thought) return [];
-    if (p.text) return [{ type: 'text', text: p.text }];
-    if (p.functionCall) return [{ type: 'tool_use', id: `${p.functionCall.name}:${index}`, name: p.functionCall.name,
-      input: p.functionCall.args || {}, ...(p.functionCall.id ? { callId: p.functionCall.id } : {}),
-      ...(p.thoughtSignature ? { thoughtSignature: p.thoughtSignature } : {}) }];
-    return [];
-  });
-  if (!content.length) throw new LLMUnavailable(`AI returned no content (${candidate?.finishReason || raw.promptFeedback?.blockReason || 'unknown'})`);
-  return { model: MODEL, content, stop_reason: candidate?.finishReason === 'MAX_TOKENS' ? 'max_tokens'
-    : content.some((b) => b.type === 'tool_use') ? 'tool_use' : 'end_turn',
-  usage: { input_tokens: raw.usageMetadata?.promptTokenCount || 0, output_tokens: raw.usageMetadata?.candidatesTokenCount || 0,
-    cache_read_input_tokens: raw.usageMetadata?.cachedContentTokenCount || 0 } };
+  const choice = raw.choices?.[0];
+  const message = choice?.message || {};
+  const content = [];
+  if (message.content) content.push({ type: 'text', text: message.content });
+  for (const tool of message.tool_calls || []) {
+    content.push({ type: 'tool_use', id: tool.id, callId: tool.id, name: tool.function.name,
+      input: parseJson(tool.function.arguments, {}) });
+  }
+  if (!content.length) throw new LLMUnavailable(`AI returned no content (${choice?.finish_reason || 'unknown'})`);
+  return { model: raw.model || MODEL, content,
+    stop_reason: choice?.finish_reason === 'length' ? 'max_tokens' : message.tool_calls?.length ? 'tool_use' : 'end_turn',
+    usage: { input_tokens: raw.usage?.prompt_tokens || 0, output_tokens: raw.usage?.completion_tokens || 0,
+      cache_read_input_tokens: raw.usage?.prompt_tokens_details?.cached_tokens || 0 } };
 }
+
 async function call({ feature, system, messages, tools, maxTokens = 4000, outputSchema, guardrailKind = 'donor_copy' }) {
   if (!available(maxTokens)) throw new LLMUnavailable(status().reason || 'AI budget unavailable');
   await acquire();
@@ -117,31 +128,28 @@ async function call({ feature, system, messages, tools, maxTokens = 4000, output
   const defs = declarations(tools, jsonMode ? null : outputSchema);
   const guardrails = require('./guardrails');
   const baseSystem = guardrailKind === 'none' ? system : guardrails.augmentSystem(system, guardrailKind);
-  const body = { systemInstruction: { parts: [{ text: !outputSchema || jsonMode ? baseSystem : `${baseSystem}\n\nFinish by calling ${SUBMIT} with the final result.` }] },
-    contents: toContents(messages), generationConfig: { maxOutputTokens: Math.min(maxTokens, 6000) } };
-  if (jsonMode) {
-    body.generationConfig.responseMimeType = 'application/json';
-    body.generationConfig.responseSchema = cleanSchema(outputSchema);
-  }
-  if (defs.length) body.tools = [{ functionDeclarations: defs }];
+  const body = {
+    messages: [{ role: 'system', content: !outputSchema || jsonMode ? baseSystem : `${baseSystem}\n\nFinish by calling ${SUBMIT} with the final result.` },
+      ...toMessages(messages)],
+    max_tokens: Math.min(maxTokens, 6000),
+  };
+  if (defs.length) body.tools = defs;
+  if (jsonMode) body.response_format = { type: 'json_schema', json_schema: { name: 'pratidaan_result', strict: true, schema: outputSchema } };
   try {
-    const token = await accessToken();
-    const url = `https://${ENDPOINT}/v1/projects/${encodeURIComponent(PROJECT)}/locations/${encodeURIComponent(LOCATION)}/publishers/google/models/${encodeURIComponent(MODEL)}:generateContent`;
-    const res = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body), signal: AbortSignal.timeout(120000) });
-    if (!res.ok) throw new Error(`Vertex AI HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
-    const response = normalise(await res.json());
+    const url = `${ENDPOINT}/openai/deployments/${encodeURIComponent(DEPLOYMENT)}/chat/completions?api-version=${encodeURIComponent(API_VERSION)}`;
+    const response = await fetch(url, { method: 'POST', headers: await headers(), body: JSON.stringify(body), signal: AbortSignal.timeout(120000) });
+    if (!response.ok) throw new Error(`Azure OpenAI HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`);
+    const value = normalise(await response.json());
     verified = true;
     lastError = null;
-    const inputTokens = response.usage.input_tokens;
-    const outputTokens = response.usage.output_tokens;
-    usage.tokens += inputTokens + outputTokens;
-    usage.cacheReadTokens += response.usage.cache_read_input_tokens;
-    record({ feature, model: MODEL, ms: Date.now() - started, stopReason: response.stop_reason,
-      inputTokens, outputTokens, cacheReadTokens: response.usage.cache_read_input_tokens });
-    return response;
+    usage.tokens += value.usage.input_tokens + value.usage.output_tokens;
+    usage.cacheReadTokens += value.usage.cache_read_input_tokens;
+    record({ feature, model: value.model, ms: Date.now() - started, stopReason: value.stop_reason,
+      inputTokens: value.usage.input_tokens, outputTokens: value.usage.output_tokens,
+      cacheReadTokens: value.usage.cache_read_input_tokens });
+    return value;
   } catch (error) {
-    const message = error.message || 'Vertex AI request failed';
+    const message = error.message || 'Azure OpenAI request failed';
     lastError = message;
     verified = false;
     record({ feature, model: MODEL, ms: Date.now() - started, error: message });
@@ -149,22 +157,21 @@ async function call({ feature, system, messages, tools, maxTokens = 4000, output
     throw new LLMUnavailable(message);
   }
 }
-const PLANNING = /^(the user\b|plan:|draft \d|critique \d|revise \d|final answer:)/i;
 
-/** The words meant for the donor. Drops a reasoning note if the model wrote one into the answer. */
+const PLANNING = /^(the user\b|plan:|draft \d|critique \d|revise \d|final answer:)/i;
 function visibleReply(raw) {
-  let t = String(raw || '').replace(/\r/g, '').trim();
-  const finals = [...t.matchAll(/(?:^|\n)\s*Final Answer:\s*/gi)];
-  if (finals.length) t = t.slice(finals[finals.length - 1].index + finals[finals.length - 1][0].length).trim();
-  const chunks = t.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  const spoken = chunks.filter((s) => !PLANNING.test(s));
-  if (spoken.length && spoken.length < chunks.length) t = spoken.join('\n\n');
-  return t.trim();
+  let value = String(raw || '').replace(/\r/g, '').trim();
+  const finals = [...value.matchAll(/(?:^|\n)\s*Final Answer:\s*/gi)];
+  if (finals.length) value = value.slice(finals.at(-1).index + finals.at(-1)[0].length).trim();
+  const chunks = value.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  const spoken = chunks.filter((part) => !PLANNING.test(part));
+  if (spoken.length && spoken.length < chunks.length) value = spoken.join('\n\n');
+  return value.trim();
 }
 
-function text(response) { return visibleReply(response.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n\n')); }
-function submitted(response) { return response.content.find((b) => b.type === 'tool_use' && b.name === SUBMIT)?.input || null; }
-/** Check raw Gemini output against the application schema; provider-side constraints are not a trust boundary. */
+function text(response) { return visibleReply(response.content.filter((block) => block.type === 'text').map((block) => block.text).join('\n\n')); }
+function submitted(response) { return response.content.find((block) => block.type === 'tool_use' && block.name === SUBMIT)?.input || null; }
+
 function validate(value, schema) {
   if (!schema) return true;
   if (schema.enum && !schema.enum.includes(value)) return false;
@@ -193,13 +200,13 @@ async function json(options) {
   if (fromTool) return structured(fromTool, options.outputSchema);
   const raw = text(response);
   if (!raw) throw new LLMUnavailable('AI did not return a structured result');
-  try { return structured(JSON.parse(raw), options.outputSchema); } catch (error) {
-    if (error instanceof LLMUnavailable) throw error;
-    throw new LLMUnavailable('AI did not return a structured result');
-  }
+  try { return structured(JSON.parse(raw), options.outputSchema); }
+  catch (error) { if (error instanceof LLMUnavailable) throw error; throw new LLMUnavailable('AI did not return a structured result'); }
 }
 async function verify() {
-  if (!PROJECT) return { ok: false, reason: reason() };
-  return { ok: true, reason: 'Access checked on the first AI request' };
+  if (!ENDPOINT || !DEPLOYMENT) return { ok: false, reason: reason() };
+  return { ok: true, reason: 'Access checked on the first Azure OpenAI request' };
 }
-module.exports = { call, text, visibleReply, json, submitted, validate, structured, available, status, verify, traces: () => traces, toContents, LLMUnavailable, MODEL, SUBMIT };
+
+module.exports = { call, text, visibleReply, json, submitted, validate, structured, available, status, verify,
+  traces: () => traces, toMessages, LLMUnavailable, MODEL, SUBMIT };

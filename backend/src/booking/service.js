@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const drop = require('../domain/drop');
 const { findSlot, recommend } = require('../domain/bookingRank');
 const { normalise, missing } = require('../domain/bookingChat');
-const calendar = require('../calendar/googleCalendar');
+const calendar = require('../calendar/microsoftGraph');
 const settings = require('../auth/userSettings');
 
 function httpError(status, message) {
@@ -55,10 +55,10 @@ async function confirm(user, donor, body) {
   if (!ranked) throw httpError(400, 'That slot does not fit the chosen days, distance or centre hours');
 
   const appointment = {
-    id: `APT-${crypto.randomUUID()}`,
     sub: user.sub,
     donorId: donor.id,
     ...slot,
+    id: `APT-${crypto.randomUUID()}`,
     status: 'booked',
     reminderMinutes: prefs.reminderMinutes,
     eventId: null,
@@ -76,12 +76,11 @@ async function confirm(user, donor, body) {
   await settings.saveAppointment(user, appointment);
   drop.recordBooking(donor.id, appointment);
   if (body.accessToken) {
-    const eventId = crypto.randomUUID().replace(/-/g, '');
-    await settings.saveAppointment(user, { ...appointment, eventId });
-    appointment.eventId = eventId;
     try {
-      const event = calendar.buildEvent({ slot, email, reminderMinutes: prefs.reminderMinutes, checkInCode: code });
-      await calendar.createEvent(body.accessToken, { ...event, id: eventId });
+      const event = calendar.buildEvent({ slot, email, reminderMinutes: prefs.reminderMinutes,
+        checkInCode: code, transactionId: appointment.id });
+      const created = await calendar.createEvent(body.accessToken, event);
+      appointment.eventId = created.id || null;
     } catch (error) {
       appointment.calendarError = error.message;
       return withCheckIn(await settings.saveAppointment(user, appointment));
@@ -118,7 +117,7 @@ async function cancel(user, donorId, appointmentId, accessToken) {
         updated = await settings.saveAppointment(user, { ...updated, calendarError: error.message });
       }
     } else {
-      updated = await settings.saveAppointment(user, { ...updated, calendarError: 'Google Calendar was not connected during cancellation' });
+      updated = await settings.saveAppointment(user, { ...updated, calendarError: 'Microsoft Calendar was not connected during cancellation' });
     }
   }
   return updated;

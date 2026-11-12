@@ -11,13 +11,13 @@ A blood donation is split into parts that help different patients. Pratidaan fol
 | Part | Status in the prototype |
 |---|---|
 | Donors, donations, lab results, components, patients, Circles, insurers | **Synthetic** (`data/generate.py`, seed 42). No real person or organisation. |
-| Google sign-in, sign-in history, saved booking preferences, bookings | **Real**, stored in Firestore against the Google account. A guest or local session keeps them only in server memory. |
-| Google Calendar event and Gmail confirmation for a booking | **Real**, in the donor's own Google account, only if they connect Calendar. The event and email say it is a demo slot, not a reservation. |
+| Microsoft sign-in, sign-in history, saved booking preferences, bookings | **Real**, stored in Azure Blob Storage against the Microsoft account. A guest or local session keeps them only in server memory. |
+| Microsoft Calendar event and Microsoft Graph mail confirmation for a booking | **Real**, in the donor's own Microsoft account, only if they connect Calendar. The event and email say it is a demo slot, not a reservation. |
 | Blood-centre slots, doctor check-ups, check-in at the centre, the QR pass | **Simulated.** No centre or clinic is contacted or reserved. |
 | Health-insurance cover, premiums, discounts | **Illustrative model.** No insurer receives anything. |
 | Concerns about a unit and their escalation | **Simulated walkthrough.** No organisation is contacted. |
 | Activity minutes in the weekly report | **Simulated** (no wearable data). |
-| Gemini answers, lab-report reading, Intro translation | **Real** calls to Vertex AI when configured; rule-based answers otherwise. |
+| Azure OpenAI answers, lab-report reading, Intro translation | **Real** calls to Azure OpenAI when configured; rule-based answers otherwise. |
 
 ## Who the demo lets you be
 
@@ -37,7 +37,7 @@ The **demo bar** (yellow, on Home) moves a shared demo clock: **+ few hours** (8
 
 ## Signing in
 
-- **Continue with Google** (verified Google accounts only), or **Continue as guest** (demo data only; nothing is kept in Google or the cloud).
+- **Continue with Microsoft** (verified Microsoft accounts only), or **Continue as guest** (demo data only; nothing is kept in a Microsoft account or Azure Blob Storage).
 - A session lasts one day and is not renewed by use. The API refuses every request without one.
 - Public **Privacy Policy** (`/privacy`) and **Terms** (`/terms`) pages, marked as mock documents, say the same as the Intro and Your data.
 - For local work, sign-in can be switched off (`AUTH_DISABLED=true`, ignored in production).
@@ -46,7 +46,7 @@ The **demo bar** (yellow, on Home) moves a shared demo clock: **+ few hours** (8
 
 Home is Drop first.
 
-- **Header:** a greeting (the Google first name for the New donor), blood group and district, the donation countdown, and one button: **Book my first donation**, **Try demo donation booking** or **Donation status**.
+- **Header:** a greeting (the Microsoft account first name for the New donor), blood group and district, the donation countdown, and one button: **Book my first donation**, **Try demo donation booking** or **Donation status**.
 - **Drop's conversation** (main column):
   - open **Cards**, urgent first, at most three before "N more";
   - a receipt with **Undo** for the last answer;
@@ -130,7 +130,7 @@ Drop's scripted first conversation, in Home's chat. It works with the AI off, ta
 | 4 | Health between donations | An **Example** results card |
 | 5 | Your data | What is kept and where; Open Your data (the account chip pulses) |
 | 6 | Your choices | The three **Choices** (insurer sharing off, leaderboard on, totals on) |
-| 7 | When you can donate | Days, time of day and place, saved with the Google account and used whenever they book (optional) |
+| 7 | When you can donate | Days, time of day and place, saved with the Microsoft account and used whenever they book (optional) |
 | 8 | All set | **Book my first donation** or **Start using Pratidaan** |
 
 A reload folds what was done into "Done so far" and Drop says "Welcome back". Finished or skipped, it folds into one line ("Intro · finished 10 Oct · Replay") with the questions asked. **Replay intro** is in the account menu, for the New donor only.
@@ -247,13 +247,13 @@ The findings, score and eligibility rules are listed in [03-architecture.md](03-
   - **Checks**: age 18–65, weight ≥ 45 kg, feeling well, and the other minimum requirements.
   - **Place**: device location, rounded to about 1 km, or a district; how far they'll travel (5, 15 or 30 km).
   - **Date and time**: the earliest week or the week after, time of day, skip public holidays.
-  - **Slot**: ranked by fixed rules from centre hours, closed days, holidays, distance and, if connected, Google Calendar free/busy.
+  - **Slot**: ranked by fixed rules from centre hours, closed days, holidays, distance and, if connected, Microsoft Calendar free/busy.
   - **Booked.**
 - **The pass:**
   - a QR code and check-in code, clearly marked demo;
   - WhatsApp details and Email details;
   - a calendar file with a reminder the day before.
-- **Connect Google Calendar** (separate consent from sign-in): Pratidaan reads free/busy, adds an event to the donor's calendar and emails the confirmation from their Gmail to themselves. The access token stays in the page and is never stored.
+- **Connect Microsoft Calendar** (separate consent from sign-in): Pratidaan reads free/busy, adds an event to the donor's calendar and emails the confirmation through Microsoft Graph. The access token stays in the page and is never stored.
 - **Simulate check-in** (demo only, on the booking day):
   - Enter vitals, or leave them blank to use the persona's pattern.
   - A deferral happens if Hb is below the minimum, BP is above 140/90 or weight is under 45 kg.
@@ -272,10 +272,10 @@ What all donors' blood adds up to, aggregates only:
 
 Everything kept about the signed-in person, where it lives and how long. **Your choices** comes first; then one card per place:
 
-- **with your Google account** (Firestore): profile, sign-in history, donation preferences, bookings;
-- **in your own Google account**: Calendar events and confirmation emails;
+- **with your Microsoft account** (Azure Blob Storage): profile, sign-in history, donation preferences, bookings;
+- **in your own Microsoft account**: Calendar events and confirmation emails;
 - **with the demo donor** (server memory): memories, readings, values read from lab reports;
-- **sent to Gemini**;
+- **sent to Azure OpenAI**;
 - **server logs**;
 - **this browser**.
 
@@ -283,7 +283,7 @@ Each item has **Delete**, with a 6-second Undo, or says when it deletes itself. 
 
 ## AI console
 
-Not in the menu: open `/#ai`. It shows the model and whether Vertex access is verified, calls and tokens used today against the daily budget, cached tokens, the rate limit, and the last 50 model calls with latency, tokens and result.
+Not in the menu: open `/#ai`. It shows the model and whether Azure OpenAI access is verified, calls and tokens used today against the daily budget, cached tokens, the rate limit, and the last 50 model calls with latency, tokens and result.
 
 Some of the console's feature descriptions are older than the current app:
 
@@ -299,10 +299,10 @@ Some of the console's feature descriptions are older than the current app:
 |---|---|
 | **Week plans**, **Your day**, **Simplify my plan** | Agreed in CONTEXT.md; Habits and This week show empty shells, and the chat says saving a Week plan is coming |
 | **From your doctor** (prescriptions read and confirmed) | Placeholder ("Nothing added yet") |
-| **Past Cycles** | Server keeps this demo cycle’s Drop turns per persona; **Reset** archives to read-only past cycles. Demo personas include a sample earlier cycle. In-memory on Cloud Run (not Firestore); Vertex Sessions mirror separately when configured. |
-| AI-written Goal write-ups | Waiting on a team decision about Google Cloud's "no clinical purposes" term; the rules version runs and stays the fallback |
+| **Past Cycles** | Server keeps this demo cycle’s Drop turns per persona; **Reset** archives to read-only past cycles. Demo personas include a sample earlier cycle. In-memory on Azure App Service (not Azure Blob Storage); Azure Blob agent logs mirror separately when configured. |
+| AI-written Goal write-ups | Safety-critical Goal text remains rule-written; Azure OpenAI is not allowed to change it |
 | Card wording in the donor's language | The AI rewrite is wired, but only wording identical to the rules is accepted, so Cards keep their rule wording; only the slots Card has a Hindi version |
-| Drop's state, the New donor and memories per account in Firestore | In server memory, shared by everyone viewing a demo donor, reset on restart |
+| Drop's state, the New donor and memories per account in Azure Blob Storage | In server memory, shared by everyone viewing a demo donor, reset on restart |
 | Download a copy of your data | The privacy page says to email for one |
 | WhatsApp or SMS delivery, voice, real centre and clinic booking, real insurer link, wearable data | Out of scope for the prototype |
 | Doctor and counsellor consoles, infection-result disclosure workflow | Dropped from the first design (see the [problem brief](01-problem-brief.md#10-how-the-idea-changed)) |
