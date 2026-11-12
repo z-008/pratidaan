@@ -187,7 +187,7 @@ router.post('/:donorId/chat/record', async (req, res) => {
     }
     await chatCycles.ensureScope(req.user, req.donor.id);
     const chatId = typeof chat === 'string' ? chat.slice(0, 40) : 'general';
-    chatCycles.recordTurn(req.user, req.donor.id, chatId, {
+    await chatCycles.recordTurn(req.user, req.donor.id, chatId, {
       userText: userText.slice(0, 2000),
       assistantText: assistantText.slice(0, 8000),
       history: null,

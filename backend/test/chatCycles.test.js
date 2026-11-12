@@ -12,8 +12,8 @@ describe('chatCycles', () => {
     store.resetDemo();
   });
 
-  it('archives turns on demo reset', () => {
-    chatCycles.recordTurn(guestA, 'D-001', 'general', { userText: 'Hi', assistantText: 'Hello', history: null });
+  it('archives turns on demo reset', async () => {
+    await chatCycles.recordTurn(guestA, 'D-001', 'general', { userText: 'Hi', assistantText: 'Hello', history: null });
     chatCycles.archiveCurrentCycle();
     store.resetDemo();
     const past = chatCycles.listPast(guestA, 'D-001');
@@ -33,9 +33,16 @@ describe('chatCycles', () => {
     assert.equal(chatCycles.listPast(guestA, nu.id).length, 0);
   });
 
-  it('isolates chat between guest accounts on the same persona', () => {
-    chatCycles.recordTurn(guestA, 'D-001', 'general', { userText: 'secret A', assistantText: 'reply A', history: null });
-    chatCycles.recordTurn(guestB, 'D-001', 'general', { userText: 'secret B', assistantText: 'reply B', history: null });
+  it('current cycle reports demo today from the clock', async () => {
+    await chatCycles.recordTurn(guestA, 'D-001', 'general', { userText: 'Hi', assistantText: 'Hello', history: null });
+    const cycle = chatCycles.currentCycle(guestA, 'D-001');
+    assert.equal(cycle.demoToday, store.today());
+    assert.equal(cycle.chats.general.turns[0].at, store.today());
+  });
+
+  it('isolates chat between guest accounts on the same persona', async () => {
+    await chatCycles.recordTurn(guestA, 'D-001', 'general', { userText: 'secret A', assistantText: 'reply A', history: null });
+    await chatCycles.recordTurn(guestB, 'D-001', 'general', { userText: 'secret B', assistantText: 'reply B', history: null });
     assert.equal(chatCycles.activeChat(guestA, 'D-001', 'general').turns.length, 1);
     assert.equal(chatCycles.activeChat(guestB, 'D-001', 'general').turns.length, 1);
     assert.equal(chatCycles.activeChat(guestA, 'D-001', 'general').turns[0].user, 'secret A');

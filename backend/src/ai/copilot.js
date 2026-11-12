@@ -242,7 +242,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     }
     const server = chatCycles.activeChat(user, donorId, chatKey);
     const prior = Array.isArray(history) && history.length ? history.slice(-20) : (server.history || []).slice(-20);
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: guard.reply, history: prior });
+    await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: guard.reply, history: prior });
     agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
     agentPlatform.appendEvent(sessionId, { role: 'assistant', text: guard.reply }).catch(() => {});
     return { reply: guard.reply, steps: [], actions, history: prior, answeredByRules: true, guardrail: true };
@@ -255,9 +255,9 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   const messages = [...prior, { role: 'user', content: message }];
   const turn = [{ role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}${intentHint(message)}`;
-  const finishChip = (reply, actions, hist) => {
+  const finishChip = async (reply, actions, hist) => {
     const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+    await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
     agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
     agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
     return { reply, steps: [], actions: ui, history: hist };
@@ -268,9 +268,9 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   if (impactAsk) {
     const fact = screenLines.line(donorId, 'impact').text;
     const actions = [{ type: 'navigate', screen: 'impact' }];
-    const finishImpact = (reply, hist) => {
+    const finishImpact = async (reply, hist) => {
       const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
-      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+      await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
       agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
       agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
       return { reply, steps: [], actions: ui, history: hist };
@@ -296,9 +296,9 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   if (bpTrendAsk && !urgentFinding) {
     const grounded = groundedAnswer(donorId, message);
     if (grounded) {
-      const finishBp = (reply, hist) => {
+      const finishBp = async (reply, hist) => {
         const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, grounded.actions));
-        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+        await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
         agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
         agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
         return { reply, steps: [], actions: ui, history: hist };
@@ -327,9 +327,9 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   if (resultsAsk) {
     const grounded = groundedAnswer(donorId, message);
     if (grounded) {
-      const finishResults = (reply, hist) => {
+      const finishResults = async (reply, hist) => {
         const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, grounded.actions));
-        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+        await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
         agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
         agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
         return { reply, steps: [], actions: ui, history: hist };
@@ -359,7 +359,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     if (!(error instanceof llm.LLMUnavailable)) throw error;
     const rules = fallback(donorId, message);
     const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, rules.actions));
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior, actions });
+    await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior, actions });
     return { ...rules, actions, history: prior, offline: true, reason: error.message };
   }
   // A reply that is the model's own notes ("The user wants…", "Plan: …") or tool code written as text gets one more try:
@@ -373,7 +373,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const rules = fallback(donorId, message);
     const reply = rules.generic ? 'Sorry, I lost my words there. Could you ask me that again?' : rules.reply;
     const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, [...result.actions, ...rules.actions.filter((a) => !result.actions.some((b) => b.type === a.type && b.text === a.text))]));
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
+    await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true };
   }
   if (!result.text) {
@@ -387,7 +387,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     else if (actions.some((a) => a.type === 'chart') && !replyMatchesQuestion(message, reply)) {
       reply = grounded?.reply || `${screenLines.line(donorId, 'health').text} See the chart below.`;
     }
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
+    await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true, offline: true, reason: 'AI response incomplete' };
   }
   let reply = result.text;
@@ -409,7 +409,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     actions = [...actions.filter((a) => a.type !== 'card'), { type: 'card', cardId: card.id }];
   }
   actions = alignActionsToQuestion(donorId, message, actions);
-  chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: result.messages, actions });
+  await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: result.messages, actions });
   agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
   agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
   const mem = drop.view(donorId).memory.map((x) => x.text);

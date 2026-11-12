@@ -130,7 +130,13 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
     };
     reloadPast();
     window.addEventListener('drop:changed', reloadPast);
-    return () => window.removeEventListener('drop:changed', reloadPast);
+    window.addEventListener('demo:clock', reloadPast);
+    window.addEventListener('focus', reloadPast);
+    return () => {
+      window.removeEventListener('drop:changed', reloadPast);
+      window.removeEventListener('demo:clock', reloadPast);
+      window.removeEventListener('focus', reloadPast);
+    };
   }, [donorId, chat]);
 
   useEffect(() => {
@@ -270,8 +276,11 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
               <div className="sheet-past" style={{ padding: 16, overflow: 'auto', flex: 1 }}>
                 <b className="small">This cycle (live)</b>
                 <p className="small muted" style={{ margin: '4px 0 8px' }}>
-                  Since demo timeline {thisCycle?.startedOn || '…'}. Turn dates follow the demo clock — use Step time on the demo bar to move days.
-                  Keep chatting in <strong>General</strong> or a Goal; this tab is the transcript for this cycle.
+                  <strong>Demo today:</strong> {thisCycle?.demoToday || '…'}
+                  {' '}· cycle started {thisCycle?.startedOn || '…'}.
+                  {' '}New turns take the date from the preview bar ({' '}
+                  <span className="on">+ few hours</span> / <span className="on">+1 day</span>
+                  ). Chat in <strong>General</strong> or a Goal, then reopen this tab to refresh.
                 </p>
                 {liveTurns === 0 ? (
                   <p className="small muted">

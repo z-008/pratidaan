@@ -101,7 +101,7 @@ function ensureCurrent(scope) {
   return currentByScope.get(scope);
 }
 
-function recordTurn(user, donorId, chat, { userText, assistantText, history, actions }) {
+async function recordTurn(user, donorId, chat, { userText, assistantText, history, actions }) {
   const scope = scopeKey(user, donorId);
   const key = chatKey(chat);
   const bucket = ensureCurrent(scope);
@@ -113,7 +113,7 @@ function recordTurn(user, donorId, chat, { userText, assistantText, history, act
   if (history) entry.history = history;
   entry.turns = entry.turns.slice(-40);
   hydrated.add(scope);
-  persistScope(scope);
+  await persistScope(scope);
   return entry;
 }
 
@@ -169,7 +169,13 @@ function currentCycle(user, donorId) {
   for (const [key, entry] of Object.entries(bucket)) {
     if (entry.turns.length) chats[key] = { turns: entry.turns, history: entry.history };
   }
-  return { cycleId: cycleId(), label: 'This cycle', startedOn: cycleId(), chats };
+  return {
+    cycleId: cycleId(),
+    label: 'This cycle',
+    startedOn: store.clock().start || cycleId(),
+    demoToday: store.today(),
+    chats,
+  };
 }
 
 function listPast(user, donorId) {

@@ -348,7 +348,7 @@ export const api = {
     post<{ recorded: boolean }>(`/donors/${id}/chat/record`, body),
   chatActive: (id: string, chat = 'general') => request<{ cycleId: string; turns: { at: string; user: string; assistant: string; actions?: CopilotAction[] }[]; history: unknown[] | null }>(`/donors/${id}/chat/active?chat=${encodeURIComponent(chat)}`),
   chatCurrentCycle: (id: string) => request<{
-    cycleId: string; label: string; startedOn: string;
+    cycleId: string; label: string; startedOn: string; demoToday: string;
     chats: Record<string, { turns: { at: string; user: string; assistant: string }[]; history: unknown[] | null }>;
   }>(`/donors/${id}/chat/current-cycle`),
   chatCycles: (id: string) => request<{ cycles: { id: string; label: string; startedOn: string; endedOn: string; chatCount: number; dropCount: number }[] }>(`/donors/${id}/chat/cycles`),
