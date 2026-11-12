@@ -1,0 +1,354 @@
+[
+  {
+    "id": "hypertension",
+    "name": "Hypertension",
+    "snomedCode": "38341003",
+    "definition": "Persistently elevated blood pressure, systolic ≥140 mmHg or diastolic ≥90 mmHg",
+    "category": "cardiovascular",
+    "relatedProtocols": ["BP-G1", "BP-G2", "BP-URGENCY"],
+    "symptoms": ["headache", "dizziness", "chest_pain", "shortness_of_breath", "fatigue"],
+    "measurements": ["systolic_bp", "diastolic_bp", "pulse"],
+    "referenceRanges": {
+      "normal": "<120/<80",
+      "elevated": "120-139/80-89",
+      "grade1": "140-159/90-99",
+      "grade2": "160-179/100-109",
+      "grade3": ">=180/>=120"
+    },
+    "riskFactors": ["age", "family_history", "obesity", "sedentary_lifestyle", "high_sodium_diet", "stress", "alcohol_abuse", "smoking"],
+    "complications": ["heart_disease", "stroke", "kidney_disease", "retinopathy"],
+    "metadata": {
+      "prevalence": "high",
+      "severity": "moderate",
+      "urgencyLevel": "medium"
+    }
+  },
+  {
+    "id": "anemia",
+    "name": "Anemia",
+    "snomedCode": "271737000",
+    "definition": "Reduction in hemoglobin levels below reference range, reducing oxygen-carrying capacity",
+    "category": "hematologic",
+    "relatedProtocols": ["HB-DEF", "HB-SEV"],
+    "symptoms": ["fatigue", "weakness", "pallor", "dyspnea", "dizziness", "headache", "palpitations"],
+    "measurements": ["hemoglobin", "hematocrit", "red_blood_cell_count", "mean_corpuscular_volume"],
+    "referenceRanges": {
+      "normal_male": ">13.5 g/dL",
+      "normal_female": ">12 g/dL",
+      "mild": "10-12 g/dL",
+      "moderate": "7-10 g/dL",
+      "severe": "<7 g/dL"
+    },
+    "riskFactors": ["poor_nutrition", "chronic_disease", "pregnancy", "blood_loss", "malabsorption", "genetic_predisposition"],
+    "complications": ["heart_failure", "cognitive_impairment", "poor_wound_healing"],
+    "metadata": {
+      "prevalence": "high",
+      "severity": "variable",
+      "urgencyLevel": "low_to_high"
+    }
+  },
+  {
+    "id": "diabetes",
+    "name": "Diabetes Mellitus",
+    "snomedCode": "73211009",
+    "definition": "Metabolic disorder characterized by elevated fasting blood glucose ≥126 mg/dL or HbA1c ≥6.5%",
+    "category": "metabolic",
+    "relatedProtocols": ["DM-DIAB", "DM-PREDIAB"],
+    "symptoms": ["polyuria", "polydipsia", "weight_loss", "fatigue", "blurred_vision", "slow_healing"],
+    "measurements": ["fasting_glucose", "post_meal_glucose", "HbA1c", "insulin_level"],
+    "referenceRanges": {
+      "normal_fasting": "<100 mg/dL",
+      "prediabetic": "100-125 mg/dL",
+      "diabetic": ">=126 mg/dL",
+      "HbA1c_normal": "<5.7%",
+      "HbA1c_prediabetic": "5.7-6.4%",
+      "HbA1c_diabetic": ">=6.5%"
+    },
+    "riskFactors": ["obesity", "family_history", "sedentary_lifestyle", "age", "poor_diet", "stress", "hypertension"],
+    "complications": ["heart_disease", "stroke", "kidney_disease", "retinopathy", "neuropathy", "foot_ulcers"],
+    "metadata": {
+      "prevalence": "very_high",
+      "severity": "high",
+      "urgencyLevel": "high"
+    }
+  },
+  {
+    "id": "prediabetes",
+    "name": "Prediabetes",
+    "snomedCode": "15777000",
+    "definition": "Impaired fasting glucose or impaired glucose tolerance, intermediate hyperglycemia without diabetes",
+    "category": "metabolic",
+    "relatedProtocols": ["DM-PREDIAB"],
+    "symptoms": [],
+    "measurements": ["fasting_glucose", "post_meal_glucose", "HbA1c"],
+    "referenceRanges": {
+      "fasting_glucose": "100-125 mg/dL",
+      "HbA1c": "5.7-6.4%"
+    },
+    "riskFactors": ["obesity", "family_history", "sedentary_lifestyle", "age", "high_triglycerides", "low_HDL"],
+    "complications": ["diabetes", "heart_disease", "stroke"],
+    "metadata": {
+      "prevalence": "high",
+      "severity": "low",
+      "urgencyLevel": "medium"
+    }
+  },
+  {
+    "id": "heart_disease",
+    "name": "Coronary Heart Disease",
+    "snomedCode": "53741008",
+    "definition": "Disease of the heart blood vessels, often characterized by atherosclerotic plaque buildup",
+    "category": "cardiovascular",
+    "relatedProtocols": ["BP-G2", "DM-DIAB", "CARDIAC-MON"],
+    "symptoms": ["chest_pain", "chest_tightness", "dyspnea", "fatigue", "palpitations", "nausea"],
+    "measurements": ["troponin", "ECG", "blood_pressure", "cholesterol", "LDL", "HDL"],
+    "referenceRanges": {
+      "troponin_normal": "<0.04 ng/mL",
+      "total_cholesterol": "<200 mg/dL",
+      "LDL_optimal": "<100 mg/dL",
+      "HDL_optimal": ">40 mg/dL (male), >50 mg/dL (female)"
+    },
+    "riskFactors": ["hypertension", "diabetes", "smoking", "high_cholesterol", "obesity", "sedentary_lifestyle", "stress", "age"],
+    "complications": ["myocardial_infarction", "heart_failure", "arrhythmia", "sudden_cardiac_death"],
+    "metadata": {
+      "prevalence": "high",
+      "severity": "high",
+      "urgencyLevel": "high"
+    }
+  },
+  {
+    "id": "stroke",
+    "name": "Cerebrovascular Accident",
+    "snomedCode": "230690007",
+    "definition": "Sudden interruption of blood supply to the brain, causing neurological deficit",
+    "category": "neurological",
+    "relatedProtocols": ["STROKE-EMERG", "BP-G2"],
+    "symptoms": ["facial_drooping", "arm_weakness", "speech_difficulty", "confusion", "vision_changes", "dizziness"],
+    "measurements": ["blood_pressure", "glucose", "INR", "CT_scan", "MRI"],
+    "referenceRanges": {
+      "time_to_treatment": "within 4.5 hours for thrombolytic",
+      "critical_glucose": "normal is optimal"
+    },
+    "riskFactors": ["hypertension", "atrial_fibrillation", "diabetes", "smoking", "high_cholesterol", "obesity", "previous_stroke"],
+    "complications": ["paralysis", "speech_impairment", "cognitive_decline", "death"],
+    "metadata": {
+      "prevalence": "high",
+      "severity": "critical",
+      "urgencyLevel": "critical"
+    }
+  },
+  {
+    "id": "kidney_disease",
+    "name": "Chronic Kidney Disease",
+    "snomedCode": "709044004",
+    "definition": "Progressive loss of kidney function over months or years, assessed by GFR and proteinuria",
+    "category": "renal",
+    "relatedProtocols": ["RENAL-MON", "DM-DIAB"],
+    "symptoms": ["fatigue", "edema", "reduced_urination", "nausea", "back_pain", "headache"],
+    "measurements": ["creatinine", "BUN", "GFR", "albumin", "potassium", "phosphorus"],
+    "referenceRanges": {
+      "GFR_stage1": ">=90 mL/min/1.73m2",
+      "GFR_stage2": "60-89 mL/min/1.73m2",
+      "GFR_stage3a": "45-59 mL/min/1.73m2",
+      "GFR_stage3b": "30-44 mL/min/1.73m2",
+      "GFR_stage4": "15-29 mL/min/1.73m2",
+      "GFR_stage5": "<15 mL/min/1.73m2"
+    },
+    "riskFactors": ["diabetes", "hypertension", "glomerulonephritis", "polycystic_kidney_disease", "autoimmune_disease"],
+    "complications": ["end_stage_renal_disease", "hypertension", "heart_disease", "bone_disease", "anemia"],
+    "metadata": {
+      "prevalence": "moderate",
+      "severity": "progressive",
+      "urgencyLevel": "medium_to_high"
+    }
+  },
+  {
+    "id": "retinopathy",
+    "name": "Diabetic Retinopathy",
+    "snomedCode": "4855003",
+    "definition": "Microvascular complication of diabetes affecting retinal blood vessels, potentially leading to blindness",
+    "category": "ophthalmologic",
+    "relatedProtocols": ["DM-DIAB", "EYE-SCREEN"],
+    "symptoms": ["blurred_vision", "floaters", "vision_loss", "eye_pain"],
+    "measurements": ["visual_acuity", "intraocular_pressure", "dilated_retinal_exam", "OCT"],
+    "referenceRanges": {
+      "visual_acuity_normal": "20/20",
+      "screening_interval": "annually for diabetics"
+    },
+    "riskFactors": ["diabetes_duration", "poor_glycemic_control", "hypertension", "hyperlipidemia", "pregnancy"],
+    "complications": ["vision_loss", "blindness", "macular_edema", "neovascular_glaucoma"],
+    "metadata": {
+      "prevalence": "moderate",
+      "severity": "progressive",
+      "urgencyLevel": "medium"
+    }
+  },
+  {
+    "id": "monitoring",
+    "name": "Regular Health Monitoring",
+    "snomedCode": "386408001",
+    "definition": "Systematic clinical oversight and periodic assessment of health status and disease progression",
+    "category": "intervention",
+    "relatedProtocols": ["BP-G1", "BP-G2", "HB-DEF", "DM-PREDIAB"],
+    "symptoms": [],
+    "measurements": ["blood_pressure", "glucose", "hemoglobin", "weight", "BMI"],
+    "referenceRanges": {},
+    "riskFactors": [],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "preventive",
+      "urgencyLevel": "ongoing"
+    }
+  },
+  {
+    "id": "exercise",
+    "name": "Physical Activity",
+    "snomedCode": "89670000",
+    "definition": "Structured physical exercise and activity to improve cardiovascular health and metabolic function",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2", "DM-PREDIAB", "DM-DIAB"],
+    "symptoms": [],
+    "measurements": ["duration_minutes", "intensity", "frequency_per_week", "heart_rate_target"],
+    "referenceRanges": {
+      "moderate_duration": "30 minutes",
+      "vigorous_duration": "20-25 minutes",
+      "weekly_frequency": "5 days for moderate, 3 days for vigorous",
+      "target_heart_rate_percent_max": "50-70 percent moderate, 70-85 percent vigorous"
+    },
+    "riskFactors": [],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "preventive",
+      "urgencyLevel": "ongoing"
+    }
+  },
+  {
+    "id": "diet",
+    "name": "Dietary Modifications",
+    "snomedCode": "160670007",
+    "definition": "Structured dietary changes including reduced sodium, balanced macronutrients, and whole foods",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2", "DM-PREDIAB", "DM-DIAB"],
+    "symptoms": [],
+    "measurements": ["sodium_intake_mg", "fiber_g", "added_sugar_g", "saturated_fat_percent"],
+    "referenceRanges": {
+      "daily_sodium": "<2300 mg (ideal <1500 mg for hypertension)",
+      "daily_fiber": ">25 g (female), >35 g (male)",
+      "added_sugar": "<25 g (female), <36 g (male)",
+      "saturated_fat": "<7 percent of daily calories"
+    },
+    "riskFactors": [],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "preventive",
+      "urgencyLevel": "ongoing"
+    }
+  },
+  {
+    "id": "stress_management",
+    "name": "Stress Management",
+    "snomedCode": "226063009",
+    "definition": "Psychological interventions including meditation, breathing exercises, and behavioral techniques",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2"],
+    "symptoms": [],
+    "measurements": ["stress_level", "sleep_quality", "anxiety_score"],
+    "referenceRanges": {
+      "target_sleep_hours": "7-9 hours per night",
+      "relaxation_minutes": "10-20 minutes daily"
+    },
+    "riskFactors": [],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "preventive",
+      "urgencyLevel": "ongoing"
+    }
+  },
+  {
+    "id": "medication_adherence",
+    "name": "Medication Compliance",
+    "snomedCode": "418633004",
+    "definition": "Systematic adherence to prescribed medications for chronic disease management",
+    "category": "intervention",
+    "relatedProtocols": ["BP-G1", "BP-G2", "HB-DEF", "DM-DIAB"],
+    "symptoms": [],
+    "measurements": ["compliance_percent", "refill_patterns", "side_effects"],
+    "referenceRanges": {
+      "target_compliance": ">80 percent"
+    },
+    "riskFactors": ["polypharmacy", "side_effects", "cost", "cognitive_impairment"],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "critical",
+      "urgencyLevel": "ongoing"
+    }
+  },
+  {
+    "id": "smoking_cessation",
+    "name": "Tobacco Cessation",
+    "snomedCode": "184789009",
+    "definition": "Structured support and interventions to stop tobacco smoking",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2", "DM-DIAB"],
+    "symptoms": [],
+    "measurements": ["pack_years", "current_smoking_status", "nicotine_dependence"],
+    "referenceRanges": {},
+    "riskFactors": ["nicotine_addiction", "stress", "social_influences"],
+    "complications": [],
+    "metadata": {
+      "prevalence": "high_need",
+      "severity": "preventive",
+      "urgencyLevel": "high"
+    }
+  },
+  {
+    "id": "weight_management",
+    "name": "Weight Management",
+    "snomedCode": "408289007",
+    "definition": "Structured program for achieving and maintaining healthy weight through diet and exercise",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2", "DM-PREDIAB", "DM-DIAB"],
+    "symptoms": [],
+    "measurements": ["weight_kg", "BMI", "waist_circumference", "weight_loss_percent"],
+    "referenceRanges": {
+      "BMI_underweight": "<18.5",
+      "BMI_normal": "18.5-24.9",
+      "BMI_overweight": "25-29.9",
+      "BMI_obese": ">=30"
+    },
+    "riskFactors": [],
+    "complications": [],
+    "metadata": {
+      "prevalence": "universal",
+      "severity": "preventive",
+      "urgencyLevel": "medium"
+    }
+  },
+  {
+    "id": "alcohol_reduction",
+    "name": "Alcohol Reduction",
+    "snomedCode": "228366006",
+    "definition": "Reduction or elimination of alcohol consumption to safe limits",
+    "category": "lifestyle",
+    "relatedProtocols": ["BP-G1", "BP-G2"],
+    "symptoms": [],
+    "measurements": ["standard_drinks_per_week", "binge_episodes"],
+    "referenceRanges": {
+      "safe_limit_male": "14 units per week",
+      "safe_limit_female": "7 units per week",
+      "safe_limit_single": "4 units (male), 3 units (female)"
+    },
+    "riskFactors": ["dependence", "social_factors"],
+    "complications": [],
+    "metadata": {
+      "prevalence": "moderate_need",
+      "severity": "preventive",
+      "urgencyLevel": "medium"
+    }
+  }
+]

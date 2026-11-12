@@ -1,0 +1,80 @@
+<!doctype html>
+<!--
+  Meera's sample lab report for the demo ("Add a report" → "Use a sample report").
+  Synthetic data, not a real patient. Render it to
+  frontend/public/demo/sample-lab-report-meera.png with
+  data/demo/render-sample-lab-report.sh (800 × 560, headless Chrome).
+  The values must match SAMPLE_FALLBACK in
+  frontend/src/components/drop/ReportUpload.tsx (Hb 12.6, 2026-10-08, Sample Diagnostics Lab).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sample lab report · Meera</title>
+<style>
+  html, body { margin: 0; }
+  body {
+    width: 800px; height: 560px; overflow: hidden; position: relative;
+    background: #e9e6df;
+    font-family: Helvetica, Arial, sans-serif; color: #000;
+  }
+  .paper {
+    position: absolute; left: 0; top: 24px; width: 806px; height: 508px;
+    box-sizing: border-box; padding: 36px 42px 0 44px;
+    background: #fff;
+    box-shadow: 0 2px 9px rgba(40, 30, 20, .18);
+    transform: rotate(-0.6deg);
+  }
+  h1 { margin: 0; font-size: 24px; line-height: 28px; font-weight: 700; color: #0d4f7a; }
+  .lab { margin-top: 2px; font-size: 13px; line-height: 16px; color: #555; }
+  .note { margin-top: 8px; font-size: 12px; line-height: 16px; font-weight: 700; color: #a33; letter-spacing: .5px; }
+  hr { margin: 21px 0 0; border: 0; border-top: 2px solid #0d4f7a; }
+  .info {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px;
+    margin-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;
+    font-size: 14px; line-height: 20px;
+  }
+  table { width: 100%; margin-top: 26px; border-collapse: collapse; }
+  th, td { padding: 0 4px; text-align: left; }
+  th { font-size: 13px; line-height: 19px; padding-bottom: 4px; border-bottom: 1px solid #333; }
+  td { font-size: 15px; line-height: 33px; border-bottom: 1px solid #eee; }
+  th:nth-child(1) { width: 260px; }
+  th:nth-child(2) { width: 90.5px; }
+  th:nth-child(3) { width: 118.5px; }
+  .foot { margin-top: 27px; font-size: 12px; line-height: 16px; color: #666; }
+</style>
+</head>
+<body>
+  <div class="paper">
+    <h1>Sample Diagnostics Lab</h1>
+    <div class="lab">Demo laboratory · Jayanagar, Bengaluru</div>
+    <div class="note">SAMPLE REPORT FOR THE PRATIDAAN DEMO · SYNTHETIC DATA · NOT A REAL PATIENT</div>
+    <hr>
+    <div class="info">
+      <div>
+        <b>Patient:</b> Meera Iyer<br>
+        <b>Sample collected:</b> 08-Oct-2026<br>
+        <b>Ref. by:</b> Self
+      </div>
+      <div>
+        <b>Age/Sex:</b> 28 / F<br>
+        <b>Reported:</b> 08-Oct-2026<br>
+        <b>Lab No.:</b> SDL-2610-0412
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Test</th><th>Result</th><th>Unit</th><th>Reference range</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Haemoglobin (Hb)</td><td><b>12.6</b></td><td>g/dL</td><td>12.0 – 15.5</td></tr>
+        <tr><td>Serum Ferritin</td><td>32</td><td>ng/mL</td><td>15 – 150</td></tr>
+        <tr><td>MCV</td><td>82.4</td><td>fL</td><td>80 – 100</td></tr>
+        <tr><td>Platelet count</td><td>264</td><td>10^3/µL</td><td>150 – 410</td></tr>
+        <tr><td>Total WBC count</td><td>6.8</td><td>10^3/µL</td><td>4.0 – 11.0</td></tr>
+      </tbody>
+    </table>
+    <div class="foot">Method: automated haematology analyser. This is a sample made for a software demo and carries no medical meaning.</div>
+  </div>
+</body>
+</html>

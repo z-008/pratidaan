@@ -1,0 +1,41 @@
+/* "Your data": one page grouped by where data lives. Desktop now, touch later: targets at least 44px. */
+
+.yd { display: grid; gap: 14px; max-width: 880px; padding-bottom: 96px; }
+.yd .page-head { margin-bottom: 4px; }
+.yd .card { padding: 16px 18px; }
+.yd-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.yd-facts span { display: inline-flex; align-items: center; gap: 6px; background: var(--ai-soft); color: var(--ai); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+
+.yd-group-head { display: flex; gap: 10px; align-items: flex-start; }
+.yd-group-head > svg { color: var(--ai); margin-top: 2px; flex: none; }
+.yd-group-head > span { display: grid; gap: 2px; }
+.yd-rows { display: grid; margin-top: 8px; }
+.yd-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.yd-row:last-child { border-bottom: 0; }
+.yd-row-main { flex: 1; display: grid; gap: 3px; min-width: 0; }
+.yd-row-main .tiny { display: inline-flex; align-items: center; gap: 4px; }
+.yd-row-act { flex: none; }
+.yd-empty { padding: 10px 0 2px; }
+.yd .btn-sm { min-height: 44px; white-space: nowrap; }
+.yd-del { color: var(--bad); }
+@media (max-width: 640px) { .yd-row { flex-direction: column; align-items: flex-start; } }
+
+.yd-danger { border-color: color-mix(in srgb, var(--bad) 35%, var(--border)); }
+.yd-danger-btn { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, var(--border)); min-height: 44px; }
+.yd-danger-btn.solid { background: var(--bad); color: #fff; border-color: var(--bad); }
+.yd-danger-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.yd-plan { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 12px; }
+.yd-plan > div { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+.yd-plan h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 13px; }
+.yd-plan ul { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 4px; }
+.yd-check { display: flex; align-items: center; gap: 10px; font-size: 13.5px; min-height: 44px; margin-top: 8px; cursor: pointer; }
+.yd-check input { width: 18px; height: 18px; accent-color: var(--ai); flex: none; }
+.yd-type { display: grid; gap: 6px; font-size: 13.5px; margin: 14px 0 12px; max-width: 420px; }
+.yd-type input { min-height: 44px; border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; background: var(--bg); font-size: 15px; }
+
+.yd-deleted { text-align: center; display: grid; gap: 12px; justify-items: center; }
+.yd-deleted h1 { margin: 0; }
+.yd-big-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--good-soft); color: var(--good); }
+
+.yd-toast { position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); z-index: 81; display: flex; align-items: center; gap: 10px; background: var(--text); color: var(--bg); border-radius: 12px; padding: 6px 6px 6px 14px; font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+.yd-toast button { min-height: 40px; padding: 0 12px; font-weight: 700; color: inherit; text-decoration: underline; }

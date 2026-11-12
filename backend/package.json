@@ -1,0 +1,25 @@
+{
+  "name": "tracedrop-backend",
+  "version": "2.0.0",
+  "description": "Pratidaan API: donor impact tracing, health analytics, health-linked cover and AI agents",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@google-cloud/firestore": "^9.3.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.0",
+    "google-auth-library": "^11.2.0",
+    "helmet": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

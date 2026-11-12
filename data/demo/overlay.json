@@ -1,0 +1,376 @@
+{
+  "_note": "Demo additions applied on top of data/synthetic at load time: donors (the New donor, a new user with no records), donations, observations and components (kept separate so regenerating synthetic data does not remove them). Records with availableOn stay hidden until the demo clock reaches that date.",
+  "donors": [
+    {
+      "id": "D-NEW",
+      "name": "New donor",
+      "newUser": true,
+      "sex": null,
+      "age": null,
+      "bloodGroup": null,
+      "language": "en",
+      "district": null,
+      "heightCm": null,
+      "smoker": null,
+      "familyHistory": [],
+      "policyId": null,
+      "consent": {
+        "shareHealthWithInsurer": false,
+        "showOnLeaderboard": true,
+        "includeInCommunityStats": true
+      },
+      "communityIds": []
+    }
+  ],
+  "donations": [
+    {
+      "id": "D-001-V4",
+      "donorId": "D-001",
+      "date": "2026-10-03",
+      "status": "completed",
+      "deferralReason": null,
+      "centreId": "BC-02",
+      "volumeMl": 450,
+      "bagId": "BAG-261003-4418",
+      "vitals": {
+        "systolic": 148,
+        "diastolic": 94,
+        "pulse": 84,
+        "haemoglobin": 14.3,
+        "weightKg": 80
+      },
+      "confidentialFollowUp": false
+    }
+  ],
+  "observations": [
+    {
+      "id": "OBS-D-001-V4-hb",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "718-7",
+      "key": "hb",
+      "name": "Haemoglobin",
+      "value": 14.3,
+      "unit": "g/dL",
+      "low": 13,
+      "high": 17,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-wbc",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "6690-2",
+      "key": "wbc",
+      "name": "White blood cells",
+      "value": 7.3,
+      "unit": "10^3/uL",
+      "low": 4,
+      "high": 11,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-plt",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "777-3",
+      "key": "plt",
+      "name": "Platelets",
+      "value": 238,
+      "unit": "10^3/uL",
+      "low": 150,
+      "high": 410,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-mcv",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "787-2",
+      "key": "mcv",
+      "name": "Mean corpuscular volume",
+      "value": 79.6,
+      "unit": "fL",
+      "low": 80,
+      "high": 100,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-hba1c",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "4548-4",
+      "key": "hba1c",
+      "name": "HbA1c",
+      "value": 5.7,
+      "unit": "%",
+      "low": null,
+      "high": 5.7,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-tc",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "2093-3",
+      "key": "tc",
+      "name": "Total cholesterol",
+      "value": 211,
+      "unit": "mg/dL",
+      "low": null,
+      "high": 200,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-ldl",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "13457-7",
+      "key": "ldl",
+      "name": "LDL cholesterol",
+      "value": 134,
+      "unit": "mg/dL",
+      "low": null,
+      "high": 130,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-hdl",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "2085-9",
+      "key": "hdl",
+      "name": "HDL cholesterol",
+      "value": 41,
+      "unit": "mg/dL",
+      "low": 40,
+      "high": null,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-tg",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "2571-8",
+      "key": "tg",
+      "name": "Triglycerides",
+      "value": 176,
+      "unit": "mg/dL",
+      "low": null,
+      "high": 150,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-ferritin",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "2276-4",
+      "key": "ferritin",
+      "name": "Ferritin",
+      "value": 98,
+      "unit": "ng/mL",
+      "low": 30,
+      "high": 400,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-alt",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "1742-6",
+      "key": "alt",
+      "name": "ALT (liver enzyme)",
+      "value": 52,
+      "unit": "U/L",
+      "low": null,
+      "high": 45,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-creat",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "2160-0",
+      "key": "creat",
+      "name": "Creatinine",
+      "value": 0.96,
+      "unit": "mg/dL",
+      "low": 0.7,
+      "high": 1.3,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    },
+    {
+      "id": "OBS-D-001-V4-tsh",
+      "donorId": "D-001",
+      "visitId": "D-001-V4",
+      "code": "3016-3",
+      "key": "tsh",
+      "name": "TSH (thyroid)",
+      "value": 1.5,
+      "unit": "mIU/L",
+      "low": 0.4,
+      "high": 4.5,
+      "date": "2026-10-03",
+      "source": "donation_sample",
+      "labId": "LAB-01",
+      "availableOn": "2026-10-11"
+    }
+  ],
+  "components": [
+    {
+      "id": "D-001-V4-PLT",
+      "donationId": "D-001-V4",
+      "donorId": "D-001",
+      "kind": "PLT",
+      "bloodGroup": "B+",
+      "events": [
+        {
+          "type": "collected",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "separated",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "tested",
+          "date": "2026-10-04"
+        },
+        {
+          "type": "stored",
+          "date": "2026-10-04"
+        },
+        {
+          "type": "issued",
+          "date": "2026-10-08"
+        },
+        {
+          "type": "transfused",
+          "date": "2026-10-08"
+        },
+        {
+          "type": "outcome",
+          "date": "2026-10-20"
+        }
+      ],
+      "recipient": {
+        "contextKey": "leukaemia_child",
+        "context": "Treatment for childhood leukaemia",
+        "hospitalId": "H-03",
+        "age": 10,
+        "sex": "F",
+        "outcome": "ongoing"
+      },
+      "fractionation": null
+    },
+    {
+      "id": "D-001-V4-PRBC",
+      "donationId": "D-001-V4",
+      "donorId": "D-001",
+      "kind": "PRBC",
+      "bloodGroup": "B+",
+      "events": [
+        {
+          "type": "collected",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "separated",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "tested",
+          "date": "2026-10-04"
+        },
+        {
+          "type": "stored",
+          "date": "2026-10-04"
+        },
+        {
+          "type": "issued",
+          "date": "2026-10-15"
+        },
+        {
+          "type": "transfused",
+          "date": "2026-10-15"
+        },
+        {
+          "type": "outcome",
+          "date": "2026-10-27"
+        }
+      ],
+      "recipient": {
+        "contextKey": "cardiac_surgery",
+        "context": "Open-heart surgery",
+        "hospitalId": "H-09",
+        "age": 58,
+        "sex": "F",
+        "outcome": "recovered"
+      },
+      "fractionation": null
+    },
+    {
+      "id": "D-001-V4-FFP",
+      "donationId": "D-001-V4",
+      "donorId": "D-001",
+      "kind": "FFP",
+      "bloodGroup": "B+",
+      "events": [
+        {
+          "type": "collected",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "separated",
+          "date": "2026-10-03"
+        },
+        {
+          "type": "tested",
+          "date": "2026-10-04"
+        },
+        {
+          "type": "stored",
+          "date": "2026-10-04"
+        }
+      ],
+      "recipient": null,
+      "fractionation": null
+    }
+  ]
+}

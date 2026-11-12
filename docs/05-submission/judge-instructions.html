@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pratidaan — Judge instructions</title>
+  <style>
+    :root { --bg:#0f1117; --card:#1a1d27; --text:#e8eaef; --muted:#9aa3b2; --brand:#7c3aed; --accent:#c8102e; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; margin: 0; padding: 24px; max-width: 920px; margin-inline: auto; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; font-size: 1.15rem; color: #c4b5fd; }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    .card { background: var(--card); border-radius: 12px; padding: 16px 20px; margin: 12px 0; border: 1px solid #2a2f3d; }
+    code { background: #252936; padding: 2px 6px; border-radius: 6px; font-size: 0.92em; }
+    a { color: #a78bfa; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .chip { border: 1px solid #3d4455; border-radius: 999px; padding: 6px 12px; font-size: 0.9rem; color: var(--text); }
+    .warn { border-left: 3px solid var(--accent); padding-left: 12px; }
+    pre.diagram { background: #12151c; padding: 16px; border-radius: 10px; overflow-x: auto; font-size: 12px; line-height: 1.4; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <h1>Pratidaan (Drop assistant)</h1>
+  <p class="warn"><strong>For judges.</strong> This document is attached to our submission email — it is not linked from the live app UI.</p>
+  <p>Voluntary blood donor app for India: impact tracing, donation health panel, illustrative health-linked cover, and AI assistant <strong>Drop</strong>. Deployed on <strong>Google Cloud Run</strong> (asia-south1); models on <strong>Vertex AI</strong> (Gemini 3.1 Flash-Lite).</p>
+
+  <div class="card">
+    <strong>Live app</strong>
+    <p><a href="https://pratidaan-533106233193.asia-south1.run.app">https://pratidaan-533106233193.asia-south1.run.app</a> (also <a href="https://pratidaan-25mgkruoeq-el.a.run.app">pratidaan-25mgkruoeq-el.a.run.app</a> if your link redirects)</p>
+    <p class="warn"><strong>Google sign-in error 400 origin_mismatch?</strong> In Google Cloud Console → Credentials → OAuth <em>Web client</em> → <em>Authorized JavaScript origins</em>, add <code>https://pratidaan-25mgkruoeq-el.a.run.app</code> (no trailing slash) and <code>http://localhost:5173</code>. Until that is saved, use <strong>Continue as guest</strong>.</p>
+  </div>
+
+  <h2>How to sign in</h2>
+  <ul>
+    <li><strong>Continue as guest</strong> — full demo, no Google account (recommended for quick judging). Each guest sign-in gets its own session id (<code>guest-…</code> in the cookie); Drop chat and Past Cycles are private to that guest, not shared with other visitors on the same persona.</li>
+    <li><strong>Sign in with Google</strong> — optional; enables Calendar/Gmail flows for test users on the OAuth consent screen.</li>
+    <li>Top bar: <strong>Viewing as</strong> — pick a persona (synthetic donors below).</li>
+  </ul>
+
+  <h2>Sample personas &amp; data</h2>
+  <ul>
+    <li><strong>Arjun (D-001)</strong> — repeat donor, BP trend, impact stories.</li>
+    <li><strong>Meera (D-002)</strong> — iron/ferritin narrative.</li>
+    <li><strong>Ananya (D-003)</strong> — communities, cover illustration.</li>
+    <li><strong>Karthik / Rohan</strong> — additional paths (booking, languages).</li>
+    <li><strong>New donor</strong> — empty record; Intro + first booking.</li>
+  </ul>
+  <p>All health, hospitals, slots and recipients are <strong>synthetic</strong> (<code>data/synthetic/</code>, deterministic seed). Not for clinical use.</p>
+
+  <h2>Sample questions (Drop chat)</h2>
+  <div class="chips">
+    <span class="chip">How is my BP doing?</span>
+    <span class="chip">Explain my latest results</span>
+    <span class="chip">Where did my blood go?</span>
+    <span class="chip">When can I donate next?</span>
+    <span class="chip">Book a doctor check-up</span>
+    <span class="chip">Book a donation</span>
+    <span class="chip">What do you remember about me?</span>
+    <span class="chip">Watch my impact story</span>
+  </div>
+  <p>Use the demo bar: <strong>+1 day</strong> to advance the timeline; <strong>Reset</strong> archives this cycle’s Drop chats into <strong>Past Cycles</strong> (Ask Drop → Past Cycles). <strong>This cycle (live)</strong> updates as you chat. Demo personas show a sample earlier cycle. Vertex Agent Sessions mirror turns in the cloud when configured — they do not drive this UI.</p>
+
+  <h2>Guardrails (three layers)</h2>
+  <p>Implemented in <code>backend/src/ai/guardrails.js</code>. Static checks and prompts stay aligned; every Gemini call gets the same safety appendix via <code>llm.js</code> (<code>guardrailKind</code>).</p>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">1. Before the model (Drop chat only)</h3>
+    <p style="margin:0;">Regex on the donor’s message: block diagnosis/prescription asks and emergency wording with a fixed reply (often + check-up card). The LLM is not called when blocked. Homework, essays, and other off-scope asks are <strong>not</strong> regex-filtered (donation-themed school work would bypass keyword lists).</p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">2. In every system prompt</h3>
+    <p style="margin:0;"><code>augmentSystem()</code> appends shared rules: Pratidaan scope only, refuse essays/homework and general writing (even about donations), no diagnose/prescribe, emergencies → call emergency services, facts from tools / given text only. Try: “Write an essay for my teacher about my donation journey” — Drop should decline politely and offer at most two factual sentences, not a draft.</p>
+    <table style="width:100%;margin-top:10px;font-size:13px;color:var(--muted);">
+      <tr><th style="text-align:left;padding:4px 8px;">Kind</th><th style="text-align:left;padding:4px 8px;">Feature</th></tr>
+      <tr><td><code>chat</code></td><td>Drop copilot (<code>runAgent</code>, 18 tools)</td></tr>
+      <tr><td><code>donor_copy</code></td><td>Home insight, Card wording (default for other calls)</td></tr>
+      <tr><td><code>translation</code></td><td>Intro translation</td></tr>
+      <tr><td><code>extraction</code></td><td>Lab report reader (values only, no interpretation)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">3. After the model</h3>
+    <p style="margin:0;">Drop chat: <code>sanitizeReply()</code> strips prescription-like wording. Copilot also enforces Drop’s own system rules (two sentences, tools for facts, no invented labs, anonymous recipients, illustrative slots).</p>
+  </div>
+  <ul>
+    <li>Structured JSON outputs are schema-validated locally; Card rewrites must match rule text word-for-word.</li>
+    <li>Rule-based <code>fallback()</code> when Vertex is unavailable or the reply is incomplete.</li>
+    <li>Tests: <code>backend/test/guardrails.test.js</code>.</li>
+  </ul>
+
+  <h2>Known limits</h2>
+  <ul>
+    <li>Blood centre / clinic slots are <strong>not</strong> real reservations; Calendar events may be created but do not confirm a centre.</li>
+    <li>Cover and premiums are an <strong>illustrative model</strong>, not issued insurance.</li>
+    <li>AI rate limits (production): ~500k tokens/day and 2k calls/day per instance, 10 req/s; Cloud Run scales to 4 instances (concurrency 20).</li>
+    <li><strong>Firebase</strong> is not used — only <strong>Cloud Firestore</strong> for signed-in accounts (via <code>@google-cloud/firestore</code>).</li>
+    <li><strong>Agent Platform (Option C — sidecar):</strong> Gemini on Vertex + <strong>Agent Engine Sessions &amp; Memory Bank</strong> in <code>us-central1</code> (reasoning engine <code>pratidaan-platform</code>; no separate ADK deploy). Donor replies still use Cloud Run <code>runAgent()</code>; Sessions mirror chat; Memory Bank syncs “remember” facts (debounced). Setup: <code>docs/AGENT_PLATFORM_SETUP.md</code>. Status: <code>/api/health</code> → <code>agentPlatform.engineConfigured</code>.</li>
+  </ul>
+
+  <h2>Architecture (simple)</h2>
+  <pre class="diagram">
+┌─────────────┐     HTTPS      ┌────────────────── Cloud Run (pratidaan) ──────────────────┐
+│  Browser    │ ─────────────► │  Express API  +  static React (Drop, Home, Health, Donate)   │
+│  React SPA  │ ◄───────────── │  Session cookie · Cloud Firestore (not Firebase)           │
+└─────────────┘                └────────────┬───────────────────────────────┬───────────────┘
+                                            │                               │
+                    ┌───────────────────────┼───────────────────────┐       │
+                    ▼                       ▼                       ▼       ▼
+            Vertex AI Gemini          Function-calling          Optional Agent Engine
+            (generateContent)         runAgent() + 18 tools     Sessions + Memory Bank
+                    │                       │                  (AGENT_ENGINE_NAME)
+                    └───────────┬───────────┘
+                                ▼
+                    Synthetic store + Drop domain (cards, goals, impact)
+                                │
+                    Demo clock · chat cycles archive on Reset
+  </pre>
+  <p>Health check: <code>/api/health</code> (AI live flag, agent platform mode). AI console in app: <code>/#ai</code>.</p>
+
+  <h2>Repo &amp; tests</h2>
+  <p>Source on GitHub (link in submission portal) — <code>cd backend && npm test</code>, <code>cd frontend && npm run type-check</code>.</p>
+</body>
+</html>

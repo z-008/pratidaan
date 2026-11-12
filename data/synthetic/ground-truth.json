@@ -1,0 +1,18 @@
+{
+  "seed": 42,
+  "asOf": "2026-10-10",
+  "counts": {
+    "donors": 300,
+    "donations": 657,
+    "observations": 8541,
+    "components": 1627
+  },
+  "personas": {
+    "D-001": "Arjun Rao",
+    "D-002": "Meera Iyer",
+    "D-003": "Ananya Sharma",
+    "D-017": "Vikram Gowda",
+    "D-033": "Rohan Verma",
+    "D-050": "Karthik Menon"
+  }
+}

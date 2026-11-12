@@ -1,0 +1,69 @@
+/* Drop's Intro in Home's chat, and the tile it is talking about.
+   Desktop now, touch later: targets at least 44px, nothing hover-only. */
+
+.intro-bar { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.intro-track { flex: 1; max-width: 160px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.intro-track span { display: block; height: 100%; background: var(--ai); transition: width 0.3s; }
+.intro-skip { margin-left: auto; min-height: 44px; padding: 0 12px; border-radius: 10px; color: var(--muted); font-weight: 600; font-size: 13px; }
+.intro-skip:hover:not(:disabled), .intro-skip:focus-visible { background: var(--surface-2); color: var(--text); }
+.intro-skip:disabled { opacity: 0.5; }
+
+.intro-chips { margin-top: 2px; }
+.dchip.intro-primary { background: var(--ai); border-color: var(--ai); color: #fff; }
+.dchip.intro-primary:hover, .dchip.intro-primary:focus-visible { color: #fff; filter: brightness(1.08); }
+.dchip[aria-pressed='true'] { background: var(--ai-soft); border-color: var(--ai); color: var(--ai); }
+.dchip:disabled { opacity: 0.55; cursor: default; }
+.intro-sofar { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--good); background: var(--good-soft); border-radius: 10px; padding: 8px 12px; }
+
+.intro-mini { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; display: grid; gap: 6px; }
+.intro-mini-head { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.intro-example { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.intro-mini-row { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.intro-mini-row:last-of-type { border-bottom: 0; }
+.intro-mini-row > span:first-child { flex: 1; color: var(--muted); }
+.intro-data-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.intro-data-row svg { color: var(--ai); margin-top: 2px; flex: none; }
+.intro-data-row > span { display: grid; gap: 2px; }
+.intro-data-row b { font-weight: 600; }
+.intro-ai-note { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: var(--muted); padding-top: 4px; }
+.intro-ai-note svg { flex: none; margin-top: 2px; color: var(--ai); }
+.intro-switch { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.intro-switch:last-child { border-bottom: 0; }
+.intro-switch > span { flex: 1; display: grid; gap: 2px; }
+.intro-switch b { font-weight: 600; }
+.intro-switch .toggle { width: 46px; height: 26px; }
+.intro-switch .toggle::after { width: 20px; height: 20px; }
+.intro-switch .toggle.on::after { transform: translateX(20px); }
+.intro-switch .toggle::before { content: ''; position: absolute; inset: -9px -4px; } /* 44px to tap */
+.intro-switch .toggle:disabled { opacity: 0.6; }
+.intro-prefs { display: grid; gap: 6px; padding: 4px 0; }
+
+.intro-journey-root { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--brand-ink); background: var(--brand-soft); border-radius: 10px; padding: 8px 12px; }
+.intro-journey-parts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.intro-part { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; display: grid; gap: 4px; background: var(--surface); }
+.intro-part.good { border-color: color-mix(in srgb, var(--good) 45%, var(--border)); }
+
+/* After the Intro: one folded line */
+.intro-fold { display: grid; gap: 6px; }
+.intro-fold-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 13.5px; color: var(--muted); background: var(--surface-2); border-radius: 12px; padding: 4px 6px 4px 12px; }
+.intro-fold-line svg { color: var(--good); flex: none; }
+.intro-fold-line span { flex: 1; min-width: 120px; }
+.intro-fold-line button { min-height: 40px; padding: 0 10px; border-radius: 10px; color: var(--ai); font-weight: 600; }
+.intro-fold-line button:hover, .intro-fold-line button:focus-visible { background: var(--ai-soft); }
+.intro-fold-qs { display: grid; gap: 6px; padding: 0 4px; }
+.intro-fold-qs div { display: grid; gap: 2px; font-size: 13px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); }
+.intro-fold-qs span { color: var(--muted); }
+
+/* The tile Drop is talking about: a purple ring, moved to the top of the column */
+.drop-side > .intro-focus { order: -1; border-color: var(--ai); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ai) 25%, transparent), var(--shadow); animation: intro-in 0.3s ease; }
+@keyframes intro-in { from { opacity: 0.4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* On the "Your data" step the account chip pulses instead (a still ring when motion is turned off) */
+body.intro-point-account .account-chip { outline: 3px solid var(--ai); outline-offset: 3px; border-radius: 12px; animation: intro-pulse 1.4s ease-in-out infinite; }
+@keyframes intro-pulse { 50% { outline-color: color-mix(in srgb, var(--ai) 30%, transparent); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-side > .intro-focus { animation: none; }
+  body.intro-point-account .account-chip { animation: none; }
+  .intro-track span { transition: none; }
+}

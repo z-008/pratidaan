@@ -1,0 +1,296 @@
+[
+  {
+    "sourceId": "hypertension",
+    "targetId": "heart_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.85,
+    "evidence": "Major risk factor for coronary artery disease"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "stroke",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.92,
+    "evidence": "Leading modifiable risk factor for stroke"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "kidney_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.78,
+    "evidence": "Hypertension damages glomerular filtration"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Regular BP monitoring essential for management"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "exercise",
+    "relationshipType": "improved_by",
+    "strength": 0.75,
+    "evidence": "Exercise reduces BP by 5-8 mmHg"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "diet",
+    "relationshipType": "improved_by",
+    "strength": 0.80,
+    "evidence": "DASH diet and sodium reduction lower BP"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "stress_management",
+    "relationshipType": "improved_by",
+    "strength": 0.65,
+    "evidence": "Stress reduction can lower BP by 2-5 mmHg"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "weight_management",
+    "relationshipType": "improved_by",
+    "strength": 0.72,
+    "evidence": "Each 1kg weight loss reduces BP by ~1 mmHg"
+  },
+  {
+    "sourceId": "hypertension",
+    "targetId": "alcohol_reduction",
+    "relationshipType": "improved_by",
+    "strength": 0.68,
+    "evidence": "Limiting alcohol reduces BP"
+  },
+  {
+    "sourceId": "anemia",
+    "targetId": "heart_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.72,
+    "evidence": "Anemia increases cardiac workload"
+  },
+  {
+    "sourceId": "anemia",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Regular Hb monitoring needed for management"
+  },
+  {
+    "sourceId": "anemia",
+    "targetId": "diet",
+    "relationshipType": "improved_by",
+    "strength": 0.85,
+    "evidence": "Iron-rich diet essential for hemoglobin production"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "heart_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.90,
+    "evidence": "Diabetics have 2-4x higher cardiovascular risk"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "stroke",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.85,
+    "evidence": "Diabetes doubles stroke risk"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "kidney_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.88,
+    "evidence": "Leading cause of chronic kidney disease"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "retinopathy",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.95,
+    "evidence": "Leads to vision loss if uncontrolled"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "anemia",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.65,
+    "evidence": "Chronic kidney disease from diabetes causes anemia"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Regular glucose and HbA1c monitoring mandatory"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "exercise",
+    "relationshipType": "improved_by",
+    "strength": 0.80,
+    "evidence": "Exercise improves insulin sensitivity by 20-30%"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "diet",
+    "relationshipType": "improved_by",
+    "strength": 0.88,
+    "evidence": "Low GI diet and carb control essential"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "weight_management",
+    "relationshipType": "improved_by",
+    "strength": 0.85,
+    "evidence": "Weight loss improves glycemic control"
+  },
+  {
+    "sourceId": "diabetes",
+    "targetId": "medication_adherence",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Medications critical for glycemic control"
+  },
+  {
+    "sourceId": "prediabetes",
+    "targetId": "diabetes",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.95,
+    "evidence": "Prediabetes progresses to diabetes in 30% within 3-5 years"
+  },
+  {
+    "sourceId": "prediabetes",
+    "targetId": "heart_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.72,
+    "evidence": "Prediabetes associated with metabolic syndrome"
+  },
+  {
+    "sourceId": "prediabetes",
+    "targetId": "exercise",
+    "relationshipType": "improved_by",
+    "strength": 0.88,
+    "evidence": "Exercise reduces diabetes risk by 58% in prediabetes"
+  },
+  {
+    "sourceId": "prediabetes",
+    "targetId": "diet",
+    "relationshipType": "improved_by",
+    "strength": 0.85,
+    "evidence": "Weight loss of 7% prevents diabetes progression"
+  },
+  {
+    "sourceId": "prediabetes",
+    "targetId": "weight_management",
+    "relationshipType": "improved_by",
+    "strength": 0.92,
+    "evidence": "Most effective intervention for prediabetes"
+  },
+  {
+    "sourceId": "heart_disease",
+    "targetId": "stroke",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.78,
+    "evidence": "Shared atherosclerotic pathology"
+  },
+  {
+    "sourceId": "heart_disease",
+    "targetId": "kidney_disease",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.68,
+    "evidence": "Reduced cardiac output affects renal perfusion"
+  },
+  {
+    "sourceId": "heart_disease",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Continuous cardiac monitoring and assessment required"
+  },
+  {
+    "sourceId": "stroke",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Critical immediate assessment and ongoing monitoring"
+  },
+  {
+    "sourceId": "kidney_disease",
+    "targetId": "anemia",
+    "relationshipType": "increases_risk_of",
+    "strength": 0.82,
+    "evidence": "Reduced erythropoietin production in renal failure"
+  },
+  {
+    "sourceId": "kidney_disease",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Regular GFR, creatinine, and proteinuria monitoring needed"
+  },
+  {
+    "sourceId": "retinopathy",
+    "targetId": "monitoring",
+    "relationshipType": "requires_action",
+    "strength": 1.0,
+    "evidence": "Annual or more frequent eye exams required"
+  },
+  {
+    "sourceId": "exercise",
+    "targetId": "weight_management",
+    "relationshipType": "supports",
+    "strength": 0.80,
+    "evidence": "Exercise is key component of weight management"
+  },
+  {
+    "sourceId": "exercise",
+    "targetId": "diet",
+    "relationshipType": "synergistic_with",
+    "strength": 0.85,
+    "evidence": "Diet and exercise together most effective"
+  },
+  {
+    "sourceId": "smoking_cessation",
+    "targetId": "heart_disease",
+    "relationshipType": "reduces_risk_of",
+    "strength": 0.90,
+    "evidence": "Smoking cessation reduces CVD risk by 50% within 1 year"
+  },
+  {
+    "sourceId": "smoking_cessation",
+    "targetId": "stroke",
+    "relationshipType": "reduces_risk_of",
+    "strength": 0.85,
+    "evidence": "Smoking major modifiable stroke risk factor"
+  },
+  {
+    "sourceId": "smoking_cessation",
+    "targetId": "hypertension",
+    "relationshipType": "improves",
+    "strength": 0.72,
+    "evidence": "Quitting smoking reduces BP"
+  },
+  {
+    "sourceId": "medication_adherence",
+    "targetId": "hypertension",
+    "relationshipType": "controls",
+    "strength": 0.88,
+    "evidence": "Medication adherence essential for BP control"
+  },
+  {
+    "sourceId": "medication_adherence",
+    "targetId": "heart_disease",
+    "relationshipType": "reduces_risk_of",
+    "strength": 0.85,
+    "evidence": "Good medication compliance reduces cardiac events"
+  },
+  {
+    "sourceId": "medication_adherence",
+    "targetId": "diabetes",
+    "relationshipType": "controls",
+    "strength": 0.90,
+    "evidence": "Medication adherence critical for glycemic control"
+  }
+]

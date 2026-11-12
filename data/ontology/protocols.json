@@ -1,0 +1,211 @@
+[
+  {
+    "id": "BP-G1",
+    "name": "Blood Pressure Grade 1 Hypertension",
+    "category": "hypertension_management",
+    "applicableCondition": "Systolic 140-159 mmHg OR Diastolic 90-99 mmHg",
+    "severity": "mild_to_moderate",
+    "recommendedAction": "Lifestyle modification with AAM visit in 2-4 weeks",
+    "lifestyle": ["reduce_salt_to_2300mg", "exercise_30min_5days_per_week", "stress_management", "weight_loss_if_overweight", "alcohol_moderation"],
+    "followUpDays": 21,
+    "escalationThreshold": "160/100 mmHg or symptoms of hypertensive urgency",
+    "monitoringIntervals": {
+      "home_monitoring": "daily for 1 week",
+      "clinic_followup": "14-21 days",
+      "repeat_assessment": "30 days"
+    },
+    "targetPopulation": "Adults with no prior CVD or diabetes",
+    "medicationConsideration": "Defer unless high risk or additional risk factors"
+  },
+  {
+    "id": "BP-G2",
+    "name": "Blood Pressure Grade 2 Hypertension",
+    "category": "hypertension_management",
+    "applicableCondition": "Systolic 160-179 mmHg OR Diastolic 100-109 mmHg",
+    "severity": "moderate_to_severe",
+    "recommendedAction": "Lifestyle modification AND pharmacotherapy, urgent AAM visit",
+    "lifestyle": ["reduce_salt_to_1500mg", "exercise_30min_daily", "stress_management", "weight_loss", "alcohol_cessation"],
+    "followUpDays": 7,
+    "escalationThreshold": ">=180/>=120 mmHg or end-organ damage signs",
+    "monitoringIntervals": {
+      "home_monitoring": "twice daily",
+      "clinic_followup": "7 days",
+      "repeat_assessment": "14 days after medication initiation"
+    },
+    "targetPopulation": "All adults; mandatory medication for most",
+    "medicationConsideration": "Initiate first-line antihypertensives (ACE-I, ARB, CCB, diuretic)",
+    "firstLineAgents": ["ACE_inhibitor", "ARB", "calcium_channel_blocker", "thiazide_diuretic"]
+  },
+  {
+    "id": "BP-URGENCY",
+    "name": "Hypertensive Urgency/Emergency",
+    "category": "hypertension_emergency",
+    "applicableCondition": "BP >=180/>=120 mmHg with or without symptoms",
+    "severity": "critical",
+    "recommendedAction": "IMMEDIATE referral to emergency department or urgent care",
+    "lifestyle": [],
+    "followUpDays": 0,
+    "escalationThreshold": "Emergency evaluation required",
+    "monitoringIntervals": {
+      "response_time": "within 30 minutes",
+      "evaluation": "continuous during crisis"
+    },
+    "targetPopulation": "All individuals with hypertensive crisis",
+    "medicationConsideration": "May need IV antihypertensives in ED setting",
+    "redFlags": ["chest_pain", "dyspnea", "neurological_symptoms", "altered_vision", "severe_headache"]
+  },
+  {
+    "id": "HB-DEF",
+    "name": "Mild to Moderate Anemia",
+    "category": "anemia_management",
+    "applicableCondition": "Hemoglobin 7-12 g/dL in males, 7-11 g/dL in females",
+    "severity": "mild_to_moderate",
+    "recommendedAction": "Investigate cause, dietary modification, AAM visit within 2 weeks",
+    "lifestyle": ["iron_rich_diet", "vitamin_C_sources", "manage_underlying_condition", "screen_for_blood_loss"],
+    "followUpDays": 14,
+    "escalationThreshold": "<7 g/dL or symptomatic complications",
+    "monitoringIntervals": {
+      "home_monitoring": "symptom tracking",
+      "clinic_followup": "14 days",
+      "lab_recheck": "4-6 weeks after intervention"
+    },
+    "targetPopulation": "Adults with mild-moderate anemia",
+    "medicationConsideration": "Iron supplementation if iron-deficiency confirmed",
+    "diagnosticWorkup": ["CBC", "iron_studies", "reticulocyte_count", "peripheral_smear"]
+  },
+  {
+    "id": "HB-SEV",
+    "name": "Severe Anemia",
+    "category": "anemia_management",
+    "applicableCondition": "Hemoglobin <7 g/dL",
+    "severity": "critical",
+    "recommendedAction": "URGENT referral to specialist/hospital for evaluation and possible transfusion",
+    "lifestyle": [],
+    "followUpDays": 1,
+    "escalationThreshold": "Hemodynamic instability or Hb <5 g/dL",
+    "monitoringIntervals": {
+      "response_time": "within 24 hours",
+      "specialist_evaluation": "urgent"
+    },
+    "targetPopulation": "Adults with severe anemia",
+    "medicationConsideration": "May require transfusion, IV iron, or EPO",
+    "redFlags": ["syncope", "severe_dyspnea", "chest_pain", "tachycardia_rest", "hypotension"]
+  },
+  {
+    "id": "DM-PREDIAB",
+    "name": "Prediabetes Management",
+    "category": "diabetes_prevention",
+    "applicableCondition": "Fasting glucose 100-125 mg/dL OR HbA1c 5.7-6.4%",
+    "severity": "low_reversible",
+    "recommendedAction": "Intensive lifestyle modification, AAM visit every 3 months",
+    "lifestyle": ["weight_loss_7_percent", "exercise_150min_weekly_moderate", "dietary_modification_low_GI", "stress_reduction", "sleep_hygiene"],
+    "followUpDays": 90,
+    "escalationThreshold": "Progression to diabetes or development of metabolic syndrome",
+    "monitoringIntervals": {
+      "home_monitoring": "weight, symptom tracking",
+      "clinic_followup": "12 weeks",
+      "lab_recheck": "glucose/HbA1c every 6-12 months"
+    },
+    "targetPopulation": "Adults with prediabetes, BMI >25, or significant risk factors",
+    "medicationConsideration": "Metformin if high risk (age <60, BMI >35, family history)",
+    "efficacy": "Lifestyle alone 58% effective; with metformin 71% effective at preventing diabetes"
+  },
+  {
+    "id": "DM-DIAB",
+    "name": "Diabetes Mellitus Management",
+    "category": "diabetes_management",
+    "applicableCondition": "Fasting glucose >=126 mg/dL OR HbA1c >=6.5% OR symptoms + glucose >200 mg/dL",
+    "severity": "moderate_to_high_chronic",
+    "recommendedAction": "Pharmacotherapy initiation, intensive lifestyle, AAM visit every 3 months",
+    "lifestyle": ["structured_diet_plan", "exercise_150min_weekly", "weight_management", "stress_management", "blood_glucose_monitoring", "foot_care", "eye_screening"],
+    "followUpDays": 30,
+    "escalationThreshold": "HbA1c >9% or acute complications (DKA, HHS)",
+    "monitoringIntervals": {
+      "self_monitoring": "1-4 times daily based on therapy",
+      "clinic_followup": "every 3 months",
+      "lab_recheck": "HbA1c every 3 months until <7%, then every 6 months",
+      "complication_screening": "annual"
+    },
+    "targetPopulation": "All persons with confirmed diabetes",
+    "medicationConsideration": "First-line: Metformin; add second agent if needed",
+    "targetHbA1c": "<7% for most (individualize)",
+    "complicationScreening": ["eye_exam_annually", "foot_exam_annually", "kidney_function_annually", "lipid_panel_annually"]
+  },
+  {
+    "id": "CARDIAC-MON",
+    "name": "Cardiac Monitoring Protocol",
+    "category": "cardiac_disease_management",
+    "applicableCondition": "History of MI, chest pain, arrhythmia, or high-risk presentation",
+    "severity": "high",
+    "recommendedAction": "ECG, troponin testing, continuous monitoring if hospitalized",
+    "lifestyle": ["cardiac_rehabilitation", "stress_reduction", "exercise_as_tolerated", "diet_low_sodium", "medication_adherence"],
+    "followUpDays": 7,
+    "escalationThreshold": "Recurrent chest pain, arrhythmia, or ECG changes",
+    "monitoringIntervals": {
+      "ECG": "baseline and as needed",
+      "troponin": "serial if acute presentation",
+      "clinic_followup": "7-14 days",
+      "stress_test": "as per cardiologist"
+    },
+    "targetPopulation": "Patients with known or suspected cardiac disease",
+    "medicationConsideration": "Antiplatelet, beta-blocker, ACE-I, statin per standard protocols"
+  },
+  {
+    "id": "RENAL-MON",
+    "name": "Kidney Disease Monitoring",
+    "category": "renal_disease_management",
+    "applicableCondition": "GFR <60 mL/min/1.73m2 or persistent proteinuria",
+    "severity": "variable",
+    "recommendedAction": "Baseline staging, regular monitoring, specialist referral for Stage 4-5",
+    "lifestyle": ["limit_sodium_1500mg", "control_blood_pressure", "diabetes_management", "limit_protein_0.8g_per_kg", "avoid_nephrotoxins"],
+    "followUpDays": 90,
+    "escalationThreshold": "GFR decline >5-10%, severe proteinuria, or potassium abnormality",
+    "monitoringIntervals": {
+      "creatinine_GFR": "every 3-6 months based on stage",
+      "urinalysis": "annually",
+      "BP_monitoring": "regular",
+      "nephrology_referral": "Stage 4 or progressive decline"
+    },
+    "targetPopulation": "All with CKD Stage 2-5",
+    "medicationConsideration": "ACE-I or ARB for proteinuria, BP control essential",
+    "CKDStaging": ["Stage1_GFR>=90", "Stage2_GFR_60-89", "Stage3a_GFR_45-59", "Stage3b_GFR_30-44", "Stage4_GFR_15-29", "Stage5_GFR<15"]
+  },
+  {
+    "id": "EYE-SCREEN",
+    "name": "Diabetic Eye Screening Protocol",
+    "category": "diabetes_complication_prevention",
+    "applicableCondition": "Diabetes diagnosis",
+    "severity": "medium_preventive",
+    "recommendedAction": "Referral to ophthalmology for comprehensive dilated exam annually",
+    "lifestyle": ["glucose_control", "blood_pressure_control", "smoking_cessation"],
+    "followUpDays": 365,
+    "escalationThreshold": "Any retinopathy findings or vision changes",
+    "monitoringIntervals": {
+      "ophthalmology_exam": "annually for diabetics with no retinopathy",
+      "more_frequent": "if any retinopathy detected",
+      "urgent_referral": "if vision changes or macular edema suspected"
+    },
+    "targetPopulation": "All persons with diabetes",
+    "medicationConsideration": "Anti-VEGF or laser treatment if retinopathy present"
+  },
+  {
+    "id": "STROKE-EMERG",
+    "name": "Acute Stroke Protocol",
+    "category": "stroke_emergency",
+    "applicableCondition": "Acute neurological deficit with time of onset <4.5 hours",
+    "severity": "critical",
+    "recommendedAction": "IMMEDIATE emergency evaluation, possible thrombolytic therapy or thrombectomy",
+    "lifestyle": [],
+    "followUpDays": 0,
+    "escalationThreshold": "Any suspected stroke symptom requires emergency evaluation",
+    "monitoringIntervals": {
+      "response_time": "Call 911 immediately",
+      "ED_evaluation": "baseline CT/MRI required",
+      "thrombolytic_window": "within 4.5 hours of symptom onset",
+      "thrombectomy_window": "up to 24 hours based on imaging"
+    },
+    "targetPopulation": "Anyone with sudden neurological deficit",
+    "medicationConsideration": "IV tPA if eligible; mechanical thrombectomy if large vessel occlusion",
+    "redFlags": ["facial_drooping", "arm_weakness", "speech_difficulty", "time_is_brain"]
+  }
+]

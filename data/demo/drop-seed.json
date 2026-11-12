@@ -1,0 +1,96 @@
+{
+  "_note": "Drop's starting state for each demo Persona on the demo start date (10 Oct 2026). Read by backend/src/domain/drop.js. Text here is the rule-based wording; the AI may rewrite open Cards.",
+  "D-NEW": {
+    "language": "en",
+    "budget": "healthy",
+    "memory": [],
+    "plan": null,
+    "reminders": [],
+    "earlier": [],
+    "open": []
+  },
+  "D-001": {
+    "language": "en",
+    "budget": "goal",
+    "memory": ["Saturdays suit you", "Works weekdays in Whitefield"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-06-30", "receipt": "June results: all in range except BP 136/86, saved to Health" },
+      { "type": "slots", "date": "2026-09-28", "receipt": "Booked the Whitefield office camp, Sat 3 Oct 10:00" }
+    ],
+    "open": [
+      { "type": "impact", "componentId": "D-001-V4-PLT" }
+    ]
+  },
+  "D-002": {
+    "language": "en",
+    "budget": "goal",
+    "memory": ["Vegetarian", "Prefers Tamil at home"],
+    "plan": {
+      "activity": { "label": "Brisk walk, 3 times a week", "minutesPerWeek": 90 },
+      "createdOn": "2026-07-10"
+    },
+    "reminders": [{ "id": "r-meera-1", "label": "Jaggery and lemon after lunch", "time": "14:00" }],
+    "earlier": [
+      { "type": "results", "date": "2026-07-09", "receipt": "Explained why you couldn't donate: Hb 11.8, below 12.5, falling for 4 visits" },
+      { "type": "plan_ready", "date": "2026-07-10", "receipt": "Plan set up: three iron-friendly habits, recheck in 8–12 weeks" },
+      { "type": "reminder", "date": "2026-07-10", "receipt": "Reminder set: jaggery and lemon after lunch, daily" }
+    ],
+    "open": [
+      { "type": "checkin", "marker": "hb", "mode": "report" }
+    ]
+  },
+  "D-003": {
+    "language": "en",
+    "budget": "healthy",
+    "memory": ["Donates at Bengaluru Central Blood Centre", "Saturday mornings suit you"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-04-22", "receipt": "April results: all 13 in the healthy range" },
+      { "type": "impact", "date": "2026-05-06", "receipt": "Your O negative red cells helped a newborn" }
+    ],
+    "open": [
+      { "type": "slots", "purpose": "donate", "reason": "shortage" }
+    ]
+  },
+  "D-017": {
+    "language": "en",
+    "budget": "goal",
+    "memory": ["Works night shifts"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-10-03", "receipt": "Couldn't donate on 3 Oct: BP 184/118 is outside the safe range" }
+    ],
+    "open": [
+      { "type": "urgent", "finding": "BP_URGENCY" }
+    ]
+  },
+  "D-050": {
+    "language": "en",
+    "budget": "healthy",
+    "memory": ["Rides with the weekend cycling group"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-08-12", "receipt": "August results: BP 138/88, a little above ideal; nothing to do yet" },
+      { "type": "impact", "date": "2026-08-30", "receipt": "Your platelets helped a patient with dengue" }
+    ],
+    "open": []
+  },
+  "D-033": {
+    "language": "hi",
+    "budget": "healthy",
+    "memory": ["Prefers Hindi"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-06-25", "receipt": "June results: all in the healthy range" }
+    ],
+    "open": [
+      { "type": "slots", "purpose": "donate", "reason": "eligible" }
+    ]
+  }
+}

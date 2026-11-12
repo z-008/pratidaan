@@ -1,0 +1,87 @@
+name: Deploy Pratidaan to Cloud Run
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.env.example'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: pratidaan-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: project-6055aa98-bf59-48b5-a50
+  REGION: asia-south1
+  REPOSITORY: tracedrop
+  SERVICE: pratidaan
+  RUNTIME_SERVICE_ACCOUNT: tracedrop-run@project-6055aa98-bf59-48b5-a50.iam.gserviceaccount.com
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+  AGENT_ENGINE_NAME: ${{ vars.AGENT_ENGINE_NAME }}
+  AGENT_ENGINE_LOCATION: ${{ vars.AGENT_ENGINE_LOCATION }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Test backend
+        run: |
+          cd backend
+          npm ci
+          npm test
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run type-check
+          npm run build
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Build and push container
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${SERVICE}:${GITHUB_SHA}"
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
+          echo "IMAGE=${IMAGE}" >> "${GITHUB_ENV}"
+      - name: Deploy exact commit to Cloud Run
+        run: |
+          gcloud run deploy "${SERVICE}" \
+            --image "${IMAGE}" \
+            --project "${PROJECT_ID}" \
+            --region "${REGION}" \
+            --service-account "${RUNTIME_SERVICE_ACCOUNT}" \
+            --cpu 1 \
+            --memory 512Mi \
+            --min-instances 1 \
+            --max-instances 4 \
+            --concurrency 20 \
+            --timeout 180 \
+            --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT_ID},VERTEX_LOCATION=global,LLM_MODEL=gemini-3.1-flash-lite,LLM_RATE_LIMIT_RPS=10,LLM_RATE_LIMIT_TOKENS_PER_DAY=500000,LLM_MAX_CALLS_PER_DAY=2000,GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID},SESSION_SECRET=${SESSION_SECRET},AGENT_ENGINE_NAME=${AGENT_ENGINE_NAME},AGENT_ENGINE_LOCATION=${AGENT_ENGINE_LOCATION:-us-central1}" \
+            --allow-unauthenticated \
+            --quiet
+      - name: Check deployed service
+        run: |
+          URL="$(gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" --format='value(status.url)')"
+          curl --fail --show-error --retry 5 --retry-delay 3 "${URL}/api/health"
+          echo "Deployed: ${URL}"

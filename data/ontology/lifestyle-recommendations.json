@@ -1,0 +1,231 @@
+{
+  "hypertension_grade1": {
+    "title": "Lifestyle Modifications for Grade 1 Hypertension",
+    "source": "ICMR Guidelines, ACC/AHA 2017",
+    "recommendations": [
+      {
+        "intervention": "Dietary Sodium Restriction",
+        "target": "Reduce to 2300 mg/day or less",
+        "expectedReduction": "2-8 mmHg systolic",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "tips": ["Check food labels", "Avoid processed foods", "Use herbs for seasoning", "Cook at home more often"]
+      },
+      {
+        "intervention": "DASH Diet",
+        "target": "Rich in fruits, vegetables, whole grains, low-fat dairy",
+        "expectedReduction": "8-14 mmHg systolic",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "tips": ["Increase fruits to 4-5 servings/day", "Increase vegetables to 4-5 servings/day", "Choose whole grains", "Include low-fat dairy products"]
+      },
+      {
+        "intervention": "Aerobic Exercise",
+        "target": "150 minutes moderate-intensity per week",
+        "expectedReduction": "5-7 mmHg systolic",
+        "duration": "At least 30 min, 5 days/week",
+        "difficulty": "moderate",
+        "examples": ["Brisk walking", "Jogging", "Cycling", "Swimming"]
+      },
+      {
+        "intervention": "Weight Loss",
+        "target": "Reduce body weight by 5-10% if overweight",
+        "expectedReduction": "2-10 mmHg per 10 kg lost",
+        "duration": "6-12 months",
+        "difficulty": "high",
+        "tips": ["Calculate current BMI", "Set realistic goals", "Track progress", "Consider referral to nutritionist"]
+      },
+      {
+        "intervention": "Alcohol Moderation",
+        "target": "Limit to 14 units/week (males), 7 units/week (females)",
+        "expectedReduction": "2-4 mmHg",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "definition": "1 unit = 10 mL pure alcohol"
+      },
+      {
+        "intervention": "Stress Management",
+        "target": "10-20 minutes daily relaxation practice",
+        "expectedReduction": "2-5 mmHg",
+        "duration": "Ongoing",
+        "difficulty": "easy_to_moderate",
+        "techniques": ["Deep breathing", "Meditation", "Yoga", "Progressive muscle relaxation", "Tai Chi"]
+      },
+      {
+        "intervention": "Sleep Optimization",
+        "target": "7-9 hours quality sleep per night",
+        "expectedReduction": "1-3 mmHg",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "tips": ["Maintain regular sleep schedule", "Avoid screens 1 hour before bed", "Keep bedroom cool and dark"]
+      }
+    ]
+  },
+  "diabetes_management": {
+    "title": "Lifestyle Modifications for Diabetes",
+    "source": "ICMR Diabetes Guidelines, ADA Standards",
+    "recommendations": [
+      {
+        "intervention": "Carbohydrate Quality",
+        "target": "Prefer low glycemic index foods",
+        "expectedImprovement": "HbA1c reduction 0.5-2%",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "examples": ["Whole grains", "Legumes", "Non-starchy vegetables", "Low-GI fruits"]
+      },
+      {
+        "intervention": "Portion Control",
+        "target": "Follow plate method: 1/2 vegetables, 1/4 protein, 1/4 carbs",
+        "expectedImprovement": "Better glucose control",
+        "duration": "Ongoing",
+        "difficulty": "easy_to_moderate",
+        "tips": ["Use smaller plates", "Measure portions initially", "Eat slowly"]
+      },
+      {
+        "intervention": "Fiber Intake",
+        "target": "25-35g per day from various sources",
+        "expectedImprovement": "Improved glucose and lipid profiles",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "sources": ["Whole grains", "Beans", "Vegetables", "Fruits", "Nuts"]
+      },
+      {
+        "intervention": "Physical Activity",
+        "target": "150 minutes moderate-intensity + resistance training 2x/week",
+        "expectedImprovement": "HbA1c reduction 1-2%",
+        "duration": "At least 30 min daily",
+        "difficulty": "moderate",
+        "precautions": ["Check feet before exercise", "Stay hydrated", "Monitor glucose if on insulin"]
+      },
+      {
+        "intervention": "Weight Management",
+        "target": "7-10% weight reduction for most benefit",
+        "expectedImprovement": "Significant glycemic improvement",
+        "duration": "3-6 months",
+        "difficulty": "high",
+        "tips": ["Caloric deficit 500-750 kcal/day", "Track intake", "Include protein at each meal"]
+      },
+      {
+        "intervention": "Blood Glucose Self-Monitoring",
+        "target": "Home glucose monitoring as per medication regimen",
+        "expectedImprovement": "Better medication adjustment",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "frequency": "1-4 times daily depending on therapy"
+      },
+      {
+        "intervention": "Foot Care",
+        "target": "Daily inspection and care",
+        "expectedImprovement": "Prevention of ulcers and complications",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "steps": ["Daily inspection", "Proper footwear", "Regular pedicures", "Immediate attention to injuries"]
+      }
+    ]
+  },
+  "prediabetes_reversal": {
+    "title": "Intensive Lifestyle Intervention for Prediabetes",
+    "source": "Diabetes Prevention Program",
+    "target": "Prevent progression to diabetes with high adherence",
+    "recommendations": [
+      {
+        "intervention": "Structured Weight Loss Program",
+        "target": "7% weight reduction sustained",
+        "expectedOutcome": "58% diabetes risk reduction",
+        "duration": "6 months intensive, then maintenance",
+        "difficulty": "high",
+        "successFactors": ["Professional guidance", "Regular monitoring", "Support group participation"]
+      },
+      {
+        "intervention": "Moderate-Intensity Physical Activity",
+        "target": "150 minutes per week minimum",
+        "expectedOutcome": "Enhanced insulin sensitivity",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "examples": ["Brisk walking", "Dancing", "Sports"]
+      },
+      {
+        "intervention": "Dietary Pattern",
+        "target": "Low-calorie, low-fat diet or Mediterranean pattern",
+        "expectedOutcome": "Improved metabolic parameters",
+        "duration": "Ongoing",
+        "difficulty": "moderate",
+        "emphasis": ["Reduce refined carbs", "Increase whole foods", "Limit added sugars"]
+      }
+    ]
+  },
+  "anemia_management": {
+    "title": "Dietary Interventions for Anemia",
+    "source": "WHO Guidelines",
+    "recommendations": [
+      {
+        "intervention": "Iron-Rich Foods",
+        "target": "Include at each meal",
+        "expectedImprovement": "Improved hemoglobin over 2-4 months",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "heme_sources": ["Lean red meat", "Poultry", "Fish", "Shellfish"],
+        "non_heme_sources": ["Beans", "Lentils", "Fortified cereals", "Leafy greens"],
+        "note": "Heme iron has better absorption"
+      },
+      {
+        "intervention": "Vitamin C Combination",
+        "target": "Take iron-rich foods with vitamin C sources",
+        "expectedImprovement": "Improved iron absorption by 3-4 fold",
+        "duration": "With every meal",
+        "difficulty": "easy",
+        "sources": ["Citrus", "Tomatoes", "Bell peppers", "Strawberries"]
+      },
+      {
+        "intervention": "Avoid Iron Inhibitors",
+        "target": "Space away from iron-rich meals",
+        "expectedImprovement": "Better iron absorption",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "inhibitors": ["Tea", "Coffee", "Calcium supplements", "High-fiber foods with meals"]
+      },
+      {
+        "intervention": "Protein Intake",
+        "target": "Include protein sources at each meal",
+        "expectedImprovement": "Supports hemoglobin synthesis",
+        "duration": "Ongoing",
+        "difficulty": "easy",
+        "sources": ["Meat", "Fish", "Eggs", "Legumes", "Dairy"]
+      }
+    ]
+  },
+  "general_cardiovascular_health": {
+    "title": "General Cardiovascular Health Recommendations",
+    "source": "ACC/AHA 2019 Guidelines",
+    "recommendations": [
+      {
+        "intervention": "Mediterranean Diet",
+        "target": "Following Mediterranean dietary pattern",
+        "expectedBenefit": "30% reduction in cardiovascular events",
+        "difficulty": "moderate",
+        "components": ["Olive oil as primary fat", "Abundant vegetables and fruits", "Whole grains", "Legumes", "Moderate fish", "Limited red meat", "Moderate wine with meals"]
+      },
+      {
+        "intervention": "Smoking Cessation",
+        "target": "Complete cessation",
+        "expectedBenefit": "50% CVD risk reduction within 1 year",
+        "difficulty": "very_high",
+        "resources": ["Nicotine replacement therapy", "Prescription medications", "Counseling", "Support groups"]
+      },
+      {
+        "intervention": "Stress Reduction",
+        "target": "Regular practice 15-30 minutes daily",
+        "expectedBenefit": "Lower BP, reduced cardiovascular events",
+        "difficulty": "easy_to_moderate",
+        "methods": ["Meditation", "Yoga", "Tai Chi", "Deep breathing", "Counseling"]
+      },
+      {
+        "intervention": "Social Engagement",
+        "target": "Maintain strong social connections",
+        "expectedBenefit": "Lower cardiovascular mortality",
+        "difficulty": "easy",
+        "suggestions": ["Community involvement", "Family time", "Support groups", "Religious activities"]
+      }
+    ]
+  }
+}

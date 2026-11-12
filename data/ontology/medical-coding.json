@@ -1,0 +1,237 @@
+{
+  "icd10_mappings": {
+    "hypertension": {
+      "ICD10": "I10",
+      "description": "Essential (primary) hypertension",
+      "subtypes": [
+        {
+          "code": "I11",
+          "description": "Hypertension with heart disease"
+        },
+        {
+          "code": "I12",
+          "description": "Hypertension with CKD"
+        },
+        {
+          "code": "I13",
+          "description": "Hypertension with both heart disease and CKD"
+        }
+      ]
+    },
+    "anemia": {
+      "ICD10": "D50-D64",
+      "description": "Anemias",
+      "subtypes": [
+        {
+          "code": "D50.0",
+          "description": "Iron deficiency anemia"
+        },
+        {
+          "code": "D50.8",
+          "description": "Other iron deficiency anemias"
+        },
+        {
+          "code": "D51",
+          "description": "Vitamin B12 deficiency anemia"
+        },
+        {
+          "code": "D52",
+          "description": "Folate deficiency anemia"
+        }
+      ]
+    },
+    "diabetes": {
+      "ICD10": "E10-E14",
+      "description": "Diabetes mellitus",
+      "subtypes": [
+        {
+          "code": "E11",
+          "description": "Type 2 diabetes mellitus"
+        },
+        {
+          "code": "E10",
+          "description": "Type 1 diabetes mellitus"
+        },
+        {
+          "code": "E13",
+          "description": "Other specified diabetes mellitus"
+        }
+      ]
+    },
+    "heart_disease": {
+      "ICD10": "I25",
+      "description": "Ischemic heart disease"
+    },
+    "stroke": {
+      "ICD10": "I63",
+      "description": "Cerebral infarction"
+    },
+    "kidney_disease": {
+      "ICD10": "N18",
+      "description": "Chronic kidney disease"
+    }
+  },
+  "loinc_mappings": {
+    "systolic_bp": {
+      "LOINC": "8480-6",
+      "name": "Systolic blood pressure",
+      "unit": "mmHg",
+      "reference_range_normal": "<120"
+    },
+    "diastolic_bp": {
+      "LOINC": "8462-4",
+      "name": "Diastolic blood pressure",
+      "unit": "mmHg",
+      "reference_range_normal": "<80"
+    },
+    "hemoglobin": {
+      "LOINC": "718-7",
+      "name": "Hemoglobin",
+      "unit": "g/dL",
+      "reference_range_male": "13.5-17.5",
+      "reference_range_female": "12.0-15.5"
+    },
+    "hematocrit": {
+      "LOINC": "4544-3",
+      "name": "Hematocrit",
+      "unit": "%",
+      "reference_range_male": "41-53",
+      "reference_range_female": "36-46"
+    },
+    "fasting_glucose": {
+      "LOINC": "2345-7",
+      "name": "Glucose [Mass/volume] in Serum or Plasma after 12-14 hour fast",
+      "unit": "mg/dL",
+      "reference_range": "<100"
+    },
+    "HbA1c": {
+      "LOINC": "4548-4",
+      "name": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "unit": "%",
+      "reference_range": "<5.7"
+    },
+    "total_cholesterol": {
+      "LOINC": "2093-3",
+      "name": "Cholesterol [Mass/volume] in Serum or Plasma",
+      "unit": "mg/dL",
+      "reference_range": "<200"
+    },
+    "LDL": {
+      "LOINC": "2089-1",
+      "name": "Cholesterol in LDL [Mass/volume] in Serum or Plasma",
+      "unit": "mg/dL",
+      "reference_range": "<100"
+    },
+    "HDL": {
+      "LOINC": "2085-9",
+      "name": "Cholesterol in HDL [Mass/volume] in Serum or Plasma",
+      "unit": "mg/dL",
+      "reference_range_male": ">40",
+      "reference_range_female": ">50"
+    },
+    "creatinine": {
+      "LOINC": "2160-0",
+      "name": "Creatinine [Mass/volume] in Serum or Plasma",
+      "unit": "mg/dL",
+      "reference_range": "0.7-1.3"
+    },
+    "BUN": {
+      "LOINC": "3094-0",
+      "name": "Urea nitrogen [Mass/volume] in Serum or Plasma",
+      "unit": "mg/dL",
+      "reference_range": "7-20"
+    },
+    "GFR": {
+      "LOINC": "33914-3",
+      "name": "Glomerular filtration rate (eGFR)",
+      "unit": "mL/min/1.73m2",
+      "reference_range": ">60"
+    },
+    "troponin": {
+      "LOINC": "10839-9",
+      "name": "Troponin I [Mass/volume] in Serum or Plasma",
+      "unit": "ng/mL",
+      "reference_range": "<0.04"
+    }
+  },
+  "snomed_ct_mappings": {
+    "hypertension_stage_1": {
+      "snomedCode": "18099381000119106",
+      "description": "Hypertension stage 1"
+    },
+    "hypertension_stage_2": {
+      "snomedCode": "18099371000119103",
+      "description": "Hypertension stage 2"
+    },
+    "type_2_diabetes": {
+      "snomedCode": "44054006",
+      "description": "Type 2 diabetes mellitus"
+    },
+    "anemia": {
+      "snomedCode": "271737000",
+      "description": "Anemia"
+    },
+    "coronary_artery_disease": {
+      "snomedCode": "53741008",
+      "description": "Coronary artery disease"
+    },
+    "acute_myocardial_infarction": {
+      "snomedCode": "57054005",
+      "description": "Acute myocardial infarction"
+    },
+    "cerebral_infarction": {
+      "snomedCode": "230690007",
+      "description": "Cerebral infarction (stroke)"
+    }
+  },
+  "medication_codes": {
+    "ACE_inhibitor": {
+      "category": "Antihypertensive",
+      "ATC": "C09A",
+      "examples": ["Lisinopril", "Enalapril", "Ramipril"],
+      "mechanism": "Inhibits angiotensin-converting enzyme"
+    },
+    "ARB": {
+      "category": "Antihypertensive",
+      "ATC": "C09C",
+      "examples": ["Losartan", "Valsartan", "Olmesartan"],
+      "mechanism": "Blocks angiotensin II receptor"
+    },
+    "calcium_channel_blocker": {
+      "category": "Antihypertensive",
+      "ATC": "C08",
+      "examples": ["Amlodipine", "Diltiazem", "Nifedipine"],
+      "mechanism": "Blocks calcium channels in vascular smooth muscle"
+    },
+    "thiazide_diuretic": {
+      "category": "Antihypertensive",
+      "ATC": "C03A",
+      "examples": ["Hydrochlorothiazide", "Chlorthalidone"],
+      "mechanism": "Increases urine sodium and water excretion"
+    },
+    "metformin": {
+      "category": "Antidiabetic",
+      "ATC": "A10BA02",
+      "mechanism": "Reduces hepatic glucose production",
+      "indication": "Type 2 diabetes, prediabetes"
+    },
+    "insulin": {
+      "category": "Antidiabetic",
+      "ATC": "A10A",
+      "types": ["Rapid-acting", "Regular", "Intermediate-acting", "Long-acting"],
+      "indication": "Type 1 diabetes, advanced type 2 diabetes"
+    },
+    "statin": {
+      "category": "Lipid-lowering",
+      "ATC": "C10AA",
+      "examples": ["Atorvastatin", "Simvastatin", "Rosuvastatin"],
+      "mechanism": "Inhibits HMG-CoA reductase, lowers LDL"
+    },
+    "iron_supplement": {
+      "category": "Hematologic",
+      "ATC": "B03A",
+      "forms": ["Ferrous sulfate", "Ferrous fumarate", "Ferric citrate"],
+      "indication": "Iron deficiency anemia"
+    }
+  }
+}

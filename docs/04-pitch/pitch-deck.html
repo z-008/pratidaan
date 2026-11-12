@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pratidaan Pitch Deck</title>
+<style>
+  :root {
+    --surface: #fcfcfb;
+    --plane: #f2f1ec;
+    --panel: #f4f7fb;
+    --panel-warm: #f7f6f3;
+    --border: #e1e0d9;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --accent: #2a78d6;
+    --accent-deep: #184f95;
+    --accent-soft: #cde2fb;
+    --lost: #eb6834;
+    --lost-soft: #fbe3d8;
+    --good: #006300;
+    --critical: #d03b3b;
+  }
+  @page { size: 13.333in 7.5in; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--plane); color: var(--text-primary);
+    font: 15px/1.38 system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 13.333in; height: 7.5in; background: var(--surface); position: relative;
+    padding: 0.5in 0.62in 0.45in; overflow: hidden; break-after: page; display: flex; flex-direction: column; }
+  @media screen { .slide { margin: 18px auto; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 6px 24px rgba(0,0,0,.06); border-radius: 6px; } }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-deep); font-weight: 650; margin-bottom: 8px; }
+  h1 { font-size: 40px; line-height: 1.08; margin: 0 0 10px; letter-spacing: -0.015em; font-weight: 720; }
+  h2 { font-size: 30px; line-height: 1.12; margin: 0 0 14px; letter-spacing: -0.01em; font-weight: 700; }
+  h3 { font-size: 17px; margin: 0 0 6px; font-weight: 680; }
+  p { margin: 0 0 8px; }
+  .lede { font-size: 19px; color: var(--text-secondary); max-width: 10.5in; }
+  .muted { color: var(--text-secondary); }
+  .small { font-size: 12.5px; }
+  .foot { position: absolute; left: 0.62in; right: 0.62in; bottom: 0.2in; display: flex; justify-content: space-between;
+    font-size: 10.5px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 6px; }
+  .grid { display: grid; gap: 18px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--panel); border-radius: 8px; padding: 16px 18px; }
+  .card.warm { background: var(--panel-warm); }
+  .card.lost { background: var(--lost-soft); }
+  .stat { font-size: 46px; font-weight: 740; line-height: 1; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .stat.lost { color: #b54a1f; }
+  .stat.blue { color: var(--accent-deep); }
+  ul { margin: 0; padding-left: 18px; } li { margin: 0 0 6px; }
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 650; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-deep); margin-right: 6px; }
+  .tag.lost { background: var(--lost-soft); color: #9a3d17; }
+  .src { font-size: 10.5px; color: var(--muted); margin-top: 6px; }
+  .fill { flex: 1; min-height: 0; }
+
+  /* Ecosystem diagram */
+  .ecosystem-center { width: 140px; height: 140px; border-radius: 50%; background: var(--accent);
+    display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;
+    font-size: 18px; margin: 0 auto; text-align: center; line-height: 1.2; }
+  .ecosystem-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: center;
+    margin-top: 12px; }
+  .ecosystem-sector { text-align: center; }
+  .ecosystem-sector h4 { font-size: 15px; font-weight: 700; margin: 0 0 6px; color: var(--accent-deep); }
+  .ecosystem-sector ul { list-style: none; padding: 0; margin: 0; font-size: 12.5px; }
+  .ecosystem-sector li { margin: 3px 0; color: var(--text-secondary); }
+  .benefit-label { font-size: 11px; font-weight: 650; color: var(--accent-deep); text-transform: uppercase;
+    letter-spacing: 0.05em; margin-top: 6px; }
+
+  /* Title slide */
+  .title-slide { background: linear-gradient(135deg, #0d366b 0%, #184f95 55%, #2a78d6 100%); color: #fff; }
+  .title-slide .eyebrow { color: #cde2fb; }
+  .title-slide .lede { color: #e6eefb; }
+  .title-slide .foot { color: #b7d3f6; border-top-color: rgba(255,255,255,.25); }
+  .drop { width: 52px; height: 52px; border-radius: 0 50% 50% 50%; transform: rotate(45deg); background: #e34948; border: 3px solid #fff; margin: 14px 0 28px 8px; }
+
+  /* Arjun (slide 2) */
+  .bp-chart { width: 100%; height: auto; }
+  .bp-chart text { font-family: inherit; }
+  .chat { background: #e8f3e8; border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .chat .who { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+  /* Funnel bars (unused) */
+  .funnel-row { display: grid; grid-template-columns: 1.7in 1fr 0.9in; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .bar-track { height: 26px; background: #f0efec; border-radius: 4px; position: relative; overflow: hidden; }
+  .bar { height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); }
+  .bar.lost { background: var(--lost); }
+  .pct { font-weight: 700; font-size: 18px; }
+
+  /* Architecture (slide 6) */
+  .arch { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 14px; align-items: stretch; }
+  .lane { background: var(--panel); border-radius: 8px; padding: 12px 14px; }
+  .lane h3 { font-size: 14px; color: var(--accent-deep); text-transform: uppercase; letter-spacing: .05em; }
+  .box { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 13.5px; }
+  .box b { display: block; font-size: 13.5px; }
+  .box .muted { font-size: 12px; }
+  .box.human { border-left: 4px solid var(--good); }
+  .box.fixed { border-left: 4px solid var(--critical); }
+  .box.ai { border-left: 4px solid var(--accent); }
+
+  /* Demo strip (slide 5) */
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .step { background: var(--panel); border-radius: 8px; padding: 12px; font-size: 13.5px; position: relative; }
+  .step .n { font-size: 12px; font-weight: 700; color: var(--accent-deep); margin-bottom: 4px; }
+  .step.human { background: #e9f4e9; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-secondary); font-weight: 650; }
+  .num { font-variant-numeric: tabular-nums; }
+  .ok { color: var(--good); font-weight: 650; }
+</style>
+</head>
+<body>
+
+<!-- 1. Title -->
+<section class="slide title-slide">
+  <div class="fill" style="display:flex;flex-direction:column;justify-content:center;">
+    <div class="drop" aria-hidden="true"></div>
+    <div class="eyebrow">H2S × Google Cloud Gen AI Hackathon 2026 · Sustainability &amp; Social Impact</div>
+    <h1 style="font-size:58px;">Pratidaan</h1>
+    <p class="lede" style="font-size:28px;max-width:9.5in;">Give blood. See every life it touches.</p>
+    <p class="lede" style="margin-top:12px;font-size:20px;max-width:10in;">The donor's app: every part of your donation followed to the patient it helped, your free health check turned into a light follow-up until you can give again, and health-insurance cover that rises as you stay well.</p>
+  </div>
+  <div class="foot"><span>Team Pratidaan · Mihir Bhatt · Uppili Srinivasan · Sandeep Samant</span><span>Prototype: pratidaan-25mgkruoeq-el.a.run.app · Source: GitHub (hackathon submission)</span></div>
+</section>
+
+<!-- 2. Arjun -->
+<section class="slide">
+  <div class="eyebrow">The moment</div>
+  <h2>He gave blood on 3 October. Five days later it helped a patient. He'll never know.</h2>
+  <div class="grid g2 fill" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+    <div>
+      <svg class="bp-chart" viewBox="0 0 620 330" role="img" aria-label="Arjun's systolic blood pressure at four donations: 126, 132, 136, then 148, crossing the 140 donor limit">
+        <title>Arjun's systolic BP at each donation</title>
+        <rect x="0" y="0" width="620" height="330" fill="#fcfcfb"/>
+        <g stroke="#e1e0d9" stroke-width="1">
+          <line x1="60" y1="70" x2="600" y2="70"/><line x1="60" y1="190" x2="600" y2="190"/>
+          <line x1="60" y1="250" x2="600" y2="250"/>
+        </g>
+        <line x1="60" y1="280" x2="600" y2="280" stroke="#c3c2b7" stroke-width="1"/>
+        <g font-size="12" fill="#898781" text-anchor="end">
+          <text x="50" y="74">150</text><text x="50" y="134">140</text><text x="50" y="194">130</text><text x="50" y="254">120</text>
+        </g>
+        <line x1="60" y1="130" x2="600" y2="130" stroke="#d03b3b" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="66" y="123" font-size="12" fill="#52514e">Donor limit: 140/90</text>
+        <polyline points="120,214 270,178 420,154 560,82" fill="none" stroke="#2a78d6" stroke-width="2.5" stroke-linejoin="round"/>
+        <g fill="#2a78d6" stroke="#fcfcfb" stroke-width="2">
+          <circle cx="120" cy="214" r="6"/><circle cx="270" cy="178" r="6"/><circle cx="420" cy="154" r="6"/>
+        </g>
+        <circle cx="560" cy="82" r="7.5" fill="#d03b3b" stroke="#fcfcfb" stroke-width="2"/>
+        <g font-size="13" fill="#0b0b0b" text-anchor="middle" font-weight="650">
+          <text x="120" y="236">126/78</text><text x="270" y="200">132/82</text><text x="420" y="176">136/86</text><text x="560" y="62">148/94</text>
+        </g>
+        <g font-size="12" fill="#52514e" text-anchor="middle">
+          <text x="120" y="302">Aug 2024</text><text x="270" y="302">Jul 2025</text><text x="420" y="302">Jun 2026</text><text x="560" y="302">3 Oct 2026</text>
+        </g>
+        <text x="60" y="322" font-size="11" fill="#898781">Systolic BP at each donation, mm Hg (synthetic persona)</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card warm">
+        <h3>Arjun, 34 · software engineer, Bengaluru</h3>
+        <ul>
+          <li>Gives at office camps. His <b>platelets reached a patient</b> on 8 October. Nobody tells him.</li>
+          <li>His BP has risen at <b>every donation</b>, each reading on a different form. Nobody joined the dots.</li>
+          <li>148/94 means he <b>can't give next time</b>. "Come back later." No reason he understands, no path back.</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div class="stat blue">29%</div>
+        <p>of Indian adults aged 30–69 with raised BP <b>know they have it</b>.</p>
+        <div class="src">ICMR-NCDIR National NCD Monitoring Survey</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Pratidaan</span><span>2</span></div>
+</section>
+
+<!-- 3. The problem -->
+<section class="slide">
+  <div class="eyebrow">The problem</div>
+  <h2>Blood supply depends on donors who come back. Three things push them away.</h2>
+  <p class="lede" style="margin-bottom:18px;">India collects <b>1.57 crore</b> units a year. Repeat voluntary donors are the safest supply. Yet every donation ends in silence.</p>
+  <div class="grid g3 fill" style="align-items:start;">
+    <div class="card lost">
+      <span class="tag lost">1 · The gift disappears</span>
+      <h3 style="margin-top:8px;">Up to three patients. Zero news.</h3>
+      <p>A donation is split into red cells, platelets and plasma that reach different patients. The donor gets a certificate and silence.</p>
+      <p class="muted small">Sweden texts donors when their blood is used, to bring them back. That text says only <i>that</i> it was used.</p>
+      <div class="src">The Independent, 2015</div>
+    </div>
+    <div class="card lost">
+      <span class="tag lost">2 · The health check goes nowhere</span>
+      <h3 style="margin-top:8px;">Measured every time. Explained never.</h3>
+      <p>BP and haemoglobin are measured at every visit; the sample is screened. Donors who pass take nothing home.</p>
+      <p class="muted small">Results alone don't help: Taiwan's donor screening found "limited benefits… without additional interventions".</p>
+      <div class="src">Vox Sang 2025</div>
+    </div>
+    <div class="card lost">
+      <span class="tag lost">3 · Turned away, then gone</span>
+      <h3 style="margin-top:8px;">"Come back later." They don't.</h3>
+      <p>High BP or low haemoglobin means deferral, with no explanation and no path back. 57% of Indian women are anaemic.</p>
+      <p class="muted small">Deferred first-time donors return at about half the rate of others.</p>
+      <div class="src">NFHS-5; Custer 2007</div>
+    </div>
+  </div>
+  <div class="foot"><span>Pratidaan</span><span>3</span></div>
+</section>
+
+<!-- 4. The solution -->
+<section class="slide">
+  <div class="eyebrow">Pratidaan · the donor at the centre</div>
+  <h2>Three reasons to give again, in one app, with one assistant: Drop.</h2>
+  <div class="grid g3" style="margin-top:6px;">
+    <div class="card" style="border-top:4px solid #e34948;">
+      <span class="tag">Impact</span>
+      <h3 style="margin-top:8px;">See every life your blood touches</h3>
+      <ul class="small">
+        <li>Every part of every donation followed to the patient: the treatment and type of hospital.</li>
+        <li>The patient stays anonymous: details shown only when at least 5 patients share them.</li>
+        <li>A short <b>Story</b> when a part lands, ending on a shareable postcard.</li>
+        <li><b>Badges</b> for milestones; <b>Circles</b> for family, workplace and friends.</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--accent);">
+      <span class="tag">Health</span>
+      <h3 style="margin-top:8px;">Stay well until you can give again</h3>
+      <ul class="small">
+        <li>The donation's own results, in plain words.</li>
+        <li>A finding becomes a <b>Goal</b>: one target, 2–3 steps, each citing its guidance.</li>
+        <li>Check-ins every two weeks, check-up slots, reminders you ask for.</li>
+        <li>The date you can donate again. At most one new Card a day.</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--good);">
+      <span class="tag">Cover</span>
+      <h3 style="margin-top:8px;">Better cover for staying healthy</h3>
+      <ul class="small">
+        <li>Like a credit limit: cover steps <b>₹5 → 6 → 7 → 8 lakh</b> at the same premium.</li>
+        <li>Lower risk from a better health score creates room for more cover.</li>
+        <li>Only with your consent; the insurer sees the score, never results.</li>
+        <li>Illustrative in the prototype.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card warm" style="margin-top:16px;">
+    <p style="margin:0;"><b>Around the donor:</b> what their blood meant for the blood centre, hospitals, labs and public health · a network-wide ecosystem view · guided booking with a Google Calendar event · <b>Your data</b>, which lists and deletes everything kept.</p>
+  </div>
+  <div class="foot"><span>Pratidaan</span><span>4</span></div>
+</section>
+
+<!-- 5. Demo -->
+<section class="slide">
+  <div class="eyebrow">Demo · live on Cloud Run</div>
+  <h2>Arjun, from silence to a story, a Goal and a date to give again</h2>
+  <div class="steps" style="margin-top:6px;">
+    <div class="step"><div class="n">10 Oct · Story</div>"My platelets reached a patient." Some details stay private so no one can be identified. He shares the postcard.</div>
+    <div class="step"><div class="n">11 Oct · Results</div>BP up at each of his last 4 donations. One Goal: <b>BP under 130/80</b>. Walks, less salt, see a doctor within 3 weeks.</div>
+    <div class="step"><div class="n">Ask Drop · Kannada</div>"Why can't I donate?" Drop looks it up and answers in two sentences, with his BP chart.</div>
+    <div class="step"><div class="n">25 Oct · Check-in</div>He adds a pharmacy reading: 128/78. <b>Goal reached.</b></div>
+    <div class="step"><div class="n">Back to giving</div>"You can donate from 1 Jan." Drop will offer slots three weeks before.</div>
+  </div>
+  <div class="grid g2" style="margin-top:18px;">
+    <div class="card warm">
+      <h3>Meera: turned away, then back</h3>
+      <p>Hb 11.8, she needs 12.5. She photographs a lab report; <b>Gemini reads Hb 12.6</b>, she confirms, and she can donate again.</p>
+    </div>
+    <div class="card">
+      <h3>Vikram: a rule, not a model</h3>
+      <p>BP 184/118. One urgent Card, always first, can't be hidden, only waits an hour: see a doctor today. His Goal suggests no exercise until a doctor has seen him.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Live: pratidaan-25mgkruoeq-el.a.run.app · sign in with Google or continue as guest</span><span>5</span></div>
+</section>
+
+<!-- 6. Architecture -->
+<section class="slide">
+  <div class="eyebrow">How it's built</div>
+  <h2>Rules decide. Gemini helps where rules can't.</h2>
+  <div class="arch fill">
+    <div class="lane">
+      <h3>Donor app</h3>
+      <div class="box"><b>React 19 web app</b><span class="muted">Home · Impact · Health · Cover · Community · Donate · Your data</span></div>
+      <div class="box"><b>Drop on every screen</b><span class="muted">Cards on Home, chat in a side sheet, the Intro</span></div>
+      <div class="box"><b>Google Sign-In · Calendar · Gmail</b><span class="muted">booking event and confirmation in the donor's own account</span></div>
+      <h3 style="margin-top:12px;">Data</h3>
+      <div class="box"><b>Synthetic world</b><span class="muted">300 donors · 657 visits · 1,627 components · seed 42</span></div>
+      <div class="box"><b>Cloud Firestore</b><span class="muted">accounts, sign-ins, preferences, bookings (not Firebase Auth or Hosting)</span></div>
+    </div>
+    <div class="lane">
+      <h3>Gemini 3.1 Flash-Lite · Vertex AI</h3>
+      <div class="box ai"><b>Drop's chat · agent with 18 tools</b><span class="muted">answers any question across impact, health and cover; shows a chart; offers a check-up; saves a reading; remembers a preference; six languages</span></div>
+      <div class="box ai"><b>Lab-report reader · multimodal</b><span class="muted">any lab's photo → 16 LOINC markers, unit conversion, schema + range checks, donor confirms</span></div>
+      <div class="box ai"><b>Intro translation</b><span class="muted">kept only if every number survives</span></div>
+      <div class="box"><b>Gateway</b><span class="muted">rate limit · daily budgets · traces · output re-validated · rule fallback for every feature</span></div>
+    </div>
+    <div class="lane">
+      <h3>Deterministic engines · 156 tests</h3>
+      <div class="box fixed"><b>Findings, score, eligibility</b><span class="muted">ACC/AHA 2017 and ICMR thresholds; NBTC gaps</span></div>
+      <div class="box fixed"><b>Drop's Cards and Goals</b><span class="muted">Message budget, quiet hours, urgent first; targets and cited steps</span></div>
+      <div class="box fixed"><b>Cover ladder</b><span class="muted">risk from score → headroom at the same premium</span></div>
+      <div class="box fixed"><b>Recipient privacy</b><span class="muted">k = 5 generalisation, month-rounded dates</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>Google stack: Gemini on Vertex AI · Cloud Run · Artifact Registry · WIF · Cloud Firestore · OAuth Sign-In, Calendar, Gmail APIs (no Firebase product)</span><span>6</span></div>
+</section>
+
+<!-- 7. Impact and scale -->
+<section class="slide">
+  <div class="eyebrow">Who wins, and how it scales</div>
+  <h2>The donor pays nothing. Everyone who needs donors to return has a reason to fund it.</h2>
+  <div class="grid g3" style="margin-top:4px;">
+    <div class="card" style="background: #e1f5e1; border-left: 4px solid var(--good);">
+      <h3 style="color: var(--good);">Donors</h3>
+      <ul style="font-size: 14px;">
+        <li>See what their blood did, privately</li>
+        <li>Understand their own results</li>
+        <li>A clear path back after a deferral</li>
+        <li>Cover that rises as they stay well</li>
+        <li>Control: Your data, Choices, delete</li>
+      </ul>
+    </div>
+    <div class="card" style="background: #e8f3ff; border-left: 4px solid var(--accent);">
+      <h3 style="color: var(--accent-deep);">Institutions</h3>
+      <ul style="font-size: 14px;">
+        <li><b>Blood centres, SBTCs:</b> donors who return</li>
+        <li><b>Employers:</b> a wellness benefit on their group policy</li>
+        <li><b>Insurers:</b> lower-risk members, with consent</li>
+        <li><b>Public health:</b> an anonymised BP, sugar and anaemia signal</li>
+        <li><b>Patients:</b> a steadier blood supply</li>
+      </ul>
+    </div>
+    <div class="card" style="background: #f7f6f3;">
+      <h3>Path to scale</h3>
+      <ul style="font-size: 14px;">
+        <li>Company camps at a few Bengaluru centres</li>
+        <li>All donors at those centres</li>
+        <li>SBTCs and eRaktKosh</li>
+        <li>Other states and languages</li>
+        <li>JAPAC blood services</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card warm" style="margin-top:16px;">
+    <h3>Built to be trusted</h3>
+    <p>No diagnosis or prescribing · urgent findings always say "see a doctor today" · patients anonymous by construction · insurer sharing off unless chosen · no inducement: deferred donors get the same follow-up · synthetic data only · every simulated part labelled as such.</p>
+  </div>
+  <div class="foot"><span>Open before a pilot: a legal view on cover and the no-inducement rule · a partner insurer's rating factors · a clinical advisor's sign-off</span><span>7</span></div>
+</section>
+
+<!-- 8. Close -->
+<section class="slide title-slide">
+  <div class="fill" style="display:flex;flex-direction:column;justify-content:center;">
+    <div class="drop" aria-hidden="true"></div>
+    <h1 style="font-size:52px;">Give blood.<br>See every life it touches.</h1>
+    <p class="lede" style="margin-top:18px;font-size:20px;max-width:10in;">When donors see what their gift did, stay healthy enough to give, and gain from staying well, they come back. When they come back, patients have blood.</p>
+  </div>
+  <div class="foot"><span>Mihir Bhatt · Uppili Srinivasan · Sandeep Samant</span><span>pratidaan-25mgkruoeq-el.a.run.app · Demo video: submission portal</span></div>
+</section>
+
+</body>
+</html>
