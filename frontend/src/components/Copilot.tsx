@@ -104,6 +104,11 @@ function StoryChip({ card, onClick }: { card: DropCard; onClick: () => void }) {
 
 const MARKER_NAMES: Record<string, string> = { bp: 'Blood pressure', hb: 'Haemoglobin', hba1c: 'HbA1c', ldl: 'LDL cholesterol', tg: 'Triglycerides', ferritin: 'Ferritin' };
 
+const NAV_SCREEN_LABELS: Record<string, string> = {
+  impact: 'My impact', health: 'My health', donate: 'Donate', cover: 'Health cover',
+  community: 'Community', home: 'Home', plan: 'Your plan', labs: 'Your data',
+};
+
 function ChartCard({ marker, points }: { marker: string; points: ChartPoint[] }) {
   return (
     <div className="dcard" style={{ width: '100%', padding: 12 }}>
@@ -249,9 +254,7 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
       const actions = r.actions ?? [];
       actions.forEach((a) => a.type === 'card' && a.cardId && chatCards.add(a.cardId));
       setTurns((t) => [...t, { role: 'ai', text: r.reply, offline: r.offline, actions }]);
-      const nav = r.actions.find((a) => a.type === 'navigate');
-      if (nav?.screen) go(nav.screen as Screen);
-      if (r.actions.some((a) => a.type !== 'navigate')) await reloadView();
+      if (actions.some((a) => a.type !== 'navigate')) await reloadView();
       changed();
     } catch (e) {
       const errorText = `Sorry, something went wrong: ${(e as Error).message}`;
@@ -401,7 +404,11 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
               {t.role === 'ai' ? <Rich text={spoken(t.text)} /> : t.text}
             </div>
             {(t.actions || []).filter((a) => a.type !== 'navigate').slice(0, 2).map(renderAction)}
-            {t.actions?.some((a) => a.type === 'navigate') && <span className="pill pill-ai"><Icon name="arrow" size={12} /> Opened {t.actions.find((a) => a.type === 'navigate')?.screen}</span>}
+            {(t.actions || []).filter((a) => a.type === 'navigate' && a.screen).map((a, j) => (
+              <button key={`nav-${j}`} type="button" className="suggestion" style={{ minHeight: 36, alignSelf: 'flex-start' }} onClick={() => go(a.screen as Screen)}>
+                <Icon name="arrow" size={13} /> Open {NAV_SCREEN_LABELS[a.screen!] || a.screen}
+              </button>
+            ))}
             {t.questions && !readOnly && <div className="suggestions">{t.questions.map((q) => <button key={q} className="suggestion" style={{ minHeight: 36 }} onClick={() => send(q)}>{q}</button>)}</div>}
             {t.offline && <span className="tiny faint">AI offline: answered by rules</span>}
             {t.booking && (

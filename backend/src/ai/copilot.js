@@ -221,7 +221,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
       try {
         const response = await llm.call({
           feature: 'copilot_impact',
-          system: `You are Drop in Pratidaan for blood donors in India. They asked where their donation went. Use ONLY this fact from the app: "${fact}". Answer in one or two short, warm sentences: which parts helped patients (recipients stay anonymous — age band and clinical use only). Invite them to My impact for the journey map. Do not discuss BP, lab results, donation eligibility, or booking a check-up.`,
+          system: `You are Drop in Pratidaan for blood donors in India. They asked where their donation went. Use ONLY this fact from the app: "${fact}". Answer in one or two short, warm sentences: which parts helped patients (recipients stay anonymous — age band and clinical use only). Mention they can tap "Open My impact" below when they want the full journey map — do not say you are opening it for them. Do not discuss BP, lab results, donation eligibility, or booking a check-up.`,
           messages,
           maxTokens: 220,
           effort: 'minimal',
@@ -231,7 +231,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
         if (reply) return finishImpact(reply, messages);
       } catch { /* rules below */ }
     }
-    return finishImpact(`${fact} Open My impact for the full journey.`, prior);
+    return finishImpact(`${fact} Tap Open My impact below when you want the full journey map.`, prior);
   }
   const bpTrendAsk = /\b(bp|blood pressure)\b/i.test(message) && /\b(how|doing|trend|chart)\b/i.test(message);
   const urgentFinding = health.findings(donorId).find((f) => f.id === 'BP_URGENCY');
@@ -426,7 +426,7 @@ function fallback(donorId, message) {
     return out('You answer a few health questions, then the centre checks your haemoglobin, blood pressure and pulse. Giving blood takes about 10 minutes and the whole visit about 45, and your sample gets a free health check.');
   }
   if (/blood go|helped|impact|platelet|red cell/.test(m)) {
-    return out(`${screenLines.line(donorId, 'impact').text} Open My impact for the full journey.`, [{ type: 'navigate', screen: 'impact' }]);
+    return out(`${screenLines.line(donorId, 'impact').text} Tap Open My impact below for the full journey map.`, [{ type: 'navigate', screen: 'impact' }]);
   }
   if (/donate|eligible|hold/.test(m)) return out(screenLines.line(donorId, 'donate').text);
   if (/check-?up|doctor|book/.test(m)) {
