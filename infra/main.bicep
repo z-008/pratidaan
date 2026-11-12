@@ -14,8 +14,8 @@ param entraClientId string
 @minLength(32)
 param sessionSecret string
 
-param openAiModelName string = 'gpt-4o-mini'
-param openAiModelVersion string = '2024-07-18'
+param openAiModelName string = 'gpt-5-mini'
+param openAiModelVersion string = '2025-08-07'
 param openAiDeploymentName string = 'pratidaan-chat'
 param deployOpenAi bool = true
 

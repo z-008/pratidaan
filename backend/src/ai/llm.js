@@ -131,7 +131,7 @@ async function call({ feature, system, messages, tools, maxTokens = 4000, output
   const body = {
     messages: [{ role: 'system', content: !outputSchema || jsonMode ? baseSystem : `${baseSystem}\n\nFinish by calling ${SUBMIT} with the final result.` },
       ...toMessages(messages)],
-    max_tokens: Math.min(maxTokens, 6000),
+    max_completion_tokens: Math.min(maxTokens, 6000),
   };
   if (defs.length) body.tools = defs;
   if (jsonMode) body.response_format = { type: 'json_schema', json_schema: { name: 'pratidaan_result', strict: true, schema: outputSchema } };

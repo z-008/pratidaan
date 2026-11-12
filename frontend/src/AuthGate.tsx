@@ -28,7 +28,10 @@ export default function AuthGate() {
   useEffect(() => {
     let live = true;
     setUnauthorizedHandler(() => { if (live) signOut(false); });
-    api.authConfig().then(async (config) => {
+    Promise.all([
+      api.authConfig(),
+      api.me().catch(() => null),
+    ]).then(([config, me]) => {
       if (!live) return;
       setClientId(config.clientId);
       setAuthority(config.authority);
@@ -39,14 +42,12 @@ export default function AuthGate() {
         setPhase('in');
         return;
       }
-      try {
-        const me = await api.me();
-        if (!live) return;
+      if (me) {
         setUser(me);
         setPhase('in');
-      } catch {
-        if (live) setPhase('out');
+        return;
       }
+      setPhase('out');
     }).catch(() => { if (live) setPhase('out'); });
     return () => { live = false; };
   }, [signOut]);

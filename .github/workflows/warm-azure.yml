@@ -1,0 +1,26 @@
+name: Keep Azure app warm
+
+on:
+  schedule:
+  - cron: '*/8 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: warm-pratidaan-azure
+  cancel-in-progress: true
+
+jobs:
+  warm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+    steps:
+    - name: Ping production site
+      run: |
+        : "${AZURE_WEBAPP_NAME:?Set repository variable AZURE_WEBAPP_NAME}"
+        curl --fail --silent --show-error --max-time 120 "https://${AZURE_WEBAPP_NAME}.azurewebsites.net/api/health" | tee health.json
+        curl --fail --silent --show-error --max-time 120 -o /dev/null "https://${AZURE_WEBAPP_NAME}.azurewebsites.net/"
