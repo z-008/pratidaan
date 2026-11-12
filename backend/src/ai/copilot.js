@@ -112,6 +112,15 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}`;
+  if (/result|explain|mean/i.test(String(message))) {
+    const rules = fallback(donorId, message);
+    if (!rules.generic) {
+      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior });
+      agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+      agentPlatform.appendEvent(sessionId, { role: 'assistant', text: rules.reply }).catch(() => {});
+      return { reply: rules.reply, steps: rules.steps, actions: rules.actions, history: prior, answeredByRules: true };
+    }
+  }
   const wantsTools = /\b(book|slot|calendar|chart|remind|navigate|journey|insurance|community|badge)\b/i.test(message);
   if (message.length <= 220 && !wantsTools && llm.available(500)) {
     const liteSystem = `You are Drop in Pratidaan for blood donors in India. Answer in at most two short, warm sentences. ${context(donorId, userName, chatId)}`;
@@ -212,7 +221,9 @@ function fallback(donorId, message) {
   if (/\btrend\b/.test(m)) return out('Which result would you like to see over time: BP, ferritin, haemoglobin or another marker?');
   if (/result|explain|mean/.test(m)) {
     const f = health.findings(donorId);
-    return out(f.length ? `Your latest results: ${f.slice(0, 3).map((x) => `${x.title} (${x.detail})`).join('; ')}. A doctor confirms all findings.` : 'All your latest results are in the healthy range.');
+    const score = health.currentScore(donorId);
+    return out(f.length ? `Your latest results: ${f.slice(0, 3).map((x) => `${x.title} (${x.detail})`).join('; ')}. A doctor confirms all findings.`
+      : `Your latest donation check-up results are all in the healthy range (health score ${score?.score ?? '—'}/100). Nothing needs watching right now.`);
   }
   if (/what happens|at a donation|how long does/.test(m)) {
     return out('You answer a few health questions, then the centre checks your haemoglobin, blood pressure and pulse. Giving blood takes about 10 minutes and the whole visit about 45, and your sample gets a free health check.');
