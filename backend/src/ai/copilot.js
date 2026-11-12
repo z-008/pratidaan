@@ -52,12 +52,28 @@ function who(donor, userName) {
 
 const HABITS = ['movement', 'food', 'mind'];
 
+/** Donation screening/labs from the deterministic health engine (not chat-logged BP). */
+function healthFacts(donorId) {
+  const findings = health.findings(donorId);
+  const score = health.currentScore(donorId);
+  const visits = store.getDonations(donorId).filter((v) => v.status === 'completed');
+  const last = visits[visits.length - 1];
+  const flagged = findings.length
+    ? findings.map((f) => `${f.title}: ${f.detail}`).join('; ')
+    : 'none (all donation screening and lab results in range)';
+  const lastVisit = last
+    ? `Last completed donation ${last.date}: haemoglobin ${last.haemoglobin ?? '—'}, BP ${last.systolic ?? '—'}/${last.diastolic ?? '—'}, pulse ${last.pulse ?? '—'}.`
+    : 'No completed donations yet.';
+  return `Donation check-up data (authoritative for "latest results"): health score ${score?.score ?? '—'}/100; flagged findings: ${flagged}. ${lastVisit}`;
+}
+
 function context(donorId, userName, chat = 'general') {
   const donor = store.getDonor(donorId);
   const c = drop.chatContext(donorId);
   return `Today: ${store.today()}. Donor: ${who(donor, userName)}. Write in ${LANGUAGE_NAMES[c.language] || 'English'}.
+${healthFacts(donorId)}
 What you remember about them: ${c.memory.join('; ') || 'nothing yet'}.
-Their Plan: ${c.plan.join('; ') || 'none yet'}. Reminders: ${c.reminders.join('; ') || 'none'}. Latest reading they gave you: ${c.latestReading || 'none'}.
+Their Plan: ${c.plan.join('; ') || 'none yet'}. Reminders: ${c.reminders.join('; ') || 'none'}. Latest reading they told you in chat (not the donation panel): ${c.latestReading || 'none'}.
 Cards waiting for them on Home: ${c.openCards.join(', ') || 'none'}.${goalLines(c.goals)}${chatLine(chat, c.goals)}${introLine(donorId)}`;
 }
 
@@ -112,20 +128,22 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}`;
-  if (/result|explain|mean/i.test(String(message))) {
-    const rules = fallback(donorId, message);
-    if (!rules.generic) {
-      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior });
-      agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
-      agentPlatform.appendEvent(sessionId, { role: 'assistant', text: rules.reply }).catch(() => {});
-      return { reply: rules.reply, steps: rules.steps, actions: rules.actions, history: prior, answeredByRules: true };
-    }
-  }
   const wantsTools = /\b(book|slot|calendar|chart|remind|navigate|journey|insurance|community|badge)\b/i.test(message);
-  if (message.length <= 220 && !wantsTools && llm.available(500)) {
-    const liteSystem = `You are Drop in Pratidaan for blood donors in India. Answer in at most two short, warm sentences. ${context(donorId, userName, chatId)}`;
+  const healthAsk = /\b(results?|labs?|score)\b/i.test(message) && /\b(explain|latest|mean|what|how)\b/i.test(message);
+  const liteOk = (message.length <= 220 && !wantsTools) || healthAsk;
+  if (liteOk && llm.available(healthAsk ? 1200 : 500)) {
+    const liteSystem = healthAsk
+      ? `${SYSTEM}\n\n${context(donorId, userName, chatId)}`
+      : `You are Drop in Pratidaan for blood donors in India. Answer in at most two short, warm sentences. ${context(donorId, userName, chatId)}`;
     try {
-      const response = await llm.call({ feature: 'copilot_lite', system: liteSystem, messages, maxTokens: 400, effort: 'minimal', guardrailKind: 'chat' });
+      const response = await llm.call({
+        feature: healthAsk ? 'copilot_health' : 'copilot_lite',
+        system: liteSystem,
+        messages,
+        maxTokens: healthAsk ? 600 : 400,
+        effort: 'minimal',
+        guardrailKind: 'chat',
+      });
       let reply = guardrails.sanitizeReply(llm.text(response)).reply;
       if (reply) {
         chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: messages });
