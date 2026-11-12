@@ -132,6 +132,15 @@ function replyMatchesQuestion(message, reply) {
   return true;
 }
 
+function bpSummaryLine(donorId) {
+  const points = drop.chartPoints(donorId, 'bp');
+  if (!points.length) return screenLines.line(donorId, 'health').text;
+  const last = points[points.length - 1];
+  const prev = points.length > 1 ? points[points.length - 2] : null;
+  const trend = !prev ? '' : last.value > prev.value || last.value2 > prev.value2 ? ', up from your previous visit' : last.value < prev.value || last.value2 < prev.value2 ? ', down from your previous visit' : ', similar to your previous visit';
+  return `Your latest donation BP was ${last.value}/${last.value2} mmHg${trend}.`;
+}
+
 /** Deterministic text + UI actions for common intents (agent fallback). */
 function groundedAnswer(donorId, message) {
   const m = String(message || '').toLowerCase();
@@ -139,7 +148,7 @@ function groundedAnswer(donorId, message) {
     const charts = chartActionsForMessage(donorId, message);
     if (!charts.length) return null;
     return {
-      reply: `${screenLines.line(donorId, 'health').text} Here's your BP trend in the chart below.`,
+      reply: `${bpSummaryLine(donorId)} Here's your BP trend in the chart below.`,
       actions: charts,
     };
   }
@@ -247,7 +256,8 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
           });
           const reply = guardrails.sanitizeReply(llm.text(response)).reply;
           if (reply && replyMatchesQuestion(message, reply)) {
-            return finishBp(`${reply} See the chart below.`, messages);
+            const say = /\bchart\b/i.test(reply) ? reply : `${reply} See the chart below.`;
+            return finishBp(say, messages);
           }
         } catch { /* rules below */ }
       }

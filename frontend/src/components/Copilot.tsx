@@ -142,12 +142,13 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
     let alive = true;
     api.chatActive(donorId, chat).then((active) => {
       if (!alive) return;
+      const local = conversations.get(key)?.turns ?? [];
+      if (local.length) return;
       const fromServer = active.turns.flatMap((t) => [
         { role: 'user' as const, text: t.user },
         { role: 'ai' as const, text: t.assistant },
       ]);
-      const localLen = conversations.get(key)?.turns.length ?? 0;
-      if (fromServer.length && fromServer.length >= localLen) setTurns(fromServer);
+      if (fromServer.length) setTurns(fromServer);
       if (active.history?.length) { historyRef.current = active.history; setHistory(active.history); }
     }).catch(() => {});
     return () => { alive = false; };
@@ -155,11 +156,6 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
   useEffect(() => {
     const stop = syncServerChat();
     return stop;
-  }, [syncServerChat]);
-  useEffect(() => {
-    const onChanged = () => syncServerChat();
-    window.addEventListener('drop:changed', onChanged);
-    return () => window.removeEventListener('drop:changed', onChanged);
   }, [syncServerChat]);
   function recordLocal(userText: string, reply: string) {
     const updated = [...(historyRef.current || []), { role: 'user', content: userText }, { role: 'assistant', content: reply }];
@@ -250,8 +246,9 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
       const r = await api.copilot(donorId, message, historyRef.current, chat);
       if (r.history) { historyRef.current = r.history; setHistory(r.history); }
       else recordLocal(message, r.reply);
-      r.actions.forEach((a) => a.type === 'card' && a.cardId && chatCards.add(a.cardId));
-      setTurns((t) => [...t, { role: 'ai', text: r.reply, offline: r.offline, actions: r.actions }]);
+      const actions = r.actions ?? [];
+      actions.forEach((a) => a.type === 'card' && a.cardId && chatCards.add(a.cardId));
+      setTurns((t) => [...t, { role: 'ai', text: r.reply, offline: r.offline, actions }]);
       const nav = r.actions.find((a) => a.type === 'navigate');
       if (nav?.screen) go(nav.screen as Screen);
       if (r.actions.some((a) => a.type !== 'navigate')) await reloadView();
