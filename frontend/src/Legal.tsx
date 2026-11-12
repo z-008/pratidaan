@@ -22,7 +22,7 @@ function DemoNote() {
   return (
     <div className="callout callout-warn small legal-demo">
       <Icon name="info" size={16} />
-      <span><b>Preview policy.</b> Pratidaan is a hackathon preview with made-up blood donation records. This page says what the app does with your data, in plain words. It has not had a legal review.</span>
+      <span><b>Preview policy.</b> Pratidaan is a prototype preview with made-up blood donation records. This page says what the app does with your data, in plain words. It has not had a legal review.</span>
     </div>
   );
 }

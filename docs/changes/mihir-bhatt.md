@@ -1,5 +1,7 @@
 # Changes by Mihir Bhatt
 
+Historical developer log. Older entries describe the Google Cloud / Gemini prototype; production docs on `main` describe the Azure port.
+
 One entry per commit, newest first, so any change can be traced or reverted: the Drop-first redesign (branch `feature/drop-home`) and the New donor's Intro and "Your data" (branch `feature/onboarding`).
 To revert one: find it with `git log --oneline --grep "<commit title>"`, then `git revert <hash>`.
 The design behind these changes is in `CONTEXT.md` (vocabulary) and the build plan.

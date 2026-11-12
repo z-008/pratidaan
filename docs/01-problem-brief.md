@@ -6,7 +6,7 @@
 - [what the app does](02-product.md)
 - [how it is built](03-architecture.md)
 - [pitch](04-pitch/pitch-narrative.md)
-- [submission kit](05-submission/)
+- [deploy & review pack](05-review/)
 
 > **Give blood. See every life it touches.**
 > Pratidaan shows each donor where every part of their blood went and who it helped, without revealing who. It turns the free health check in every donation into a light follow-up between donations, and it lets good health raise the donor's insurance cover. Each of these is a reason to give again.
@@ -118,15 +118,15 @@ Most of Pratidaan is deliberately ordinary code:
 
 Gen AI does the three jobs rules can't:
 
-| Job | Without Gen AI | With Gemini |
+| Job | Without Gen AI | With Azure OpenAI (Drop) |
 |---|---|---|
 | **Answer any question across the whole picture,** in the donor's language ("why can't I donate?", "where did my platelets go?", "how do I get to ₹6 lakh?", "my BP was 141/90 today") | A fixed FAQ in one language, or a person | **Drop's chat**: an agent with 18 donor-scoped tools that looks things up, combines them, shows a chart, offers a check-up, saves a reading, remembers a preference and opens the right screen, in English, Hindi, Kannada, Tamil, Telugu or Malayalam. Inside a Goal's Chat it keeps to that Goal's steps. |
 | **Read any lab's report** | Integration with every lab (only 491 labs are on ABDM), or typing it in | **The lab-report reader**: a photo or text from any lab, mapped to 16 LOINC-coded markers with unit conversion. Schema- and range-checked, and confirmed by the donor. |
 | **Meet the donor in their language** | Translators for every screen | **The Intro** is translated on first view, and a line is kept only if every number survives |
 
-**Remove-Gemini test:** the app still runs, and the Cards, Goals, impact and cover all work. What's lost is the conversation. Donors can't ask in their own words or language, and outside reports can't be read. Each AI feature has a rule-based fallback that says so.
+**Remove-model test:** the app still runs, and the Cards, Goals, impact and cover all work. What's lost is the conversation. Donors can't ask in their own words or language, and outside reports can't be read. Each AI feature has a rule-based fallback that says so.
 
-**Google stack in the build:** Gemini 3.1 Flash-Lite on Vertex AI, Cloud Run, Artifact Registry, Workload Identity Federation, Firestore, Google Sign-In, Calendar and Gmail APIs.
+**Azure stack in the build (current):** Azure OpenAI (`gpt-5-mini` deployment), App Service F1, private Blob Storage, managed identity, Microsoft Entra sign-in, optional Microsoft Graph (Calendar and mail), GitHub Actions OIDC deploy. See [03-architecture.md](03-architecture.md).
 
 ## 8. Trust and responsibility
 
@@ -199,14 +199,14 @@ Building it showed three things:
 - **Clinical advisor:** sign-off on the thresholds, the Goal targets and the wording of every step.
 - **Component-level data:** do blood centres' systems (eRaktKosh, hospital issue records) record which unit went to which hospital and use, so that journeys can be real?
 - **Privacy threshold:** is k = 5 enough for small districts, or should the threshold scale with population?
-- **AI-written Goal steps:** Google Cloud's terms restrict use for clinical purposes. Until that is resolved, steps stay rule-written.
+- **AI-written Goal steps:** cloud provider terms may restrict clinical use; until that is resolved, steps stay rule-written.
 - **Search-summary claims:** the 12 lakh low-Hb deferrals figure came from a search summary and should be checked against the source.
 
-## 12. Fit with the judging criteria
+## 12. Technical summary
 
-| Criterion | Weight | How Pratidaan answers it |
-|---|---|---|
-| Technical Merit & Gen AI | 40% | An agent with 18 donor-scoped tools, multimodal lab reading and multilingual translation, all on Vertex AI behind a gateway with rate limits, budgets, traces and checked outputs. Deterministic engines for everything safety-critical, with 152 tests. Deployed on Cloud Run with CI/CD. |
-| Problem Alignment & Impact | 25% | Blood supply depends on donors returning. Pratidaan gives each donor three reasons to: impact, health and cover. Every baseline is sourced. |
-| Innovation & Creativity | 25% | The blood's journey, part by part, with privacy by construction. The donation as a recurring health check that leads back to donating. Health-linked cover that rises like a credit limit. |
-| User Experience | 10% | One assistant on every screen, at most one Card a day, a one-minute Intro in six languages, and "Your data" with real deletes. |
+| Area | How Pratidaan answers it |
+|---|---|
+| **Gen AI & engineering** | Agent with 18 donor-scoped tools, multimodal lab reading and multilingual translation on Azure OpenAI behind rate limits, budgets, traces and checked outputs. Deterministic engines for safety-critical paths; 167+ backend tests; CI deploy to App Service. |
+| **Impact** | Blood supply depends on donors returning; three reasons to return: impact, health and cover. Baselines sourced. |
+| **Product** | Journey map with privacy by construction; donation as recurring health check; illustrative health-linked cover. |
+| **Experience** | Drop on every screen, at most one Card a day, Intro in six languages, Your data with real deletes. |

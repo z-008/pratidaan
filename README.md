@@ -99,7 +99,7 @@ One Node process serves the API and built app from Azure App Service F1. GitHub 
 ## Tests
 
 ```bash
-cd backend && npm test        # 156 tests: findings, eligibility, cover, privacy, Drop's rules, Goals,
+cd backend && npm test        # 167+ tests: findings, eligibility, cover, privacy, Drop's rules, Goals,
                               # Intro, Badges, booking, sign-in, Your data, AI output checks
 cd frontend && npm run type-check
 ```
@@ -113,7 +113,7 @@ cd frontend && npm run type-check
 | [docs/03-architecture.md](docs/03-architecture.md) | How it is built: modules, rules, AI layer, data, API, security, deployment |
 | [docs/AZURE_SETUP.md](docs/AZURE_SETUP.md) | Azure CLI, free-credit guardrails, provisioning, deployment and GitHub OIDC |
 | [docs/04-pitch/](docs/04-pitch/) | Pitch narrative and deck (HTML and PDF) |
-| [docs/05-submission/](docs/05-submission/) | Submission checklist and demo video script |
+| [docs/05-review/](docs/05-review/) | Deploy checklist, reviewer guide, demo video script |
 | [docs/drop/](docs/drop/README.md) | Team guide to Drop, with test scripts |
 | [CONTEXT.md](CONTEXT.md) | The shared vocabulary (Donor, Drop, Card, Goal, Story, Badge…) |
 | [docs/README.md](docs/README.md) | Every doc, including design records and the change log |

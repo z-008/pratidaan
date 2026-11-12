@@ -106,7 +106,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <h2 id="donors">The demo donors</h2>
 <p>Pick who you are in <b>Viewing as</b> at the top of every screen. Choosing one means using the app as that donor. <b>You (new donor)</b> comes first and is where a first visit opens: it stands for you, a new user (shared by everyone trying the demo). The demo starts on <b>Saturday 10 Oct 2026, 8 am</b>. All data is synthetic.</p>
 <div class="grid">
-  <div class="card"><div class="who"><span class="av" style="background:var(--ai-soft);color:var(--ai)">N</span><h4>New donor · just joined</h4></div><p>A new user with no records at all: no donations, results, Circles, insurer or Plan. Home greets them by your Google first name ("Hello" with sign-in off or as a guest), and Drop's chat starts the Intro.</p></div>
+  <div class="card"><div class="who"><span class="av" style="background:var(--ai-soft);color:var(--ai)">N</span><h4>New donor · just joined</h4></div><p>A new user with no records at all: no donations, results, Circles, insurer or Plan. Home greets them by your Microsoft first name ("Hello" with sign-in off or as a guest), and Drop's chat starts the Intro.</p></div>
   <div class="card"><div class="who"><span class="av" style="background:var(--ai-soft);color:var(--ai)">A</span><h4>Arjun · rising BP</h4></div><p>Donated 3 Oct, BP 148/94 (up at each of his last four donations: 126 → 132 → 136 → 148). Opens with "Watch my impact story" above Drop's chat; his results arrive the next day and make the Goal <i>BP, blood sugar and cholesterol</i> (target BP under 130/80). <b>The main demo.</b></p></div>
   <div class="card"><div class="who"><span class="av" style="background:var(--good-soft);color:var(--good)">M</span><h4>Meera · turned away</h4></div><p>Hb 11.8, below the 12.5 needed; ferritin 8. Her Goal is <i>Haemoglobin and iron</i>. Three months into her Plan. Her comeback: upload a report showing Hb 12.6 → she can donate again.</p></div>
   <div class="card"><div class="who"><span class="av" style="background:var(--warn-soft);color:var(--warn)">A</span><h4>Ananya · healthy O−</h4></div><p>All results normal. O− is short at her blood centre, so she opens on Saturday slots. Monthly report only: Drop stays quiet.</p></div>
@@ -125,7 +125,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <tr><td>4</td><td>Health between donations</td><td>An <b>Example</b> results card (Hb, platelets in range; BP 148/94 a bit high).</td><td>Health score, Demo doctor check-up</td></tr>
 <tr><td>5</td><td>Your data</td><td>What is kept and where (the same groups as Your data); "Open Your data".</td><td>The account chip pulses</td></tr>
 <tr><td>6</td><td>Your choices</td><td>The three Choices (insurer off, leaderboard on, totals on).</td><td>Illustrative health cover</td></tr>
-<tr><td>7</td><td>When you can donate</td><td>Days, time of day, where. Optional. Saved with the Google account and used whenever you book.</td><td>Next donation</td></tr>
+<tr><td>7</td><td>When you can donate</td><td>Days, time of day, where. Optional. Saved with the Microsoft account and used whenever you book.</td><td>Next donation</td></tr>
 <tr><td>8</td><td>All set</td><td>"Book my first donation" (opens booking in the chat) or "Start using Pratidaan".</td><td>—</td></tr>
 </table>
 <div class="grid">
@@ -134,7 +134,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
   <div class="card"><h4>Replay</h4><p>"Replay intro" in the account menu, only when viewing the New donor. It starts at step 1 with your earlier answers filled in and saves only what you change; skipping a replay changes nothing.</p></div>
 </div>
 <p><b>Choices</b> are the donor's three sharing switches. The insurer switch shows its live effect ("On: your cover is ₹6 lakh. Off: it stays at ₹5 lakh") and says no insurer receives anything in the demo; with the leaderboard switch off you still see yourself ("Only you see yourself here"); with the totals switch off you are left out of every Circle total and the leaderboard ("1 member not counted"). They can be changed in the Intro, Your data, Health cover and Community: all the same switches.</p>
-<p><b>Your data</b> (account menu) lists everything kept about you: with your Google account (profile, sign-in history, donation preferences, bookings), in your own Google account (Calendar events, Gmail, access), with the demo donor (Choices, memories, readings, values read from lab reports), Gemini, server logs and this browser. Each item has a Delete button with a 6-second Undo, or says when it deletes itself. <b>Delete my account</b> removes the profile, sign-ins, preferences and bookings (optionally their Calendar events), clears the browser and signs you out; type DELETE to confirm. With sign-in off it clears the in-memory copies. The privacy policy (<code>/privacy</code>) is a mock that says the same things.</p>
+<p><b>Your data</b> (account menu) lists everything kept about you: with your Microsoft account (profile, sign-in history, donation preferences, bookings), in your own Microsoft account (Calendar events, mail via Graph, access), with the demo donor (Choices, memories, readings, values read from lab reports), Azure OpenAI, server logs and this browser. Each item has a Delete button with a 6-second Undo, or says when it deletes itself. <b>Delete my account</b> removes the profile, sign-ins, preferences and bookings (optionally their Calendar events), clears the browser and signs you out; type DELETE to confirm. With sign-in off it clears the in-memory copies. The privacy policy (<code>/privacy</code>) is a mock that says the same things.</p>
 
 <h2 id="goals">Goals, Habits and Chats</h2>
 <p>A <b>Goal</b> is one health problem the donor is working on, made from their results by fixed rules (<code>backend/src/domain/goals.js</code>). Neither the AI nor the donor sets grouping, the target or the order.</p>
@@ -148,7 +148,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <tr><td>Write-up</td><td>"Why it matters" and 2–3 steps tagged Movement, Food, See a doctor or Add a reading, each citing a protocol or guidance from <code>data/ontology</code>. Rules, not AI, written once when the Goal is made or changes. An urgent BP Goal has no Movement step.</td></tr>
 </table>
 <p><b>My health</b> shows Habits (Movement, Food, Mind), This week, up to two Goal cards, Up next, the Health score with Your Chats with Drop, Keep an eye on, From your doctor (not built), Check-ups, the lab report reader, Trends and Readings. A Goal card has its trend in words, a chart against the target line (your readings are hollow points), <b>Open</b> and <b>Add a reading</b>.</p>
-<p><b>Chats.</b> On Home, Drop's chat is the General Chat. Elsewhere, <b>Ask Drop</b> opens a side sheet with chips for General, each Goal, Movement, Food, Mind and <b>Past Cycles</b>. A Goal's Chat pins where you are, the target and this week. Its ⋯ menu has Add a reading, Book a check-up, Stop this Goal (not for an urgent Goal), What Drop remembers, and Simplify my plan (disabled until Week plans). Done and stopped Goals' Chats are read-only; a stopped Goal has <b>Start again</b>. In a Goal's Chat, Drop suggests only that Goal's steps and says saving a Week plan is coming. <b>Past Cycles</b> shows <b>This cycle (live)</b> server-side turns as you chat (guest or signed-in, per persona) and read-only <b>Earlier cycles</b> after <b>Reset</b> on the demo bar; demo personas include a sample earlier cycle. History is in-memory on Cloud Run (not Firestore). Vertex Agent Sessions mirror turns separately when configured. Week plans and Your day are not built yet.</p>
+<p><b>Chats.</b> On Home, Drop's chat is the General Chat. Elsewhere, <b>Ask Drop</b> opens a side sheet with chips for General, each Goal, Movement, Food, Mind and <b>Past Cycles</b>. A Goal's Chat pins where you are, the target and this week. Its ⋯ menu has Add a reading, Book a check-up, Stop this Goal (not for an urgent Goal), What Drop remembers, and Simplify my plan (disabled until Week plans). Done and stopped Goals' Chats are read-only; a stopped Goal has <b>Start again</b>. In a Goal's Chat, Drop suggests only that Goal's steps and says saving a Week plan is coming. <b>Past Cycles</b> shows <b>This cycle (live)</b> server-side turns as you chat (guest or signed-in, per persona) and read-only <b>Earlier cycles</b> after <b>Reset</b> on the demo bar; demo personas include a sample earlier cycle. Live demo turns persist in server memory and Blob mirrors for signed-in users; Past Cycles shows the demo-day transcript after each chat turn. Week plans and Your day are not built yet.</p>
 
 <h2 id="impact">Stories and Badges</h2>
 <p>A <b>Story</b> is a few tap-through slides about one part of a donation reaching a patient, or plasma becoming medicines. Drop's impact Card plays it once; My impact replays it from <b>Watch the story</b> on any eligible part. Patients' details appear only when at least 5 patients share them; anything held back is left out and a line says "Some details stay private so no one can be identified." The last slide is a postcard image with <b>Download image</b>, <b>Copy image</b> and <b>Share…</b> (where the browser can share files). The weekly report and the Intro's Story can't be shared.</p>
@@ -174,7 +174,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <text class="sub" x="634" y="70">Health (readings)</text><text class="sub" x="634" y="90">Plan (Goals, reminders)</text><text class="sub" x="634" y="110">Bookings</text><text class="sub" x="634" y="130">Memory (preferences)</text>
 <path class="arrow" d="M180 100H222"/><path class="arrow" d="M395 100H437"/><path class="arrow" d="M580 100H617"/>
 <rect class="box ai" x="420" y="214" width="180" height="62" rx="12"/>
-<text x="434" y="238" font-weight="600">AI (Gemini)</text><text class="sub" x="434" y="258">Rewrites the wording only</text>
+<text x="434" y="238" font-weight="600">AI (Azure OpenAI)</text><text class="sub" x="434" y="258">Rewrites the wording only</text>
 <path class="arrow" d="M510 214V184"/>
 <path class="arrow" d="M684 180C684 260 650 298 400 298C160 298 95 260 95 184" stroke-dasharray="4 4"/>
 <text class="sub" x="230" y="326">Each answer can create a new fact (a booked visit → "How did it go?")</text>
@@ -215,7 +215,7 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 
 <h2 id="ai">Where the AI comes in</h2>
 <div class="grid">
-  <div class="card"><h4>Card wording</h4><p>Gemini is asked to rephrase up to 3 open cards, but because cards carry triage and eligibility, a rewrite is used only if it matches the rule wording word for word. In practice cards keep their rule wording; only the slots card has a Hindi version.</p></div>
+  <div class="card"><h4>Card wording</h4><p>Azure OpenAI is asked to rephrase up to 3 open cards, but because cards carry triage and eligibility, a rewrite is used only if it matches the rule wording word for word. In practice cards keep their rule wording; only the slots card has a Hindi version.</p></div>
   <div class="card"><h4>Drop's chat</h4><p>On Home the chat sits under Drop's cards; on other screens "Ask Drop" opens the side sheet. An agent with 18 tools answers in two short sentences plus at most one card: a chart, check-up slots or a reminder. It reads its memory, the Plan and each Goal's steps every turn, knows which Chat it is in, saves BP readings, and can switch its language when asked. Guardrails: regex blocks emergencies and diagnosis asks; every call gets scope rules (no essays/homework); replies are sanitized for prescription wording.</p></div>
   <div class="card"><h4>Lab reports</h4><p>Reads a photo of a lab report (Meera's sample report) and the donor confirms before saving.</p></div>
   <div class="card"><h4>The Intro</h4><p>Translates each step's words and buttons the first time they are shown in a language, keeping every number. The steps themselves are scripted.</p></div>
@@ -228,8 +228,8 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <p>In the repo's <code>.env</code>:</p>
 <table>
 <tr><th>Setting</th><th>Use</th></tr>
-<tr><td><code>AUTH_DISABLED=true</code>, <code>NODE_ENV=development</code></td><td>Skips Google sign-in locally. On the live site, use <b>Continue as guest</b> instead.</td></tr>
-<tr><td><code>GOOGLE_CLOUD_PROJECT</code></td><td>Your project, for Gemini on Vertex AI. Leave empty to test with the AI off.</td></tr>
+<tr><td><code>AUTH_DISABLED=true</code>, <code>NODE_ENV=development</code></td><td>Skips Microsoft sign-in locally. On the live site, use <b>Continue as guest</b> instead.</td></tr>
+<tr><td><code>AZURE_OPENAI_*</code></td><td>Endpoint and deployment for Drop. Leave unset to test with the AI off. See <code>docs/RUN_LOCALLY.md</code>.</td></tr>
 <tr><td><code>LLM_RATE_LIMIT_TOKENS_PER_DAY</code></td><td>Daily AI budget (50,000 by default). A long test session can use it up; raise it locally if cards fall back to rule wording.</td></tr>
 </table>
 <p>For the AI on a laptop, sign in once: <code>gcloud auth application-default login</code>.</p>
@@ -255,12 +255,12 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <tr><th>Item</th><th>Status</th></tr>
 <tr><td>Week plans, Your day, Simplify my plan</td><td>Agreed in CONTEXT.md. Habits and This week are empty shells; the chat says saving a Week plan is coming.</td></tr>
 <tr><td>From your doctor (prescriptions)</td><td>Placeholder on My health ("Nothing added yet").</td></tr>
-<tr><td>Drop state and chat in Firestore</td><td>Cards, Goals, and chat cycles stay in server memory; Reset clears live demo state. Not persisted across redeploy or multiple Cloud Run instances.</td></tr>
-<tr><td>AI-written Goal write-ups</td><td>Waiting on team decision D1 (Google Cloud's "no clinical purposes" term); the rules version runs.</td></tr>
-<tr><td>Guided tour for judges</td><td>Planned (the tour panel; "What Drop knows" is done). Judges can use <b>Continue as guest</b> and the judge email HTML.</td></tr>
-<tr><td>Donation preferences with the demo donor</td><td>Parked for a review with Sandeep: they stay with the Google account, as booking reads them today.</td></tr>
+<tr><td>Drop state and chat in Blob</td><td>Cards, Goals, and live demo state stay in server memory; signed-in chat cycles mirror to Blob. Reset clears live demo state.</td></tr>
+<tr><td>AI-written Goal write-ups</td><td>Not shipped; the rules version runs.</td></tr>
+<tr><td>Guided tour</td><td>Planned (the tour panel; "What Drop knows" is done). Reviewers can use <b>Continue as guest</b> and <code>docs/05-review/reviewer-guide.html</code>.</td></tr>
+<tr><td>Donation preferences with the demo donor</td><td>Parked for a review with Sandeep: they stay with the Microsoft account, as booking reads them today.</td></tr>
 <tr><td>Download a copy of your data</td><td>Not built; the privacy policy says to email for a copy.</td></tr>
-<tr><td>"Add to Google Calendar" for Drop bookings and reminders</td><td>Not wired; bookings live in the app.</td></tr>
+<tr><td>"Add to Microsoft Calendar" for Drop bookings and reminders</td><td>Not wired; bookings live in the app.</td></tr>
 <tr><td>Real Fitbit / Google Health data</td><td>Out of scope: the Fitbit Web API shuts down 30 Oct 2026 and the Google Health API isn't taking new projects. Activity in the weekly report is simulated.</td></tr>
 <tr><td>WhatsApp delivery, voice notes, lock-screen updates, choosing Drop's tone</td><td>Pitch only.</td></tr>
 </table>
@@ -275,10 +275,10 @@ footer{margin-top:60px;font-size:13px;color:var(--faint)}
 <tr><td><code>backend/src/ai/dropWriter.js</code></td><td>AI wording of open cards (only accepted when identical to the rules).</td></tr>
 <tr><td><code>backend/src/ai/copilot.js</code>, <code>agent.js</code>, <code>tools.js</code></td><td>Drop's chat, the tool loop and its 19 tools (18 offered to the chat: chart, slots, reminder, remember, log a reading, language, navigate…).</td></tr>
 <tr><td><code>backend/src/domain/chatCycles.js</code>, <code>routes/donors.js</code> (chat APIs)</td><td>This-cycle and past-cycle Drop chat archives; Reset moves current → past.</td></tr>
-<tr><td><code>backend/src/ai/guardrails.js</code>, <code>ai/agentPlatform.js</code></td><td>Safety layers for Gemini; optional Vertex Sessions + Memory Bank sidecar.</td></tr>
+<tr><td><code>backend/src/ai/guardrails.js</code>, <code>ai/agentPlatform.js</code></td><td>Safety layers for model output; optional Blob session mirror.</td></tr>
 <tr><td><code>backend/src/routes/drop.js</code>, <code>demo.js</code></td><td>The Drop API and the demo clock.</td></tr>
 <tr><td><code>backend/src/domain/intro.js</code>, <code>routes/intro.js</code>, <code>ai/introWriter.js</code></td><td>The Intro: its steps, state, answers, replay, and translation.</td></tr>
-<tr><td><code>backend/src/auth/</code>, <code>routes/auth.js</code></td><td>Google sign-in, guest sessions, Your data: what the Google account keeps, and deleting it.</td></tr>
+<tr><td><code>backend/src/auth/</code>, <code>routes/auth.js</code></td><td>Microsoft sign-in, guest sessions, Your data: what the Microsoft account keeps, and deleting it.</td></tr>
 <tr><td><code>data/demo/</code></td><td>The New donor, Arjun's 3 Oct donation and each demo donor's starting state.</td></tr>
 <tr><td><code>frontend/src/components/drop/</code></td><td>Cards, the chat side sheet (<code>ChatSheet.tsx</code>), story viewer, lab report upload, BP reading, memory list, screen line, Health sections, What Drop knows.</td></tr>
 <tr><td><code>frontend/src/components/impact/</code>, <code>share/</code></td><td>Badge shelf and Home preview, donation calendar, concerns; share images and share buttons.</td></tr>
@@ -377,7 +377,7 @@ const SCRIPTS = [
     ['On My health, click "Hide from my app" on a blood-centre result.', 'It moves under "Show 1 hidden result". Eligibility does not change.'],
   ]},
   { id: 'intro', title: 'New donor: the Intro, start to finish', why: 'A new user meets Drop: what Pratidaan is, their data, their Choices.', steps: [
-    ['Reset. In Viewing as (top) pick You (new donor).', 'Home says Hello (your Google first name when signed in), "No donations yet" and plain empty tiles. Drop\'s chat shows "Getting started · 1 of 8" and six languages.'],
+    ['Reset. In Viewing as (top) pick You (new donor).', 'Home says Hello (your Microsoft first name when signed in), "No donations yet" and plain empty tiles. Drop\'s chat shows "Getting started · 1 of 8" and six languages.'],
     ['Click English, then Show me.', 'Step 3: an Example donation from 3 Oct and its three parts. The "Your blood has helped" tile has a purple ring and moves to the top.'],
     ['Click Watch the story, step through, press Esc.', 'The story closes and Drop moves to step 4 with an Example results card; Health score and Demo doctor check-up are ringed.'],
     ['Type in the chat: What is a health score?', 'Drop answers in the thread, then "Carry on: Health between donations" and "Skip intro".'],
@@ -414,17 +414,17 @@ const SCRIPTS = [
     ['Ask Drop: Explain my latest results.', 'Drop says there are no results yet and your first donation includes a free health check.'],
   ]},
   { id: 'your-data', title: 'Your data: single deletes and Undo', why: 'Everything kept is listed, with how long, and can be deleted.', steps: [
-    ['As Arjun, open Your data from the account menu.', 'Choices first, then cards for your Google account, your own Google account, the demo donor (Arjun\'s memories), Gemini, server logs and this browser.'],
+    ['As Arjun, open Your data from the account menu.', 'Choices first, then cards for your Microsoft account, your own Microsoft account, the demo donor (Arjun\'s memories), Azure OpenAI, server logs and this browser.'],
     ['Click Delete on "Drop remembers: Saturdays suit you".', 'The row goes at once and a toast says "Memory deleted · Undo".'],
     ['Click Undo.', 'The row is back and nothing was deleted.'],
     ['Delete it again and wait 6 seconds.', 'The toast closes; What do you remember about me? no longer lists it.'],
     ['Pick New donor and open Your data.', 'The demo donor card has only Your choices and says "Nothing else is kept for this donor yet."'],
   ]},
-  { id: 'delete-account', title: 'Delete my account', why: 'One button removes everything kept with the Google account.', steps: [
+  { id: 'delete-account', title: 'Delete my account', why: 'One button removes everything kept with the Microsoft account.', steps: [
     ['Open Your data, click Delete my account….', 'Three lists: deleted straight away, deletes itself later, you delete it yourself. The red button is disabled.'],
     ['Type delete (any case).', 'The red Delete my account button is enabled. Esc or Keep my account closes the box.'],
     ['Click Delete my account.', '"Your account is deleted" with what went and what still expires on its own; then Back to sign in (Back to Pratidaan with sign-in off). Your donation preferences and bookings are gone.'],
-    ['On the live site only, with a spare Google account: sign in, book with Calendar connected, then delete the account with the Calendar box ticked.', 'Google asks for Calendar access once; the event disappears from Google Calendar; signing in again starts a fresh account (Your data shows 1 sign-in).'],
+    ['On the live site only, with a spare Microsoft account: sign in, book with Calendar connected, then delete the account with the Calendar box ticked.', 'Microsoft asks for Calendar access once; the event disappears from Outlook Calendar; signing in again starts a fresh account (Your data shows 1 sign-in).'],
   ]},
   { id: 'ai-off', title: 'With the AI switched off', why: 'The demo must never break.', steps: [
     ['Set GOOGLE_CLOUD_PROJECT= (empty) in .env and restart ./run.sh.', 'The app loads; the AI status line says offline.'],
@@ -433,10 +433,10 @@ const SCRIPTS = [
     ['Meera: Add a report → Use a sample report → Save.', 'Works with the sample\'s known value.'],
     ['Reset, New donor: click English, Show me, then type: what\'s this?', 'A rule answer naming the step ("We\'re on step 3 of 8…"), marked "AI offline: answered by rules".'],
   ]},
-  { id: 'guest', title: 'Guest sign-in (live site)', why: 'Judges and visitors can try the demo without a Google account.', steps: [
+  { id: 'guest', title: 'Guest sign-in (live site)', why: 'Visitors can try the demo without a Microsoft account.', steps: [
     ['Open the live site in a private window and click Continue as guest.', 'The app opens on You (new donor); Home says "Hello".'],
-    ['Open Your data.', 'Name "Guest", "Browsing without Google sign-in", no sign-in history.'],
-    ['Book a donation from Home and finish the steps without connecting Calendar.', 'The pass appears; Your data lists the booking. Nothing is written to Firestore.'],
+    ['Open Your data.', 'Name "Guest", "Browsing without Microsoft sign-in", no sign-in history.'],
+    ['Book a donation from Home and finish the steps without connecting Calendar.', 'The pass appears; Your data lists the booking. Nothing is written to Blob for guests.'],
   ]},
 ];
 

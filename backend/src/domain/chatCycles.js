@@ -14,7 +14,7 @@ const pastByScope = new Map();
 /** @type {Map<string, Record<string, { turns: object[], history: object[] | null }>>} */
 const currentByScope = new Map();
 
-/** One seeded archive per account+persona so judges see Past Cycles before the first Reset. */
+/** One seeded archive per account+persona so reviewers see Past Cycles before the first Reset. */
 const demoPastSeeded = new Set();
 
 /** Scopes hydrated from Azure Blob (production) or marked ready (local). */

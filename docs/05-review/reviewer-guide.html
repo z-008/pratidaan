@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pratidaan — Reviewer guide</title>
+  <style>
+    :root { --bg:#0f1117; --card:#1a1d27; --text:#e8eaef; --muted:#9aa3b2; --brand:#7c3aed; --accent:#c8102e; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; margin: 0; padding: 24px; max-width: 920px; margin-inline: auto; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; font-size: 1.15rem; color: #c4b5fd; }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    .card { background: var(--card); border-radius: 12px; padding: 16px 20px; margin: 12px 0; border: 1px solid #2a2f3d; }
+    code { background: #252936; padding: 2px 6px; border-radius: 6px; font-size: 0.92em; }
+    a { color: #a78bfa; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .chip { border: 1px solid #3d4455; border-radius: 999px; padding: 6px 12px; font-size: 0.9rem; color: var(--text); }
+    .warn { border-left: 3px solid var(--accent); padding-left: 12px; }
+    pre.diagram { background: #12151c; padding: 16px; border-radius: 10px; overflow-x: auto; font-size: 12px; line-height: 1.4; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <h1>Pratidaan (Drop assistant)</h1>
+  <p class="warn"><strong>Reviewer guide.</strong> Not linked from the live app UI — for people evaluating the prototype.</p>
+  <p>Voluntary blood donor app for India: impact tracing, donation health panel, illustrative health-linked cover, and AI assistant <strong>Drop</strong>. Deployed on <strong>Azure App Service</strong> (Linux F1) with <strong>Azure OpenAI</strong> (<code>gpt-5-mini</code>).</p>
+
+  <div class="card">
+    <strong>Live app</strong>
+    <p><a href="https://pratidaan-stmzd6rrg4.azurewebsites.net">https://pratidaan-stmzd6rrg4.azurewebsites.net</a> (App Service; URL varies per resource group)</p>
+    <p class="warn"><strong>Microsoft sign-in issues?</strong> Ensure the Entra app registration includes this origin as a SPA redirect URI, or use <strong>Continue as guest</strong> for the full demo.</p>
+  </div>
+
+  <h2>How to sign in</h2>
+  <ul>
+    <li><strong>Continue as guest</strong> — full demo, no Microsoft account (recommended for a quick walkthrough). Each guest gets a private session (<code>guest-…</code>); Drop chat and Past Cycles are scoped to that guest × persona.</li>
+    <li><strong>Sign in with Microsoft</strong> — optional; enables Calendar/mail booking examples after separate consent.</li>
+    <li>Top bar: <strong>Viewing as</strong> — pick a persona (synthetic donors below).</li>
+  </ul>
+
+  <h2>Sample personas &amp; data</h2>
+  <ul>
+    <li><strong>Arjun (D-001)</strong> — repeat donor, BP trend, impact stories.</li>
+    <li><strong>Meera (D-002)</strong> — iron/ferritin narrative.</li>
+    <li><strong>Ananya (D-003)</strong> — communities, cover illustration.</li>
+    <li><strong>Karthik / Rohan</strong> — additional paths (booking, languages).</li>
+    <li><strong>New donor</strong> — empty record; Intro + first booking.</li>
+  </ul>
+  <p>All health, hospitals, slots and recipients are <strong>synthetic</strong> (<code>data/synthetic/</code>, deterministic seed). Not for clinical use.</p>
+
+  <h2>Sample questions (Drop chat)</h2>
+  <div class="chips">
+    <span class="chip">How is my BP doing?</span>
+    <span class="chip">Explain my latest results</span>
+    <span class="chip">Where did my blood go?</span>
+    <span class="chip">When can I donate next?</span>
+    <span class="chip">Book a doctor check-up</span>
+    <span class="chip">Book a donation</span>
+    <span class="chip">What do you remember about me?</span>
+    <span class="chip">Watch my impact story</span>
+  </div>
+  <p>Use the demo bar: <strong>+1 day</strong> advances the <strong>demo clock</strong> (not wall-calendar time); <strong>Reset</strong> archives this cycle’s chats into <strong>Past Cycles</strong>. Turn dates use the demo clock. <strong>This cycle (live)</strong> shows the server transcript after each Drop reply.</p>
+
+  <h2>Guardrails (three layers)</h2>
+  <p>Implemented in <code>backend/src/ai/guardrails.js</code>. Every Azure OpenAI call can append the same safety block via <code>llm.js</code> (<code>guardrailKind</code>).</p>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">1. Before the model (Drop chat only)</h3>
+    <p style="margin:0;">Regex on the donor’s message: block diagnosis/prescription asks and emergency wording with a fixed reply (often + check-up card). The LLM is not called when blocked.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">2. In every system prompt</h3>
+    <p style="margin:0;"><code>augmentSystem()</code> appends shared rules: Pratidaan scope only, refuse essays/homework, no diagnose/prescribe, emergencies → call emergency services, facts from tools only.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text);">3. After the model</h3>
+    <p style="margin:0;"><code>sanitizeReply()</code> strips prescription-like wording. Structured JSON is schema-validated; Card rewrites must match rule text.</p>
+  </div>
+  <ul>
+    <li>Rule-based <code>fallback()</code> when Azure OpenAI is unavailable or the reply is incomplete.</li>
+    <li>Chip questions (donate, BP, impact, …) can bypass the full agent for deterministic answers.</li>
+    <li>Tests: <code>backend/test/guardrails.test.js</code>, <code>ai-correctness.test.js</code>.</li>
+  </ul>
+
+  <h2>Known limits</h2>
+  <ul>
+    <li>Blood centre / clinic slots are <strong>not</strong> real reservations; Calendar events may be created but do not confirm a centre.</li>
+    <li>Cover and premiums are an <strong>illustrative model</strong>, not issued insurance.</li>
+    <li>AI safeguards (production bicep defaults): ~30k tokens/day and 100 calls/day per instance, 2 req/s; App Service F1 is single-instance shared CPU.</li>
+    <li>Signed-in account JSON and chat cycles persist in <strong>Azure Blob Storage</strong> (managed identity). Guests use in-memory state unless Blob mirrors chat.</li>
+    <li>Agent blobs (<code>agents/sessions/*</code>, <code>chat-cycles/*</code>) mirror activity; replies still come from <code>runAgent()</code> on Azure OpenAI. See <code>docs/AGENT_PLATFORM_SETUP.md</code>.</li>
+  </ul>
+
+  <h2>Architecture (simple)</h2>
+  <pre class="diagram">
+┌─────────────┐     HTTPS      ┌──────────────── App Service (Pratidaan) ─────────────────┐
+│  Browser    │ ─────────────► │  Express API + static React  ·  session cookie (Entra/guest) │
+│  React SPA  │ ◄───────────── │  Deterministic domain rules  ·  optional Blob JSON accounts   │
+└─────────────┘                └────────────┬───────────────────────────────┬────────────────┘
+                                            │                               │
+                    ┌───────────────────────┼───────────────────────┐       │
+                    ▼                       ▼                       ▼       ▼
+            Azure OpenAI               tool loop                 Blob Storage
+            (chat completions)         runAgent() + 18 tools      chat cycles + agent log
+                    │                       │
+                    └───────────┬───────────┘
+                                ▼
+                    Synthetic store + Drop domain (cards, goals, impact)
+                                │
+                    Demo clock · Past Cycles archive on Reset
+  </pre>
+  <p>Health check: <code>/api/health</code> (AI live flag, agent platform). AI console in app: <code>/#ai</code>. Full detail: <code>docs/03-architecture.md</code>. Product overview: <a href="pratidaan-guide.html">pratidaan-guide.html</a>.</p>
+
+  <h2>Repo &amp; tests</h2>
+  <p>Source: <a href="https://github.com/z-008/pratidaan">github.com/z-008/pratidaan</a> — <code>cd backend && npm test</code>, <code>cd frontend && npm run type-check</code>.</p>
+</body>
+</html>

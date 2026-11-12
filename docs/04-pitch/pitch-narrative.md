@@ -1,6 +1,6 @@
 # Pratidaan pitch narrative
 
-**For the deck, the live pitch and the finale Q&A.** About 3 minutes. Each block maps to a slide in [pitch-deck.html](pitch-deck.html). Everything said here is in the live prototype or marked as a target; nothing is claimed that the build doesn't do.
+**For the deck and live pitch.** About 3 minutes. Each block maps to a slide in [pitch-deck.html](pitch-deck.html). Everything said here is in the live prototype or marked as a target; nothing is claimed that the build doesn't do.
 
 **Frame:** lead with the gift: blood donation, and the lives a donor touches. Health and better cover are the reasons a donor comes back. They are not the headline.
 
@@ -30,13 +30,13 @@
 - "Next day his results land: BP up for the fourth donation in a row. One Goal, BP under 130/80. Three steps, each with its source: brisk walks, less salt, see a doctor within three weeks. And his donations wait until it comes down."
 - "He asks Drop in Kannada: 'why can't I donate?' Drop looks it up and answers in two sentences, with his BP chart."
 - "Two weeks later Drop asks for a reading. 128/78. Goal reached, and the date he can give again appears: 1 January."
-- "Meera was turned away twice for low haemoglobin. She photographs a lab report; Gemini reads Hb 12.6. She can donate again."
+- "Meera was turned away twice for low haemoglobin. She photographs a lab report; the model reads Hb 12.6; she confirms and can donate again."
 - "And Vikram, at 184/118, gets one Card that can't be hidden or snoozed: see a doctor today. No model decides that. It's a rule."
 
 **6. How it's built (20 s, slide 6).**
-- "Rules decide; Gemini helps. Every Card, threshold, Goal, cover step and privacy rule is plain code, with 152 tests. The same history always gives the same result."
-- "Gemini does what rules can't: Drop's chat is an agent with 18 tools that answers any question across impact, health and cover, in six Indian languages. Gemini reads any lab's report. And it translates the Intro, keeping every number."
-- "It runs on Cloud Run with Gemini on Vertex AI, and falls back to rules if the model is unavailable."
+- "Rules decide; the model helps. Every Card, threshold, Goal, cover step and privacy rule is plain code, with 167+ tests. The same history always gives the same result."
+- "Azure OpenAI does what rules can't: Drop's chat is an agent with 18 tools that answers across impact, health and cover, in six Indian languages; reads any lab report (donor confirms); translates the Intro, keeping every number."
+- "It runs on Azure App Service with Azure OpenAI, and falls back to rules if the model is unavailable."
 
 **7. Who wins (15 s, slide 7).**
 - "Donors get meaning, health and cover. Blood centres get donors who return. Employers and insurers get healthier, lower-risk members. Public health gets an anonymised screening signal."
@@ -54,9 +54,9 @@
 | **Pillar 2: health between donations** | The donation's own results become one Goal with one target and cited steps; Drop follows up lightly and shows the way back to donating. |
 | **Pillar 3: cover that rises with health** | A transparent, consent-based model: lower risk creates room for more cover at the same premium. |
 | **Pillar 4: AI where it counts, rules where it matters** | An agent with 18 tools, multimodal report reading and six languages; deterministic, tested rules for every safety, money and privacy decision. |
-| **Proof** | A live prototype on Cloud Run with seven personas, 152 passing tests, and a fallback for every AI feature. |
+| **Proof** | Live prototype on Azure with seven personas, 167+ passing backend tests, and a fallback for every AI feature. |
 
-## Likely judge questions
+## Likely questions
 
 | Question | Answer |
 |---|---|

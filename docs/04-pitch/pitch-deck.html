@@ -119,12 +119,12 @@
 <section class="slide title-slide">
   <div class="fill" style="display:flex;flex-direction:column;justify-content:center;">
     <div class="drop" aria-hidden="true"></div>
-    <div class="eyebrow">H2S × Google Cloud Gen AI Hackathon 2026 · Sustainability &amp; Social Impact</div>
+    <div class="eyebrow">Pratidaan · voluntary blood donation · India</div>
     <h1 style="font-size:58px;">Pratidaan</h1>
     <p class="lede" style="font-size:28px;max-width:9.5in;">Give blood. See every life it touches.</p>
     <p class="lede" style="margin-top:12px;font-size:20px;max-width:10in;">The donor's app: every part of your donation followed to the patient it helped, your free health check turned into a light follow-up until you can give again, and health-insurance cover that rises as you stay well.</p>
   </div>
-  <div class="foot"><span>Team Pratidaan · Mihir Bhatt · Uppili Srinivasan · Sandeep Samant</span><span>Prototype: pratidaan-25mgkruoeq-el.a.run.app · Source: GitHub (hackathon submission)</span></div>
+  <div class="foot"><span>Pratidaan</span><span>pratidaan-stmzd6rrg4.azurewebsites.net · github.com/z-008/pratidaan</span></div>
 </section>
 
 <!-- 2. Arjun -->
@@ -247,14 +247,14 @@
     </div>
   </div>
   <div class="card warm" style="margin-top:16px;">
-    <p style="margin:0;"><b>Around the donor:</b> what their blood meant for the blood centre, hospitals, labs and public health · a network-wide ecosystem view · guided booking with a Google Calendar event · <b>Your data</b>, which lists and deletes everything kept.</p>
+    <p style="margin:0;"><b>Around the donor:</b> what their blood meant for the blood centre, hospitals, labs and public health · ecosystem view · guided booking with optional Microsoft Calendar event · <b>Your data</b>, which lists and deletes everything kept.</p>
   </div>
   <div class="foot"><span>Pratidaan</span><span>4</span></div>
 </section>
 
 <!-- 5. Demo -->
 <section class="slide">
-  <div class="eyebrow">Demo · live on Cloud Run</div>
+  <div class="eyebrow">Demo · live on Azure</div>
   <h2>Arjun, from silence to a story, a Goal and a date to give again</h2>
   <div class="steps" style="margin-top:6px;">
     <div class="step"><div class="n">10 Oct · Story</div>"My platelets reached a patient." Some details stay private so no one can be identified. He shares the postcard.</div>
@@ -266,46 +266,46 @@
   <div class="grid g2" style="margin-top:18px;">
     <div class="card warm">
       <h3>Meera: turned away, then back</h3>
-      <p>Hb 11.8, she needs 12.5. She photographs a lab report; <b>Gemini reads Hb 12.6</b>, she confirms, and she can donate again.</p>
+      <p>Hb 11.8, she needs 12.5. She photographs a lab report; <b>the model reads Hb 12.6</b>, she confirms, and she can donate again.</p>
     </div>
     <div class="card">
       <h3>Vikram: a rule, not a model</h3>
       <p>BP 184/118. One urgent Card, always first, can't be hidden, only waits an hour: see a doctor today. His Goal suggests no exercise until a doctor has seen him.</p>
     </div>
   </div>
-  <div class="foot"><span>Live: pratidaan-25mgkruoeq-el.a.run.app · sign in with Google or continue as guest</span><span>5</span></div>
+  <div class="foot"><span>Live: pratidaan-stmzd6rrg4.azurewebsites.net · Microsoft sign-in or guest</span><span>5</span></div>
 </section>
 
 <!-- 6. Architecture -->
 <section class="slide">
   <div class="eyebrow">How it's built</div>
-  <h2>Rules decide. Gemini helps where rules can't.</h2>
+  <h2>Rules decide. Azure OpenAI helps where rules can't.</h2>
   <div class="arch fill">
     <div class="lane">
       <h3>Donor app</h3>
       <div class="box"><b>React 19 web app</b><span class="muted">Home · Impact · Health · Cover · Community · Donate · Your data</span></div>
       <div class="box"><b>Drop on every screen</b><span class="muted">Cards on Home, chat in a side sheet, the Intro</span></div>
-      <div class="box"><b>Google Sign-In · Calendar · Gmail</b><span class="muted">booking event and confirmation in the donor's own account</span></div>
+      <div class="box"><b>Microsoft sign-in · Graph Calendar · mail</b><span class="muted">optional booking event and confirmation in the donor's account</span></div>
       <h3 style="margin-top:12px;">Data</h3>
       <div class="box"><b>Synthetic world</b><span class="muted">300 donors · 657 visits · 1,627 components · seed 42</span></div>
-      <div class="box"><b>Cloud Firestore</b><span class="muted">accounts, sign-ins, preferences, bookings (not Firebase Auth or Hosting)</span></div>
+      <div class="box"><b>Azure Blob Storage</b><span class="muted">signed-in account JSON, chat cycles, agent session mirror</span></div>
     </div>
     <div class="lane">
-      <h3>Gemini 3.1 Flash-Lite · Vertex AI</h3>
+      <h3>Azure OpenAI · gpt-5-mini</h3>
       <div class="box ai"><b>Drop's chat · agent with 18 tools</b><span class="muted">answers any question across impact, health and cover; shows a chart; offers a check-up; saves a reading; remembers a preference; six languages</span></div>
       <div class="box ai"><b>Lab-report reader · multimodal</b><span class="muted">any lab's photo → 16 LOINC markers, unit conversion, schema + range checks, donor confirms</span></div>
       <div class="box ai"><b>Intro translation</b><span class="muted">kept only if every number survives</span></div>
       <div class="box"><b>Gateway</b><span class="muted">rate limit · daily budgets · traces · output re-validated · rule fallback for every feature</span></div>
     </div>
     <div class="lane">
-      <h3>Deterministic engines · 156 tests</h3>
+      <h3>Deterministic engines · 167+ tests</h3>
       <div class="box fixed"><b>Findings, score, eligibility</b><span class="muted">ACC/AHA 2017 and ICMR thresholds; NBTC gaps</span></div>
       <div class="box fixed"><b>Drop's Cards and Goals</b><span class="muted">Message budget, quiet hours, urgent first; targets and cited steps</span></div>
       <div class="box fixed"><b>Cover ladder</b><span class="muted">risk from score → headroom at the same premium</span></div>
       <div class="box fixed"><b>Recipient privacy</b><span class="muted">k = 5 generalisation, month-rounded dates</span></div>
     </div>
   </div>
-  <div class="foot"><span>Google stack: Gemini on Vertex AI · Cloud Run · Artifact Registry · WIF · Cloud Firestore · OAuth Sign-In, Calendar, Gmail APIs (no Firebase product)</span><span>6</span></div>
+  <div class="foot"><span>Azure: App Service · OpenAI · Blob · Entra · Graph · GitHub OIDC deploy</span><span>6</span></div>
 </section>
 
 <!-- 7. Impact and scale -->
@@ -358,7 +358,7 @@
     <h1 style="font-size:52px;">Give blood.<br>See every life it touches.</h1>
     <p class="lede" style="margin-top:18px;font-size:20px;max-width:10in;">When donors see what their gift did, stay healthy enough to give, and gain from staying well, they come back. When they come back, patients have blood.</p>
   </div>
-  <div class="foot"><span>Mihir Bhatt · Uppili Srinivasan · Sandeep Samant</span><span>pratidaan-25mgkruoeq-el.a.run.app · Demo video: submission portal</span></div>
+  <div class="foot"><span>Pratidaan</span><span>pratidaan-stmzd6rrg4.azurewebsites.net</span></div>
 </section>
 
 </body>
