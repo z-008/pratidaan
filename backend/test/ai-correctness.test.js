@@ -83,6 +83,43 @@ test('insight rejects an unknown candidate or mismatched CTA', async () => {
   assert.equal(mismatched.generatedBy, 'rules');
 });
 
+const demoUser = { sub: 'test-guest', name: 'Guest' };
+
+test('donate-next chip answers from donate screen line without agent steps', async () => {
+  const r = await copilot.chat({
+    user: demoUser,
+    donorId: 'D-002',
+    history: [],
+    message: 'When can I donate next?',
+    userName: 'Meera',
+    chat: 'general',
+  });
+  assert.match(r.reply, /hold|donat/i);
+  assert.ok(!/chemo|trauma|here's the bp chart/i.test(r.reply));
+  assert.ok(r.actions.some((a) => a.type === 'navigate' && a.screen === 'donate'));
+  assert.equal(r.steps?.length ?? 0, 0);
+});
+
+test('alignActionsToQuestion drops stray agent charts on donate chips', () => {
+  const agent = [{ type: 'chart', marker: 'bp', points: [{ date: '2025-01-01', value: 120, value2: 80 }] }];
+  const kept = copilot.alignActionsToQuestion('D-002', 'When can I donate next?', agent);
+  assert.ok(!kept.some((a) => a.type === 'chart'));
+  const ok = copilot.alignActionsToQuestion('D-002', 'How is my BP doing?', agent);
+  assert.equal(ok.find((a) => a.type === 'chart')?.marker, 'bp');
+});
+
+test('BP doing in chat attaches a chart action', async () => {
+  const r = await copilot.chat({
+    user: demoUser,
+    donorId: 'D-002',
+    history: [],
+    message: 'How is my BP doing?',
+    userName: 'Meera',
+    chat: 'general',
+  });
+  assert.ok(r.actions.some((a) => a.type === 'chart' && a.marker === 'bp'));
+});
+
 test('a saved reading receipt remains visible if the next model call fails', async () => {
   let calls = 0;
   llm.call = async () => {

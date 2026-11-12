@@ -269,7 +269,10 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
             return (
               <div className="sheet-past" style={{ padding: 16, overflow: 'auto', flex: 1 }}>
                 <b className="small">This cycle (live)</b>
-                <p className="small muted" style={{ margin: '4px 0 8px' }}>Since demo timeline {thisCycle?.startedOn || '…'}. Still writable in other chats.</p>
+                <p className="small muted" style={{ margin: '4px 0 8px' }}>
+                  Since demo timeline {thisCycle?.startedOn || '…'}. Turn dates follow the demo clock — use Step time on the demo bar to move days.
+                  Keep chatting in <strong>General</strong> or a Goal; this tab is the transcript for this cycle.
+                </p>
                 {liveTurns === 0 ? (
                   <p className="small muted">
                     No Drop chats recorded this cycle yet for this persona and sign-in. Chat in <button type="button" className="drop-link" style={{ minHeight: 0, marginLeft: 0, padding: 0 }} onClick={() => show('general', 'open')}>General</button>

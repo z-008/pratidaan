@@ -101,13 +101,15 @@ function ensureCurrent(scope) {
   return currentByScope.get(scope);
 }
 
-function recordTurn(user, donorId, chat, { userText, assistantText, history }) {
+function recordTurn(user, donorId, chat, { userText, assistantText, history, actions }) {
   const scope = scopeKey(user, donorId);
   const key = chatKey(chat);
   const bucket = ensureCurrent(scope);
   if (!bucket[key]) bucket[key] = { turns: [], history: null };
   const entry = bucket[key];
-  entry.turns.push({ at: store.today(), user: userText, assistant: assistantText });
+  const row = { at: store.today(), user: userText, assistant: assistantText };
+  if (Array.isArray(actions) && actions.length) row.actions = actions;
+  entry.turns.push(row);
   if (history) entry.history = history;
   entry.turns = entry.turns.slice(-40);
   hydrated.add(scope);

@@ -3,7 +3,7 @@
  * two sentences plus at most one Card (a chart, check-up slots or a reminder),
  * memory lines and receipts. Cards it opens also appear on Home.
  */
-import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { api, fmtDate, isStaleCard, type Appointment, type ChartPoint, type CopilotAction, type DropBooking, type DropCard, type DropView } from '../api';
 import { Icon, Thinking } from '../ui';
@@ -35,6 +35,8 @@ const BOOK_INTENT = /\b(book|schedule|reserve)\b.*\b(donat\w*|slot|appointment|b
 
 // One conversation per donor and Chat; the General one is shared by Home and the side sheet
 const conversations = new Map<string, { turns: Turn[]; history: unknown[] | null }>();
+/** Avoid a late chat/active response overwriting turns that already have charts in memory. */
+const serverHydrated = new Set<string>();
 const keyOf = (accountKey: string, donorId: string, chat: ChatId) => {
   const base = `${accountKey}|${donorId}`;
   return chat === 'general' ? base : `${base}|${chat}`;
@@ -138,6 +140,8 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
   const key = keyOf(accountKey, donorId, chat);
   const [turns, setTurns] = useState<Turn[]>(() => conversations.get(key)?.turns || []);
   const [history, setHistory] = useState<unknown[] | null>(() => conversations.get(key)?.history || null);
+  const turnsRef = useRef(turns);
+  useLayoutEffect(() => { turnsRef.current = turns; }, [turns]);
   useEffect(() => { conversations.set(key, { turns, history }); }, [key, turns, history]);
   const historyRef = useRef<unknown[] | null>(history);
   const persistTurn = useCallback((userText: string, assistantText: string) => {
@@ -145,17 +149,22 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
   }, [donorId, chat]);
   const syncServerChat = useCallback(() => {
     let alive = true;
+    const cached = conversations.get(key)?.turns ?? [];
+    if (cached.length || serverHydrated.has(key)) return () => { alive = false; };
     api.chatActive(donorId, chat).then((active) => {
-      if (!alive) return;
-      const local = conversations.get(key)?.turns ?? [];
-      if (local.length) return;
+      if (!alive || serverHydrated.has(key)) return;
+      if (turnsRef.current.length || (conversations.get(key)?.turns?.length ?? 0) > 0) {
+        serverHydrated.add(key);
+        return;
+      }
       const fromServer = active.turns.flatMap((t) => [
         { role: 'user' as const, text: t.user },
-        { role: 'ai' as const, text: t.assistant },
+        { role: 'ai' as const, text: t.assistant, ...(t.actions?.length ? { actions: t.actions } : {}) },
       ]);
       if (fromServer.length) setTurns(fromServer);
       if (active.history?.length) { historyRef.current = active.history; setHistory(active.history); }
-    }).catch(() => {});
+      serverHydrated.add(key);
+    }).catch(() => { serverHydrated.add(key); });
     return () => { alive = false; };
   }, [key, donorId, chat]);
   useEffect(() => {
@@ -285,6 +294,7 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
     // The demo went back to the start: the saved conversation and the Cards it showed no longer exist
     const onReset = () => {
       conversations.clear();
+      serverHydrated.clear();
       setTurns([]);
       setHistory(null);
       historyRef.current = null;

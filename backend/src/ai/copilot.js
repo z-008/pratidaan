@@ -119,17 +119,50 @@ function intentHint(message) {
   return '';
 }
 
+function replyTooLong(reply) {
+  return String(reply || '').trim().split(/\s+/).length > 50;
+}
+
 function replyMatchesQuestion(message, reply) {
   const m = String(message || '').toLowerCase();
   const r = String(reply || '').toLowerCase();
   if (/\b(bp|blood pressure)\b/.test(m) && /\b(how|doing|trend|chart)\b/.test(m)) {
-    if ((/\bhba1c\b|prediabetes/i.test(r)) && !/\d{2,3}\s*\/\s*\d{2,3}/.test(r)) return false;
+    if ((/\bhba1c\b|prediabetes|ferritin|haemoglobin|hemoglobin/i.test(r)) && !/\d{2,3}\s*\/\s*\d{2,3}/.test(r)) return false;
     return /\d{2,3}\s*\/\s*\d{2,3}/.test(r) || /\bblood pressure\b|\bbp\b/.test(r);
   }
   if (/\b(where did my blood|blood go)\b/.test(m)) {
-    return !/\b138\/|donation eligibility|recipient details aren't\b/.test(r);
+    return !/\b138\/|donation eligibility|recipient details aren't\b/.test(r) && !/\bhba1c|ferritin\b/.test(r);
   }
-  return true;
+  if (/\b(when can i donate|donate next|can i donate)\b/.test(m) || (/\bdonate\b/.test(m) && /\b(when|next|hold|eligible)\b/.test(m))) {
+    if (/patient|chemo|trauma|postpartum|impact map|here's the bp/i.test(r)) return false;
+    if (/\d{2,3}\s*\/\s*\d{2,3}/.test(r) && !/\bbp\b|blood pressure/i.test(m)) return false;
+    return /\bdonat|hold|eligible|haemoglobin|hemoglobin|ferritin|from \d|remind/i.test(r);
+  }
+  return !replyTooLong(reply);
+}
+
+/** Common Home chips — one topic, rule-backed text, optional screen button (no full agent). */
+function chipShortcut(donorId, message) {
+  const m = String(message || '').toLowerCase();
+  if (/\b(when can i donate|donate next|can i donate|next donation|eligible to donate)\b/.test(m)
+    || (/\bdonate\b/.test(m) && /\b(when|next|hold|eligible)\b/.test(m))) {
+    return { reply: screenLines.line(donorId, 'donate').text, actions: [{ type: 'navigate', screen: 'donate' }] };
+  }
+  if (/what do you remember/.test(m)) {
+    const memory = drop.view(donorId).memory.map((x) => x.text);
+    return {
+      reply: memory.length ? `Here's what I remember: ${memory.join('; ')}. You can delete any of it from "What do you remember about me?".` : "I don't remember anything about you yet.",
+      actions: [],
+    };
+  }
+  if (/\b(cover|insurance|premium|insured)\b/.test(m)) {
+    return { reply: screenLines.line(donorId, 'cover').text, actions: [{ type: 'navigate', screen: 'cover' }] };
+  }
+  return null;
+}
+
+function bestGrounded(donorId, message) {
+  return chipShortcut(donorId, message) || groundedAnswer(donorId, message);
 }
 
 function bpSummaryLine(donorId) {
@@ -163,6 +196,17 @@ function groundedAnswer(donorId, message) {
   return null;
 }
 
+/** Drop chart cards unless the user asked for that marker (stops agent tool noise on unrelated chips). */
+function alignActionsToQuestion(donorId, message, actions) {
+  const allowed = chartActionsForMessage(donorId, message);
+  const allowMarkers = new Set(allowed.map((c) => c.marker));
+  const rest = (actions || []).filter((a) => a.type !== 'chart');
+  const charts = (actions || []).filter((a) => a.type === 'chart' && allowMarkers.has(a.marker));
+  if (charts.length) return [...rest, charts[0]];
+  if (allowed.length) return [...rest, allowed[0]];
+  return rest;
+}
+
 /** Charts, cards, and navigation the UI should show even if the model forgot a tool. */
 function uiActionsForMessage(donorId, message, actions) {
   const m = String(message || '').toLowerCase();
@@ -174,6 +218,9 @@ function uiActionsForMessage(donorId, message, actions) {
   }
   if (!has('navigate') && /\b(where did my blood|blood go|who did my|open my impact)\b/.test(m)) {
     out.push({ type: 'navigate', screen: 'impact' });
+  }
+  if (!has('navigate') && /\b(when can i donate|donate next|book a donation)\b/.test(m)) {
+    out.push({ type: 'navigate', screen: 'donate' });
   }
   if (!has('card') && /\b(check-?up|doctor)\b/.test(m) && /\b(book|schedule|see|visit|need|want|like)\b/.test(m)) {
     const card = drop.offerCard(donorId, 'care_slots');
@@ -206,29 +253,40 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     (typeof turn.content === 'string' || Array.isArray(turn.content))).slice(-20)
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
+  const turn = [{ role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}${intentHint(message)}`;
-  const impactAsk = /\b(where did my blood|blood go|who did my|helped|impact|platelets? go|red cells? go)\b/i.test(message);
+  const finishChip = (reply, actions, hist) => {
+    const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
+    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+    agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+    agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+    return { reply, steps: [], actions: ui, history: hist };
+  };
+  const chip = chipShortcut(donorId, message);
+  if (chip) return finishChip(chip.reply, uiActionsForMessage(donorId, message, chip.actions), prior);
+  const impactAsk = /\b(where did my blood|blood go|who did my|impact|platelets? go|red cells? go)\b/i.test(message);
   if (impactAsk) {
     const fact = screenLines.line(donorId, 'impact').text;
     const actions = [{ type: 'navigate', screen: 'impact' }];
     const finishImpact = (reply, hist) => {
-      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+      const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
+      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
       agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
       agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
-      return { reply, steps: [], actions, history: hist };
+      return { reply, steps: [], actions: ui, history: hist };
     };
     if (llm.available(600)) {
       try {
         const response = await llm.call({
           feature: 'copilot_impact',
           system: `You are Drop in Pratidaan for blood donors in India. They asked where their donation went. Use ONLY this fact from the app: "${fact}". Answer in one or two short, warm sentences: which parts helped patients (recipients stay anonymous — age band and clinical use only). Mention they can tap "Open My impact" below when they want the full journey map — do not say you are opening it for them. Do not discuss BP, lab results, donation eligibility, or booking a check-up.`,
-          messages,
+          messages: turn,
           maxTokens: 220,
           effort: 'minimal',
           guardrailKind: 'chat',
         });
         const reply = guardrails.sanitizeReply(llm.text(response)).reply;
-        if (reply) return finishImpact(reply, messages);
+        if (reply && replyMatchesQuestion(message, reply)) return finishImpact(reply, messages);
       } catch { /* rules below */ }
     }
     return finishImpact(`${fact} Tap Open My impact below when you want the full journey map.`, prior);
@@ -239,10 +297,11 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const grounded = groundedAnswer(donorId, message);
     if (grounded) {
       const finishBp = (reply, hist) => {
-        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+        const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, grounded.actions));
+        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
         agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
         agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
-        return { reply, steps: [], actions: grounded.actions, history: hist };
+        return { reply, steps: [], actions: ui, history: hist };
       };
       if (llm.available(700)) {
         try {
@@ -269,23 +328,24 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const grounded = groundedAnswer(donorId, message);
     if (grounded) {
       const finishResults = (reply, hist) => {
-        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+        const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, grounded.actions));
+        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
         agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
         agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
-        return { reply, steps: [], actions: grounded.actions, history: hist };
+        return { reply, steps: [], actions: ui, history: hist };
       };
       if (llm.available(900)) {
         try {
           const response = await llm.call({
             feature: 'copilot_results',
             system: `You are Drop in Pratidaan. Explain their latest donation check-up results in one or two short sentences. Facts (authoritative):\n${healthFacts(donorId)}\nDo not invent values. Offer to say more.`,
-            messages,
+            messages: turn,
             maxTokens: 400,
             effort: 'minimal',
             guardrailKind: 'chat',
           });
           const reply = guardrails.sanitizeReply(llm.text(response)).reply;
-          if (reply) return finishResults(reply, messages);
+          if (reply && !replyTooLong(reply)) return finishResults(reply, messages);
         } catch { /* rules below */ }
       }
       return finishResults(grounded.reply, prior);
@@ -298,8 +358,8 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   } catch (error) {
     if (!(error instanceof llm.LLMUnavailable)) throw error;
     const rules = fallback(donorId, message);
-    const actions = uiActionsForMessage(donorId, message, rules.actions);
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior });
+    const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, rules.actions));
+    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior, actions });
     return { ...rules, actions, history: prior, offline: true, reason: error.message };
   }
   // A reply that is the model's own notes ("The user wants…", "Plan: …") or tool code written as text gets one more try:
@@ -312,31 +372,34 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   if (result.text && isNote(result.text)) {
     const rules = fallback(donorId, message);
     const reply = rules.generic ? 'Sorry, I lost my words there. Could you ask me that again?' : rules.reply;
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior });
-    const actions = uiActionsForMessage(donorId, message, [...result.actions, ...rules.actions.filter((a) => !result.actions.some((b) => b.type === a.type && b.text === a.text))]);
+    const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, [...result.actions, ...rules.actions.filter((a) => !result.actions.some((b) => b.type === a.type && b.text === a.text))]));
+    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true };
   }
   if (!result.text) {
     const rules = fallback(donorId, message);
     const existing = result.actions;
     const merged = [...existing, ...rules.actions.filter((a) => !existing.some((b) => b.type === a.type && b.marker === a.marker && b.cardId === a.cardId))];
-    const actions = uiActionsForMessage(donorId, message, merged);
+    let actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, merged));
     const grounded = groundedAnswer(donorId, message);
     let reply = existing.some((a) => ['memory', 'receipt', 'card'].includes(a.type)) ? defaultReply(existing) : rules.reply;
     if (grounded && actions.some((a) => a.type === 'chart')) reply = grounded.reply;
     else if (actions.some((a) => a.type === 'chart') && !replyMatchesQuestion(message, reply)) {
       reply = grounded?.reply || `${screenLines.line(donorId, 'health').text} See the chart below.`;
     }
-    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior });
+    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior, actions });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true, offline: true, reason: 'AI response incomplete' };
   }
   let reply = result.text;
-  let actions = uiActionsForMessage(donorId, message, result.actions);
-  if (!replyMatchesQuestion(message, reply)) {
-    const grounded = groundedAnswer(donorId, message);
+  let actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, result.actions));
+  if (!replyMatchesQuestion(message, reply) || replyTooLong(reply)) {
+    const grounded = bestGrounded(donorId, message);
     if (grounded) {
       reply = grounded.reply;
-      actions = uiActionsForMessage(donorId, message, [...grounded.actions, ...actions]);
+      actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, grounded.actions));
+    } else if (replyTooLong(reply)) {
+      reply = fallback(donorId, message).reply;
+      actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
     }
   }
   const safe = guardrails.sanitizeReply(reply);
@@ -345,7 +408,8 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const card = drop.offerCard(donorId, 'care_slots');
     actions = [...actions.filter((a) => a.type !== 'card'), { type: 'card', cardId: card.id }];
   }
-  chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: result.messages });
+  actions = alignActionsToQuestion(donorId, message, actions);
+  chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: result.messages, actions });
   agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
   agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
   const mem = drop.view(donorId).memory.map((x) => x.text);
@@ -359,7 +423,7 @@ function chartActionsForMessage(donorId, message) {
   if (!store.getDonations(donorId).length) return [];
   const urgentBp = /\b(bp|blood pressure)\b/.test(m) && health.findings(donorId).find((f) => f.id === 'BP_URGENCY');
   if (urgentBp) return [];
-  if (/\b(bp|blood pressure)\b/.test(m)) {
+  if (/\b(bp|blood pressure)\b/.test(m) && /\b(how|doing|trend|chart|over time)\b/.test(m)) {
     const points = drop.chartPoints(donorId, 'bp');
     return points.length ? [{ type: 'chart', marker: 'bp', points }] : [];
   }
@@ -438,4 +502,4 @@ function fallback(donorId, message) {
   return { ...out("I need the AI connection for free-form questions, and it isn't available right now. Try asking about your results, your BP, where your blood went, or when you can donate."), generic: true };
 }
 
-module.exports = { chat, fallback, SYSTEM, chartActionsForMessage, uiActionsForMessage };
+module.exports = { chat, fallback, SYSTEM, chartActionsForMessage, uiActionsForMessage, alignActionsToQuestion };
