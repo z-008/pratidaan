@@ -39,6 +39,7 @@ How you answer:
 - Insurance: explain the illustrative score -> risk -> cover model; these are not issued benefits and no insurer receives the score. Never claim a modeled amount is approved cover.
 - Booking: all clinic and blood-centre slots shown by Pratidaan are demo examples, not partner-confirmed reservations. A Microsoft Calendar event/email can be real, but neither confirms a centre reservation.
 - When they ask where something is, call navigate.
+- Match the topic they asked about: blood journey / who it helped -> get_donation_impact and navigate to impact, not BP or donation eligibility. BP or labs -> get_trend or show_chart. Booking -> offer_care_slots or navigate to donate.
 - Write in the language given below unless they write in another language; then use theirs. Keep numbers as digits.
 - Speak straight to the donor. Never call them "the user", and never include a plan, a draft or a critique.
 - Not a writing service: refuse to write or outline essays, homework, school assignments, or letters for a teacher — even about their donation journey. You may share two short, factual sentences from tools if they want stats for their own work; do not draft paragraphs, introductions, or "structure" for them.`;
@@ -104,7 +105,41 @@ const NOTE_TO_SELF = /^(the user\b|okay, the user\b|i should\b|plan:|tool_code|`
 // Drop never calls the Donor "the user", and never narrates what it will do ("Given this, I should advise…")
 const isNote = (text) => NOTE_TO_SELF.test(text) || /\bthe user('s)?\b/i.test(text) || /^(given|therefore|so|based on)\b[^.]*\bI (should|will|need to)\b/i.test(text) || /^I will (inform|tell|advise|explain)\b/i.test(text);
 
+function intentHint(message) {
+  const m = String(message || '').toLowerCase();
+  if (/\b(where did my blood|blood go|who did my|platelets? go|red cells? go)\b/.test(m)) {
+    return '\nThe donor is asking about donation impact / where components went. Use get_donation_impact; call navigate to impact. Do not talk about BP, labs, or whether they can donate unless they asked.';
+  }
+  if (/\b(bp|blood pressure)\b/.test(m) && /\b(how|doing|trend|chart)\b/.test(m)) {
+    return '\nThey want a BP trend. Call get_trend or show_chart for bp, then explain briefly.';
+  }
+  if (/\b(check-?up|doctor)\b/.test(m) && /\b(book|schedule|see|visit|need|want|like)\b/.test(m)) {
+    return '\nThey want to book a check-up. Call offer_care_slots (one card), do not list times as text.';
+  }
+  return '';
+}
+
+/** Charts, cards, and navigation the UI should show even if the model forgot a tool. */
+function uiActionsForMessage(donorId, message, actions) {
+  const m = String(message || '').toLowerCase();
+  const out = [...actions];
+  const has = (type) => out.some((a) => a.type === type);
+  if (!has('chart')) {
+    const charts = chartActionsForMessage(donorId, message);
+    if (charts.length) out.push(charts[0]);
+  }
+  if (!has('navigate') && /\b(where did my blood|blood go|who did my|open my impact)\b/.test(m)) {
+    out.push({ type: 'navigate', screen: 'impact' });
+  }
+  if (!has('card') && /\b(check-?up|doctor)\b/.test(m) && /\b(book|schedule|see|visit|need|want|like)\b/.test(m)) {
+    const card = drop.offerCard(donorId, 'care_slots');
+    out.push({ type: 'card', cardId: card.id });
+  }
+  return out;
+}
+
 async function chat({ user, donorId, history, message, userName, chat: chatId }) {
+  await chatCycles.ensureScope(user, donorId);
   const chatKey = typeof chatId === 'string' ? chatId.slice(0, 40) : 'general';
   const sessionId = chatCycles.agentSessionUserId(user, donorId);
   const guard = guardrails.check(message);
@@ -127,34 +162,44 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     (typeof turn.content === 'string' || Array.isArray(turn.content))).slice(-20)
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
-  const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}`;
-  const wantsTools = /\b(book|slot|calendar|chart|remind|navigate|journey|insurance|community|badge)\b/i.test(message);
-  const healthAsk = /\b(results?|labs?|score)\b/i.test(message) && /\b(explain|latest|mean|what|how)\b/i.test(message);
-  const liteOk = (message.length <= 220 && !wantsTools) || healthAsk;
-  if (liteOk && llm.available(healthAsk ? 1200 : 500)) {
-    const liteSystem = healthAsk
-      ? `${SYSTEM}\n\n${context(donorId, userName, chatId)}`
-      : `You are Drop in Pratidaan for blood donors in India. Answer in at most two short, warm sentences. ${context(donorId, userName, chatId)}`;
-    try {
-      const response = await llm.call({
-        feature: healthAsk ? 'copilot_health' : 'copilot_lite',
-        system: liteSystem,
-        messages,
-        maxTokens: healthAsk ? 600 : 400,
-        effort: 'minimal',
-        guardrailKind: 'chat',
-      });
-      let reply = guardrails.sanitizeReply(llm.text(response)).reply;
-      if (reply) {
-        chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: messages });
-        agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
-        agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
-        return { reply, steps: [], actions: [], history: messages };
-      }
-    } catch { /* full agent below */ }
+  const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}${intentHint(message)}`;
+  const impactAsk = /\b(where did my blood|blood go|who did my|helped|impact|platelets? go|red cells? go)\b/i.test(message);
+  if (impactAsk) {
+    const fact = screenLines.line(donorId, 'impact').text;
+    const actions = [{ type: 'navigate', screen: 'impact' }];
+    const finishImpact = (reply, hist) => {
+      chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist });
+      agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+      agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+      return { reply, steps: [], actions, history: hist };
+    };
+    if (llm.available(600)) {
+      try {
+        const response = await llm.call({
+          feature: 'copilot_impact',
+          system: `You are Drop in Pratidaan for blood donors in India. They asked where their donation went. Use ONLY this fact from the app: "${fact}". Answer in one or two short, warm sentences: which parts helped patients (recipients stay anonymous — age band and clinical use only). Invite them to My impact for the journey map. Do not discuss BP, lab results, donation eligibility, or booking a check-up.`,
+          messages,
+          maxTokens: 220,
+          effort: 'minimal',
+          guardrailKind: 'chat',
+        });
+        const reply = guardrails.sanitizeReply(llm.text(response)).reply;
+        if (reply) return finishImpact(reply, messages);
+      } catch { /* rules below */ }
+    }
+    return finishImpact(`${fact} Open My impact for the full journey.`, prior);
   }
-  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 1200, maxSteps: 4, effort: 'low' });
-  let result = await run(system, CHAT_TOOLS);
+  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 2000, maxSteps: 5, effort: 'low' });
+  let result;
+  try {
+    result = await run(system, CHAT_TOOLS);
+  } catch (error) {
+    if (!(error instanceof llm.LLMUnavailable)) throw error;
+    const rules = fallback(donorId, message);
+    const actions = uiActionsForMessage(donorId, message, rules.actions);
+    chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior });
+    return { ...rules, actions, history: prior, offline: true, reason: error.message };
+  }
   // A reply that is the model's own notes ("The user wants…", "Plan: …") or tool code written as text gets one more try:
   // no tools this time, told to answer the donor directly
   if ((!result.text && !result.actions.length) || isNote(result.text || '')) {
@@ -166,18 +211,20 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     const rules = fallback(donorId, message);
     const reply = rules.generic ? 'Sorry, I lost my words there. Could you ask me that again?' : rules.reply;
     chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior });
-    return { reply, steps: result.steps, actions: [...result.actions, ...rules.actions.filter((a) => !result.actions.some((b) => b.type === a.type && b.text === a.text))], history: prior, answeredByRules: true };
+    const actions = uiActionsForMessage(donorId, message, [...result.actions, ...rules.actions.filter((a) => !result.actions.some((b) => b.type === a.type && b.text === a.text))]);
+    return { reply, steps: result.steps, actions, history: prior, answeredByRules: true };
   }
   if (!result.text) {
     const rules = fallback(donorId, message);
     const existing = result.actions;
-    const actions = [...existing, ...rules.actions.filter((a) => !existing.some((b) => b.type === a.type && b.marker === a.marker && b.cardId === a.cardId))];
+    const merged = [...existing, ...rules.actions.filter((a) => !existing.some((b) => b.type === a.type && b.marker === a.marker && b.cardId === a.cardId))];
+    const actions = uiActionsForMessage(donorId, message, merged);
     const reply = existing.some((a) => ['memory', 'receipt', 'card'].includes(a.type)) ? defaultReply(existing) : rules.reply;
     chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: prior });
     return { reply, steps: result.steps, actions, history: prior, answeredByRules: true, offline: true, reason: 'AI response incomplete' };
   }
   let reply = result.text;
-  let actions = result.actions;
+  let actions = uiActionsForMessage(donorId, message, result.actions);
   const safe = guardrails.sanitizeReply(reply);
   reply = safe.reply;
   if (safe.suggestCheckup) {
@@ -190,6 +237,24 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   const mem = drop.view(donorId).memory.map((x) => x.text);
   if (mem.length) agentPlatform.syncMemoryFromDrop(sessionId, mem).catch(() => {});
   return { reply, steps: result.steps, actions, history: result.messages };
+}
+
+/** Inline chart cards for trend questions — used by lite AI, fallback, and after tools. */
+function chartActionsForMessage(donorId, message) {
+  const m = String(message || '').toLowerCase();
+  if (!store.getDonations(donorId).length) return [];
+  const urgentBp = /\b(bp|blood pressure)\b/.test(m) && health.findings(donorId).find((f) => f.id === 'BP_URGENCY');
+  if (urgentBp) return [];
+  if (/\b(bp|blood pressure)\b/.test(m)) {
+    const points = drop.chartPoints(donorId, 'bp');
+    return points.length ? [{ type: 'chart', marker: 'bp', points }] : [];
+  }
+  if (/\b(ferritin|iron|haemoglobin|hemoglobin|hba1c|cholesterol|ldl|triglycerides)\b/.test(m) || /\bhb\b/.test(m)) {
+    const marker = /ferritin|iron/.test(m) ? 'ferritin' : /haemoglobin|hemoglobin|\bhb\b/.test(m) ? 'hb' : /hba1c/.test(m) ? 'hba1c' : /ldl|cholesterol/.test(m) ? 'ldl' : 'tg';
+    const points = drop.chartPoints(donorId, marker);
+    return /\b(trend|chart|over time|how|doing)\b/.test(m) && points.length ? [{ type: 'chart', marker, points }] : [];
+  }
+  return [];
 }
 
 /** When the model ends after a tool call without words, say what happened. */
@@ -230,11 +295,11 @@ function fallback(donorId, message) {
     const points = drop.chartPoints(donorId, marker);
     const latest = points[points.length - 1];
     const finding = health.findings(donorId).find((f) => marker === 'ferritin' ? f.id === 'IRON_LOW' : marker === 'hb' ? f.id === 'HB_LOW' || f.id === 'HB_SEVERE' : f.detail.toLowerCase().includes(marker));
-    return out(latest ? `${marker === 'hb' ? 'Haemoglobin' : marker === 'hba1c' ? 'HbA1c' : marker === 'ldl' ? 'LDL' : marker === 'tg' ? 'Triglycerides' : 'Ferritin'} was ${latest.value} at the latest recorded result.${finding ? ` ${finding.title}: ${finding.detail}. Check your Plan or speak with a doctor about next steps.` : ''}` : 'I do not have a recorded result for that marker.',
-      /trend|chart|over time/.test(m) && points.length ? [{ type: 'chart', marker, points }] : []);
+    const charts = chartActionsForMessage(donorId, message);
+    return out(latest ? `${marker === 'hb' ? 'Haemoglobin' : marker === 'hba1c' ? 'HbA1c' : marker === 'ldl' ? 'LDL' : marker === 'tg' ? 'Triglycerides' : 'Ferritin'} was ${latest.value} at the latest recorded result.${finding ? ` ${finding.title}: ${finding.detail}. Check your Plan or speak with a doctor about next steps.` : ''}` : 'I do not have a recorded result for that marker.', charts);
   }
   if (/\b(bp|blood pressure)\b/.test(m)) {
-    return out(screenLines.line(donorId, 'health').text, [{ type: 'chart', marker: 'bp', points: drop.chartPoints(donorId, 'bp') }]);
+    return out(screenLines.line(donorId, 'health').text, chartActionsForMessage(donorId, message));
   }
   if (/\btrend\b/.test(m)) return out('Which result would you like to see over time: BP, ferritin, haemoglobin or another marker?');
   if (/result|explain|mean/.test(m)) {
@@ -246,7 +311,9 @@ function fallback(donorId, message) {
   if (/what happens|at a donation|how long does/.test(m)) {
     return out('You answer a few health questions, then the centre checks your haemoglobin, blood pressure and pulse. Giving blood takes about 10 minutes and the whole visit about 45, and your sample gets a free health check.');
   }
-  if (/blood go|helped|impact|platelet|red cell/.test(m)) return out(screenLines.line(donorId, 'impact').text);
+  if (/blood go|helped|impact|platelet|red cell/.test(m)) {
+    return out(`${screenLines.line(donorId, 'impact').text} Open My impact for the full journey.`, [{ type: 'navigate', screen: 'impact' }]);
+  }
   if (/donate|eligible|hold/.test(m)) return out(screenLines.line(donorId, 'donate').text);
   if (/check-?up|doctor|book/.test(m)) {
     const card = drop.offerCard(donorId, 'care_slots');
@@ -257,4 +324,4 @@ function fallback(donorId, message) {
   return { ...out("I need the AI connection for free-form questions, and it isn't available right now. Try asking about your results, your BP, where your blood went, or when you can donate."), generic: true };
 }
 
-module.exports = { chat, fallback, SYSTEM };
+module.exports = { chat, fallback, SYSTEM, chartActionsForMessage, uiActionsForMessage };

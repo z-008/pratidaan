@@ -39,6 +39,20 @@ test('offline BP urgency recommends same-day care and offers a card', () => {
   assert.ok(answer.actions.some((a) => a.type === 'card'));
 });
 
+test('BP trend questions attach a chart action for lite and offline paths', () => {
+  const acts = copilot.chartActionsForMessage('D-001', 'How is my BP doing?');
+  assert.equal(acts[0]?.type, 'chart');
+  assert.equal(acts[0]?.marker, 'bp');
+  assert.ok(acts[0]?.points?.length >= 2);
+  assert.equal(copilot.chartActionsForMessage('D-017', 'How is my BP doing?').length, 0, 'urgent BP skips trend chart');
+});
+
+test('offline impact questions offer navigation to My impact', () => {
+  const answer = copilot.fallback('D-001', 'Where did my blood go?');
+  assert.match(answer.reply, /helped|patient|impact/i);
+  assert.ok(answer.actions.some((a) => a.type === 'navigate' && a.screen === 'impact'));
+});
+
 test('offline ferritin trend and cover hold do not answer as BP or donation holds', () => {
   const ferritin = copilot.fallback('D-001', 'Show my ferritin trend');
   assert.equal(ferritin.actions[0]?.marker, 'ferritin');

@@ -179,23 +179,43 @@ router.post('/:donorId/appointments/:appointmentId/checkin', async (req, res) =>
 });
 
 // ---- GenAI / agentic features
-router.get('/:donorId/chat/active', (req, res) => {
-  const chat = typeof req.query.chat === 'string' ? req.query.chat.slice(0, 40) : 'general';
-  ok(res, chatCycles.activeChat(req.user, req.donor.id, chat));
+router.get('/:donorId/chat/active', async (req, res) => {
+  try {
+    await chatCycles.ensureScope(req.user, req.donor.id);
+    const chat = typeof req.query.chat === 'string' ? req.query.chat.slice(0, 40) : 'general';
+    ok(res, chatCycles.activeChat(req.user, req.donor.id, chat));
+  } catch (error) {
+    fail(res, 500, error.message);
+  }
 });
 
-router.get('/:donorId/chat/current-cycle', (req, res) => {
-  ok(res, chatCycles.currentCycle(req.user, req.donor.id));
+router.get('/:donorId/chat/current-cycle', async (req, res) => {
+  try {
+    await chatCycles.ensureScope(req.user, req.donor.id);
+    ok(res, chatCycles.currentCycle(req.user, req.donor.id));
+  } catch (error) {
+    fail(res, 500, error.message);
+  }
 });
 
-router.get('/:donorId/chat/cycles', (req, res) => {
-  ok(res, { cycles: chatCycles.listPast(req.user, req.donor.id) });
+router.get('/:donorId/chat/cycles', async (req, res) => {
+  try {
+    await chatCycles.ensureScope(req.user, req.donor.id);
+    ok(res, { cycles: chatCycles.listPast(req.user, req.donor.id) });
+  } catch (error) {
+    fail(res, 500, error.message);
+  }
 });
 
-router.get('/:donorId/chat/cycles/:cycleId', (req, res) => {
-  const c = chatCycles.getPast(req.user, req.donor.id, req.params.cycleId);
-  if (!c) return fail(res, 404, 'Cycle not found');
-  ok(res, c);
+router.get('/:donorId/chat/cycles/:cycleId', async (req, res) => {
+  try {
+    await chatCycles.ensureScope(req.user, req.donor.id);
+    const c = chatCycles.getPast(req.user, req.donor.id, req.params.cycleId);
+    if (!c) return fail(res, 404, 'Cycle not found');
+    ok(res, c);
+  } catch (error) {
+    fail(res, 500, error.message);
+  }
 });
 
 router.post('/:donorId/copilot', async (req, res) => {
@@ -205,7 +225,11 @@ router.post('/:donorId/copilot', async (req, res) => {
   const id = req.donor.id;
   // A question asked during the Intro is kept with it ("Intro · finished … · the questions you asked")
   const keep = (reply) => { intro.noteQuestion(id, message, reply && reply.reply); return reply; };
-  return withFallback(res, async () => keep(await copilot.chat({ user: req.user, donorId: id, history, message: message.slice(0, 2000), userName, chat: typeof chat === 'string' ? chat.slice(0, 40) : 'general' })), () => keep(copilot.fallback(id, message)));
+  const fb = () => {
+    const rules = copilot.fallback(id, message);
+    return { ...rules, actions: copilot.uiActionsForMessage(id, message, rules.actions) };
+  };
+  return withFallback(res, async () => keep(await copilot.chat({ user: req.user, donorId: id, history, message: message.slice(0, 2000), userName, chat: typeof chat === 'string' ? chat.slice(0, 40) : 'general' })), () => keep(fb()));
 });
 
 router.post('/:donorId/labs/extract', (req, res) => {

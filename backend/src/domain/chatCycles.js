@@ -6,6 +6,7 @@
 
 const store = require('../data/store');
 const drop = require('./drop');
+const blobs = require('../azure/blobStore');
 
 /** @type {Map<string, { id: string, label: string; startedOn: string; endedOn: string; chats: Record<string, { turns: object[], history: object[] | null }>, dropEarlier: object[] }[]>} */
 const pastByScope = new Map();
@@ -15,6 +16,56 @@ const currentByScope = new Map();
 
 /** One seeded archive per account+persona so judges see Past Cycles before the first Reset. */
 const demoPastSeeded = new Set();
+
+/** Scopes hydrated from Azure Blob (production) or marked ready (local). */
+const hydrated = new Set();
+/** @type {Map<string, Promise<void>>} */
+const hydrating = new Map();
+
+function blobKey(scope) {
+  return `chat-cycles/${Buffer.from(scope).toString('base64url')}.json`;
+}
+
+function persistScope(scope) {
+  if (!blobs.configured()) return Promise.resolve();
+  return blobs.writeJson(blobKey(scope), {
+    current: currentByScope.get(scope) || {},
+    past: pastByScope.get(scope) || [],
+    demoPastSeeded: demoPastSeeded.has(scope),
+  }).catch((error) => {
+    console.warn('chat cycle persist failed:', error.message);
+  });
+}
+
+async function ensureScope(user, donorId) {
+  const scope = scopeKey(user, donorId);
+  if (hydrated.has(scope)) return;
+  if (hydrating.has(scope)) {
+    await hydrating.get(scope);
+    return;
+  }
+  const job = (async () => {
+    if (blobs.configured()) {
+      try {
+        const data = await blobs.readJson(blobKey(scope));
+        if (data) {
+          if (data.current && Object.keys(data.current).length) currentByScope.set(scope, data.current);
+          if (Array.isArray(data.past) && data.past.length) pastByScope.set(scope, data.past);
+          if (data.demoPastSeeded) demoPastSeeded.add(scope);
+        }
+      } catch (error) {
+        console.warn('chat cycle load failed:', error.message);
+      }
+    }
+    hydrated.add(scope);
+  })();
+  hydrating.set(scope, job);
+  try {
+    await job;
+  } finally {
+    hydrating.delete(scope);
+  }
+}
 
 function accountSub(user) {
   if (!user) return 'anonymous';
@@ -59,6 +110,8 @@ function recordTurn(user, donorId, chat, { userText, assistantText, history }) {
   entry.turns.push({ at: store.today(), user: userText, assistant: assistantText });
   if (history) entry.history = history;
   entry.turns = entry.turns.slice(-40);
+  hydrated.add(scope);
+  persistScope(scope);
   return entry;
 }
 
@@ -96,6 +149,8 @@ function seedDemoPastIfEmpty(user, donorId) {
     dropEarlier: [],
   }];
   pastByScope.set(scope, list);
+  hydrated.add(scope);
+  persistScope(scope);
 }
 
 function addDaysUtc(isoDate, days) {
@@ -165,6 +220,8 @@ function archiveCurrentCycle() {
       dropEarlier: JSON.parse(JSON.stringify(dropEarlier)),
     });
     pastByScope.set(scope, list.slice(0, 12));
+    hydrated.add(scope);
+    persistScope(scope);
   }
   currentByScope.clear();
 }
@@ -174,6 +231,8 @@ function resetState() {
   pastByScope.clear();
   currentByScope.clear();
   demoPastSeeded.clear();
+  hydrated.clear();
+  hydrating.clear();
 }
 
 module.exports = {
@@ -188,5 +247,6 @@ module.exports = {
   archiveCurrentCycle,
   cycleId,
   seedDemoPastIfEmpty,
+  ensureScope,
   resetState,
 };

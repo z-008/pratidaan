@@ -270,7 +270,12 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
               <div className="sheet-past" style={{ padding: 16, overflow: 'auto', flex: 1 }}>
                 <b className="small">This cycle (live)</b>
                 <p className="small muted" style={{ margin: '4px 0 8px' }}>Since demo timeline {thisCycle?.startedOn || '…'}. Still writable in other chats.</p>
-                {liveTurns === 0 ? <p className="small muted">No Drop chats recorded this cycle yet.</p> : renderTurns(liveChats)}
+                {liveTurns === 0 ? (
+                  <p className="small muted">
+                    No Drop chats recorded this cycle yet for this persona and sign-in. Chat in <button type="button" className="drop-link" style={{ minHeight: 0, marginLeft: 0, padding: 0 }} onClick={() => show('general', 'open')}>General</button>
+                    {' '}— each reply is saved here after the server answers.
+                  </p>
+                ) : renderTurns(liveChats)}
                 {pastCycles.length > 0 && (
                   <>
                     <b className="small" style={{ display: 'block', marginTop: 20 }}>Earlier cycles (read-only)</b>

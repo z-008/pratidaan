@@ -227,10 +227,8 @@ export default function Copilot({ accountKey, donorId, go, clientId, inline = fa
       setTurns((t) => [...t, { role: 'ai', text: r.reply, offline: r.offline, actions: r.actions }]);
       const nav = r.actions.find((a) => a.type === 'navigate');
       if (nav?.screen) go(nav.screen as Screen);
-      if (r.actions.some((a) => a.type !== 'navigate')) {
-        await reloadView();
-        changed();
-      }
+      if (r.actions.some((a) => a.type !== 'navigate')) await reloadView();
+      changed();
     } catch (e) {
       const errorText = `Sorry, something went wrong: ${(e as Error).message}`;
       recordLocal(message, errorText);
