@@ -112,7 +112,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     : (server.history || []).filter((turn) => turn && ['user', 'assistant'].includes(turn.role)).slice(-20);
   const messages = [...prior, { role: 'user', content: message }];
   const system = `${SYSTEM}\n\n${context(donorId, userName, chatId)}`;
-  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 2500, effort: 'low' });
+  const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 900, maxSteps: 4, effort: 'low' });
   let result = await run(system, CHAT_TOOLS);
   // A reply that is the model's own notes ("The user wants…", "Plan: …") or tool code written as text gets one more try:
   // no tools this time, told to answer the donor directly

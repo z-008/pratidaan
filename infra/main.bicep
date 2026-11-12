@@ -116,7 +116,7 @@ resource web 'Microsoft.Web/sites@2023-12-01' = {
         { name: 'AZURE_OPENAI_DEPLOYMENT', value: deployOpenAi ? model.name : '' }
         { name: 'AZURE_OPENAI_API_VERSION', value: '2024-10-21' }
         { name: 'LLM_RATE_LIMIT_RPS', value: '2' }
-        { name: 'LLM_RATE_LIMIT_TOKENS_PER_DAY', value: '20000' }
+        { name: 'LLM_RATE_LIMIT_TOKENS_PER_DAY', value: '30000' }
         { name: 'LLM_MAX_CALLS_PER_DAY', value: '100' }
       ]
     }

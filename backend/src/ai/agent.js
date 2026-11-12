@@ -12,16 +12,17 @@ const tools = require('./tools');
 
 const MAX_STEPS = 8;
 
-async function runAgent({ feature, system, messages, donorId, toolNames, maxTokens = 3000, effort = 'low', outputSchema }) {
+async function runAgent({ feature, system, messages, donorId, toolNames, maxTokens = 3000, maxSteps = MAX_STEPS, effort = 'low', outputSchema }) {
   const toolDefs = tools.definitions(toolNames);
   const convo = [...messages];
   const steps = [];
   const actions = [];
+  const stepLimit = Math.max(1, Math.min(maxSteps, MAX_STEPS));
   let nudged = false;
   let retriedMalformed = false;
   const partial = () => ({ text: '', steps, actions, messages: convo, incomplete: true });
 
-  for (let i = 0; i < MAX_STEPS; i += 1) {
+  for (let i = 0; i < stepLimit; i += 1) {
     let response;
     try {
       response = await llm.call({ feature, system, messages: convo, tools: toolDefs, maxTokens, effort, outputSchema, guardrailKind: 'chat' });
