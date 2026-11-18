@@ -47,7 +47,7 @@ jobs:
           mkdir -p release/backend release/frontend release/data
           cp -R backend/src backend/node_modules backend/package.json release/backend/
           cp -R frontend/dist release/frontend/
-          cp -R data/synthetic data/ontology data/demo release/data/
+          cp -R data/synthetic data/ontology data/demo data/nutrition release/data/
           cd release
           zip -qr ../pratidaan-azure.zip backend frontend data
       - uses: azure/login@v2

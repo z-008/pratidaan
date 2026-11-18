@@ -49,7 +49,7 @@ function personaLabel(p: { name: string; bloodGroup: string | null; newUser?: bo
 
 function initialScreen(): Screen {
   const hash = window.location.hash.replace('#', '') as Screen;
-  return NAV.some((n) => n.id === hash) || ['plan', 'labs', 'checkups', 'ai', 'data', 'apps'].includes(hash) ? hash : 'home';
+  return NAV.some((n) => n.id === hash) || ['plan', 'labs', 'checkups', 'ai', 'data', 'apps', 'progress'].includes(hash) ? hash : 'home';
 }
 
 export default function App({ user, clientId, onSignOut }: { user: AuthUser; clientId: string; onSignOut: () => void }) {
