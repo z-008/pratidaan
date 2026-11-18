@@ -70,6 +70,7 @@ export default function DemoBar({ donorId, onChange }: { donorId: string; onChan
       <button className="b" disabled={busy} onClick={() => run(api.demoAdvance(4))}>+1 day</button>
       <button className="b" disabled={busy} onClick={() => run(api.demoAdvance(28))}>+1 week</button>
       <button className="b" disabled={busy} onClick={() => run(api.demoNext(donorId))}>Next event</button>
+      <button className="b" disabled={busy} title="The next 7 days get harder (fewer steps, short sleep, habits skipped) until Drop offers a lighter week" onClick={() => run(api.demoRoughWeek(donorId).catch((e: Error) => { window.alert(e.message); return api.demoClock(); }))}>Simulate a rough week</button>
       <button className="b" disabled={busy} aria-label="Reset timeline" title="Reset timeline" onClick={() => run(api.demoReset(), true)}><Icon name="refresh" size={16} /></button>
       <button className="b" aria-pressed={knows} onClick={() => setKnows(!knows)}><Icon name="cpu" size={15} /> What Drop knows</button>
       {knows && <DropKnows donorId={donorId} onClose={() => setKnows(false)} />}

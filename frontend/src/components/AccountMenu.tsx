@@ -24,10 +24,12 @@ interface Props {
   onReplayIntro?: () => void;
   /** Open "Your data": what is kept, where, and how to delete it */
   onYourData: () => void;
+  /** Open "Connected apps": the habit apps, watches and food apps Pratidaan reads */
+  onApps?: () => void;
   compact?: boolean;
 }
 
-export default function AccountMenu({ user, donorLabel, onSignOut, onReplayIntro, onYourData, compact = false }: Props) {
+export default function AccountMenu({ user, donorLabel, onSignOut, onReplayIntro, onYourData, onApps, compact = false }: Props) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const name = user.local ? 'Local development' : user.guest ? 'Guest' : user.name || user.email;
@@ -64,6 +66,11 @@ export default function AccountMenu({ user, donorLabel, onSignOut, onReplayIntro
           <button className="account-item" role="menuitem" onClick={() => { setOpen(false); onYourData(); }}>
             <Icon name="lock" size={15} /> Your data
           </button>
+          {onApps && (
+            <button className="account-item" role="menuitem" onClick={() => { setOpen(false); onApps(); }}>
+              <Icon name="layers" size={15} /> Connected apps
+            </button>
+          )}
           {onReplayIntro && (
             <button className="account-item" role="menuitem" onClick={() => { setOpen(false); onReplayIntro(); }}>
               <Icon name="refresh" size={15} /> Replay intro

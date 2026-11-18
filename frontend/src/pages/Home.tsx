@@ -7,6 +7,7 @@ import Copilot, { bookCheckup, startBooking } from '../components/Copilot';
 import { fmtVisitDay } from '../components/drop/Checkup';
 import BadgeHomePreview from '../components/impact/BadgeHomePreview';
 import { introFocus } from '../components/intro/Intro';
+import BetweenDonationsTile from '../components/wellbeing/BetweenDonationsTile';
 
 // The tiles each Intro step talks about; on the "Your data" step the account chip pulses instead
 const INTRO_TILES: Record<string, string[]> = { journey: ['helped'], health: ['score', 'checkup'], choices: ['cover'], donate: ['next'] };
@@ -153,6 +154,8 @@ export default function Home({ donorId, go, version, refresh, clientId, accountK
               </>
             )}
           </button>
+
+          {!firstTime && <BetweenDonationsTile donorId={donorId} version={version} onOpen={() => go('progress')} />}
 
           {data.communities.length > 0 && (
             <div className="card">

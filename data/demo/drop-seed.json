@@ -92,5 +92,17 @@
     "open": [
       { "type": "slots", "purpose": "donate", "reason": "eligible" }
     ]
+  },
+  "D-175": {
+    "language": "hi",
+    "budget": "healthy",
+    "memory": ["Weekday evenings suit you"],
+    "plan": null,
+    "reminders": [],
+    "earlier": [
+      { "type": "results", "date": "2026-03-24", "receipt": "March results: all in range, iron on the low side" },
+      { "type": "impact", "date": "2026-04-08", "receipt": "Your red cells helped a patient after surgery" }
+    ],
+    "open": []
   }
 }

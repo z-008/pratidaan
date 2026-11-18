@@ -17,6 +17,7 @@ const tools = require('./tools');
 const guardrails = require('./guardrails');
 const chatCycles = require('../domain/chatCycles');
 const agentPlatform = require('./agentPlatform');
+const wellbeingTools = require('./wellbeingTools');
 
 // Slots are offered as a Card (offer_care_slots), never listed as text
 const CHAT_TOOLS = tools.definitions().map((d) => d.name).filter((n) => n !== 'find_care_slots');
@@ -75,7 +76,7 @@ function context(donorId, userName, chat = 'general') {
 ${healthFacts(donorId)}
 What you remember about them: ${c.memory.join('; ') || 'nothing yet'}.
 Their Plan: ${c.plan.join('; ') || 'none yet'}. Reminders: ${c.reminders.join('; ') || 'none'}. Latest reading they told you in chat (not the donation panel): ${c.latestReading || 'none'}.
-Cards waiting for them on Home: ${c.openCards.join(', ') || 'none'}.${goalLines(c.goals)}${chatLine(chat, c.goals)}${introLine(donorId)}`;
+Cards waiting for them on Home: ${c.openCards.join(', ') || 'none'}.${goalLines(c.goals)}${wellbeingTools.chatLine(donorId, chat) || chatLine(chat, c.goals)}${wellbeingTools.context(donorId, chat)}${introLine(donorId)}`;
 }
 
 /** Each Goal's write-up: what Drop suggests stays within its steps. */
@@ -354,10 +355,12 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 2000, maxSteps: 5, effort: 'low' });
   let result;
   try {
-    result = await run(system, CHAT_TOOLS);
+    result = await run(system, [...CHAT_TOOLS, ...wellbeingTools.namesFor(chatKey)]);
   } catch (error) {
     if (!(error instanceof llm.LLMUnavailable)) throw error;
-    const rules = fallback(donorId, message);
+    // In the Food Chat, food and Week plan questions get the food rules first; everywhere else the existing rules come first
+    const food = chatKey === 'habit:food' ? wellbeingTools.fallback(donorId, String(message || '').toLowerCase()) : null;
+    const rules = food ? { reply: food.reply, steps: [], actions: food.actions, history: null, offline: true, reason: llm.status().reason } : fallback(donorId, message);
     const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, rules.actions));
     await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior, actions });
     return { ...rules, actions, history: prior, offline: true, reason: error.message };
@@ -402,6 +405,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
       actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, actions));
     }
   }
+  ({ reply, actions } = wellbeingTools.afterReply({ donorId, chat: chatKey, reply, steps: result.steps, actions }));
   const safe = guardrails.sanitizeReply(reply);
   reply = safe.reply;
   if (safe.suggestCheckup) {
@@ -499,6 +503,8 @@ function fallback(donorId, message) {
   }
   const step = intro.explain(donorId);
   if (step) return out(step);
+  const between = wellbeingTools.fallback(donorId, m); // food and Week plan questions, after every existing rule answer
+  if (between) return out(between.reply, between.actions);
   return { ...out("I need the AI connection for free-form questions, and it isn't available right now. Try asking about your results, your BP, where your blood went, or when you can donate."), generic: true };
 }
 

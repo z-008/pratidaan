@@ -1,0 +1,202 @@
+{
+ "_note": "Bands for the Progress screen (from donation results only). 'Optimal' is used only where a guideline defines one; other markers have plain labels. PROPOSED, pending clinical sign-off. better: which way is better, for the age-group comparison. Each band applies when the value is below 'below' (or both BP numbers are), at least 'atLeast', or at least the donor minimum plus 'atLeastMargin'; the last band catches the rest.",
+ "markers": {
+  "bp": {
+   "label": "Blood pressure",
+   "unit": "mmHg",
+   "better": "lower",
+   "bands": [
+    {
+     "id": "best",
+     "label": "Optimal",
+     "source": "ACC/AHA 2017: normal is under 120/80",
+     "below": [
+      120,
+      80
+     ]
+    },
+    {
+     "id": "mid",
+     "label": "Above ideal",
+     "source": "ACC/AHA 2017",
+     "below": [
+      140,
+      90
+     ]
+    },
+    {
+     "id": "low",
+     "label": "High",
+     "source": "ACC/AHA 2017; NBTC defers above 140/90"
+    }
+   ]
+  },
+  "hb": {
+   "label": "Haemoglobin",
+   "unit": "g/dL",
+   "better": "higher",
+   "cap": 2.5,
+   "bands": [
+    {
+     "id": "best",
+     "label": "Comfortable for donating",
+     "source": "NBTC donor minimum (12.5 women, 13.0 men) plus a margin",
+     "atLeastMargin": 1
+    },
+    {
+     "id": "mid",
+     "label": "Enough to donate",
+     "source": "NBTC donor minimum",
+     "atLeastMargin": 0
+    },
+    {
+     "id": "low",
+     "label": "Below donation level",
+     "source": "NBTC donor minimum"
+    }
+   ]
+  },
+  "ferritin": {
+   "label": "Ferritin (iron stores)",
+   "unit": "ng/mL",
+   "better": "higher",
+   "capValue": 150,
+   "bands": [
+    {
+     "id": "best",
+     "label": "Healthy stores",
+     "source": "WHO 2020 ferritin guideline",
+     "atLeast": 30
+    },
+    {
+     "id": "mid",
+     "label": "On the low side",
+     "source": "WHO 2020 ferritin guideline",
+     "atLeast": 15
+    },
+    {
+     "id": "low",
+     "label": "Low stores",
+     "source": "WHO 2020: under 15 means depleted iron stores"
+    }
+   ]
+  },
+  "hba1c": {
+   "label": "HbA1c (blood sugar)",
+   "unit": "%",
+   "better": "lower",
+   "bands": [
+    {
+     "id": "best",
+     "label": "Normal",
+     "source": "ADA / ICMR: under 5.7% is normal",
+     "below": 5.7
+    },
+    {
+     "id": "mid",
+     "label": "Prediabetes range",
+     "source": "ADA / ICMR",
+     "below": 6.5
+    },
+    {
+     "id": "low",
+     "label": "Diabetes range",
+     "source": "ADA / ICMR"
+    }
+   ]
+  },
+  "ldl": {
+   "label": "LDL cholesterol",
+   "unit": "mg/dL",
+   "better": "lower",
+   "bands": [
+    {
+     "id": "best",
+     "label": "Optimal",
+     "source": "NCEP ATP III: under 100 is optimal",
+     "below": 100
+    },
+    {
+     "id": "mid",
+     "label": "Near optimal",
+     "source": "NCEP ATP III",
+     "below": 130
+    },
+    {
+     "id": "low",
+     "label": "Borderline or high",
+     "source": "NCEP ATP III"
+    }
+   ]
+  },
+  "tg": {
+   "label": "Triglycerides",
+   "unit": "mg/dL",
+   "better": "lower",
+   "bands": [
+    {
+     "id": "best",
+     "label": "Normal",
+     "source": "NCEP ATP III",
+     "below": 150
+    },
+    {
+     "id": "mid",
+     "label": "Borderline",
+     "source": "NCEP ATP III",
+     "below": 200
+    },
+    {
+     "id": "low",
+     "label": "High",
+     "source": "NCEP ATP III"
+    }
+   ]
+  },
+  "hdl": {
+   "label": "HDL cholesterol",
+   "unit": "mg/dL",
+   "better": "higher",
+   "capValue": 80,
+   "bands": [
+    {
+     "id": "best",
+     "label": "Protective",
+     "source": "NCEP ATP III: 60+ is protective",
+     "atLeast": 60
+    },
+    {
+     "id": "mid",
+     "label": "Normal",
+     "source": "NCEP ATP III",
+     "atLeast": 40
+    },
+    {
+     "id": "low",
+     "label": "Low",
+     "source": "NCEP ATP III"
+    }
+   ]
+  }
+ },
+ "ageBands": [
+  [
+   18,
+   29
+  ],
+  [
+   30,
+   39
+  ],
+  [
+   40,
+   49
+  ],
+  [
+   50,
+   65
+  ]
+ ],
+ "minGroup": 20,
+ "showPercentileFrom": 50
+}

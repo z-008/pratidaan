@@ -1,0 +1,9 @@
+{
+  "_note": "Daily needs for healthy adults, from ICMR-NIN 'Nutrient Requirements for Indians' (2020). The men's iron RDA (19 mg) is confirmed; check the other values against the NIN brief note before release.",
+  "source": "ICMR-NIN 2020",
+  "iron": { "unit": "mg", "M": 19, "F": 29 },
+  "vitc": { "unit": "mg", "M": 80, "F": 65 },
+  "b12": { "unit": "µg", "M": 2.5, "F": 2.5 },
+  "vitd": { "unit": "IU", "M": 600, "F": 600 },
+  "potassium": { "unit": "mg", "M": 3500, "F": 3500 }
+}

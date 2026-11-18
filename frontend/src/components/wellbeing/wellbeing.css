@@ -1,0 +1,69 @@
+/* Between donations: Progress, Connected apps, food coaching. Uses the app's tokens and card styles. */
+.wb .item { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 12px; background: var(--surface-2); font-size: 13.5px; }
+.wb .item .grow, .wb .grow { flex: 1; min-width: 0; }
+.wb .item small { display: block; color: var(--muted); font-size: 12px; }
+.wb .item b { display: block; }
+.wb-disc { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); }
+.wb-disc.idle { background: var(--surface-2); color: var(--faint); }
+
+.wb-cycle { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; }
+.wb-track { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 10px; }
+.wb-track > span { display: block; height: 100%; background: var(--brand); border-radius: 999px; }
+.wb-phases { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--faint); margin-top: 6px; }
+.wb-phases .on { color: var(--brand-ink, var(--brand)); font-weight: 700; }
+
+.wb-band-row { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) minmax(0, 1fr) auto; gap: 14px; align-items: center; width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid transparent; }
+.wb-band-row:hover, .wb-band-row:focus-visible, .wb-band-row[aria-expanded='true'] { border-color: var(--border); background: var(--surface-2); }
+.wb-band-row .v { font-weight: 800; font-size: 16px; }
+.wb-bandbar { display: grid; gap: 4px; }
+.wb-bandbar .segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.wb-bandbar .seg { height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); }
+.wb-bandbar .seg.b0.on { background: var(--good); border-color: var(--good); }
+.wb-bandbar .seg.b1.on { background: var(--warn); border-color: var(--warn); }
+.wb-bandbar .seg.b2.on { background: var(--bad); border-color: var(--bad); }
+.wb-bandbar .seg.was { box-shadow: inset 0 0 0 2px var(--muted); }
+.wb-bandbar .lbl { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--faint); gap: 6px; }
+
+.wb-detail { margin: 4px 0 12px; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+.wb-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.wb-stat { padding: 12px; border-radius: 12px; background: var(--surface-2); }
+.wb-stat .k { font-size: 12px; color: var(--muted); }
+.wb-stat .v { font-size: 20px; font-weight: 800; }
+.wb-src { font-size: 11px; color: var(--faint); }
+
+.wb-doctor { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13.5px; background: var(--surface-2); }
+.wb-doctor.weeks { background: var(--warn-soft); }
+.wb-doctor.first, .wb-doctor.today { background: var(--bad-soft); }
+.wb-doctor b { display: block; }
+
+.wb-foods { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.wb-food { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); display: grid; gap: 4px; align-content: start; }
+.wb-food .n { font-weight: 700; }
+.wb-food .en { font-size: 12px; color: var(--muted); }
+.wb-food .fit { font-size: 12.5px; }
+.wb-food .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+.wb-days { display: flex; gap: 4px; }
+.wb-days span { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); display: inline-block; }
+.wb-days .kept { background: var(--good); border-color: var(--good); }
+.wb-days .missed { background: transparent; border-style: dashed; }
+.wb-days .future { opacity: 0.45; }
+
+.wb-why .sheet-body, .wb-profile .sheet-body { flex: 1; min-height: 0; overflow: auto; padding: 16px; display: grid; gap: 16px; align-content: start; }
+.wb-why h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.wb-why ul { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 4px; }
+.wb-why .src { color: var(--faint); font-size: 12px; }
+
+.wb-apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.wb-app { display: grid; gap: 10px; align-content: start; }
+.wb-app .types { display: grid; gap: 6px; }
+.wb-app .type { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+.wb-key { display: flex; gap: 8px; flex-wrap: wrap; }
+.wb-key input { flex: 1; min-width: 180px; min-height: 40px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+
+@media (max-width: 760px) {
+  .wb-cycle { grid-template-columns: 1fr; }
+  .wb-band-row { grid-template-columns: 1fr 1fr; }
+  .wb-band-row .hide-sm { display: none; }
+}
+.wb-link { background: none; border: 0; padding: 0; color: var(--brand); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-size: inherit; }

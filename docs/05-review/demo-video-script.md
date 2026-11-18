@@ -29,3 +29,22 @@
 - [ ] Subtitles on non-English Drop lines.
 - [ ] No claim for real bookings or issued insurance.
 - [ ] Closing mentions Azure deployment and synthetic data.
+
+## Version 2: with health between donations (under 3:00)
+
+Keeps every beat above, tightened, and adds the between-donation features where they continue the story. Before recording: **Reset**, pick Arjun. AI live is optional; rule answers carry every beat.
+
+| Time | On screen | Voice-over |
+|---|---|---|
+| **0:00–0:08** | Title, Arjun's Home | "Arjun gave blood on 3 October. Like every donor in India, he heard nothing more." |
+| **0:08–0:22** | Impact story → postcard | "Pratidaan follows every part of his donation, anonymously." |
+| **0:22–0:38** | **+1 day** → Results BP 148/94 → Goal | "His free lab panel shows BP rising at every donation. One Goal: under 130/80." |
+| **0:38–0:55** | My health: Habits from his Fitbit (demo) against healthy targets → **Progress** → Blood pressure | "Pratidaan reads the watch he already wears. His steps fell as his BP rose; his sleep is short of 7 hours." |
+| **0:55–1:15** | My health → Movement → "Help me plan this week's movement" → **Save and add to Habitify** → Home → **Simulate a rough week** → A lighter week → **Why this?** | "When a busy week breaks his routine, Drop suggests something smaller, says why, and updates his habit app." |
+| **1:15–1:27** | Check-in 128/78 → Goal reached | "Two weeks later: target reached." |
+| **1:27–1:50** | **Asha**: Food for your iron → See foods for me → Progress foods in Hindi, doctor's check recommended | "Asha can donate, but her iron is on the low side. Drop suggests local foods she can afford and that fit how she eats, and still recommends a doctor." |
+| **1:50–2:02** | **Meera**: sample report Hb 12.6 → cleared; Progress: food with a doctor within 3 weeks | "Below the donation level, the doctor is part of the plan; very low, the rules put the doctor first." |
+| **2:02–2:18** | **Ananya**: book a slot → Donate → Simulate check-in → Home → **Watch my Cycle report** | "Every donation is a free health check, and a report on how healthy she is, not just whether she can give." |
+| **2:18–2:30** | Vikram urgent Card | "Urgent findings are rules, not model tone." |
+| **2:30–2:42** | Connected apps switches → Your data → Between donations → Delete | "Every data type is opt-in, deletable, and never used for cover." |
+| **2:42–2:58** | Cover slider, Badges, close card | "Pratidaan: give blood, stay healthy between donations, come back." |

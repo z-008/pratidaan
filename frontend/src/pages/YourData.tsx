@@ -101,6 +101,7 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
   const drop = useLoad(() => api.drop(donorId), deps);
   const labs = useLoad(() => api.uploadedValues(donorId), deps);
   const overview = useLoad(() => api.overview(donorId), [donorId]);
+  const wb = useLoad(() => api.wellbeing(donorId), deps);
   const [gone, setGone] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -205,6 +206,20 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
   ];
   const donorVisible = visible(donorRows);
 
+  // ---- Between donations: connected apps, Week plan, Food profile (kept with the donor you're viewing)
+  const w = wb.data;
+  const betweenRows: Row[] = w ? [
+    ...w.connections.map((c): Row => ({ id: `app-${c.id}`, what: `${c.label}${c.mode === 'demo' ? ' (demo)' : c.mode === 'sandbox' ? ' (sandbox)' : ''}`, detail: `Shares: ${c.consentedTypes.join(', ') || 'nothing'}${c.writeBack ? ' · Drop can add your Week plan' : ''}. Raw daily values are kept 90 days, then weekly totals.`, kept: 'Until you disconnect or the timeline resets', remove: { label: 'Disconnect & delete', toast: 'App disconnected and its data deleted', run: () => api.wbDisconnect(donorId, c.id) } })),
+    ...(w.weekPlan || w.day ? [{ id: 'habits', what: 'Week plan, Your day and what got in the way', detail: 'What you planned with Drop, what you ticked, and reasons you gave when you skipped', kept: 'Until deleted or the timeline resets', remove: { label: 'Delete', toast: 'Week plan and Your day deleted', run: () => api.wbDeleteHabitData(donorId) } }] : []),
+    ...(w.foodProfile ? [{ id: 'food', what: 'How you eat (Food profile)', detail: 'Diet, home food, budget and allergies you chose. Never shared, never used for your cover.', kept: 'Until deleted or the timeline resets', remove: { label: 'Delete', toast: 'Food profile deleted', run: () => api.wbClearFoodProfile(donorId) } }] : []),
+  ] : [];
+  const downloadMine = () => api.wbExport(donorId).then((d) => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = `pratidaan-my-data-${donorId}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }).catch((e: Error) => setError(e.message));
+
   // ---- Kept elsewhere, deleted on a timer
   const fixedRows = {
     ai: [{ id: 'azure-openai', what: 'What you type to Drop, and lab report photos', detail: "Used only to answer you. Microsoft states it is not used to train foundation models, and the model never gets your name or email.", kept: 'Up to 30 days for Azure abuse monitoring, depending on account configuration', fate: 'expires' as Fate }],
@@ -247,6 +262,13 @@ export default function YourData({ donorId, version, clientId, user, donorName, 
           ? 'Everyone using this preview shares the New donor; it resets when the timeline resets. In the real app this would be yours alone.'
           : `${donorName} is made up. Everyone using this preview shares the same ${donorName}; it resets when the timeline resets. In the real app this would be yours alone.`}
         rows={donorVisible} empty={donorVisible.length <= 1 ? 'Nothing else is kept for this donor yet.' : undefined} onRemove={remove} busy={busy} />
+      <Group icon="layers" title="Between donations" where="Pratidaan's server memory, with the donor you're viewing"
+        note={w && w.connections.some((c) => c.mode === 'sandbox') ? 'Junction (sandbox) received a made-up user id to generate demo wearable data. No personal data was sent.' : undefined}
+        rows={visible(betweenRows)} empty={visible(betweenRows).length ? undefined : 'No connected apps, Week plan or Food profile yet.'} onRemove={remove} busy={busy} />
+      <section className="card row between wrap">
+        <span><b>Download my data</b><span className="small muted" style={{ display: 'block' }}>Everything kept between donations for this donor, as a JSON file. Each donation's results download as FHIR from Progress.</span></span>
+        <button className="btn btn-sm" onClick={downloadMine}><Icon name="upload" size={14} /> Download</button>
+      </section>
       <Group icon="sparkles" title="Sent to Azure OpenAI" where="Microsoft Azure" rows={fixedRows.ai} onRemove={remove} busy={busy} />
       <Group icon="doc" title="Server logs" where="Azure App Service logging" rows={fixedRows.logs} onRemove={remove} busy={busy} />
       <Group icon="cpu" title="This browser" where="Your browser on this device" rows={visible(browserRows)} onRemove={remove} busy={busy} />

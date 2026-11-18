@@ -15,15 +15,19 @@ import Donate from './pages/Donate';
 import Ecosystem from './pages/Ecosystem';
 import AIConsole from './pages/AIConsole';
 import YourData, { AccountDeletedView } from './pages/YourData';
+import Progress from './pages/Progress';
+import Connections from './pages/Connections';
+import WhyThis from './components/wellbeing/WhyThis';
 import type { AccountDeleted } from './api';
 
-export type Screen = 'home' | 'donate' | 'impact' | 'health' | 'cover' | 'community' | 'plan' | 'labs' | 'checkups' | 'ecosystem' | 'ai' | 'data';
+export type Screen = 'home' | 'donate' | 'impact' | 'health' | 'cover' | 'community' | 'plan' | 'labs' | 'checkups' | 'ecosystem' | 'ai' | 'data' | 'progress' | 'apps';
 
 const NAV: { id: Screen; label: string; icon: string; mobile?: boolean }[] = [
   { id: 'home', label: 'Home', icon: 'home', mobile: true },
   { id: 'donate', label: 'Donate', icon: 'calendar', mobile: true },
   { id: 'impact', label: 'My impact', icon: 'drop', mobile: true },
   { id: 'health', label: 'My health', icon: 'heart', mobile: true },
+  { id: 'progress', label: 'Progress', icon: 'trend' },
   { id: 'cover', label: 'Health cover', icon: 'shield', mobile: true },
   { id: 'community', label: 'Community', icon: 'users' },
   { id: 'ecosystem', label: 'Ecosystem view', icon: 'globe' },
@@ -45,7 +49,7 @@ function personaLabel(p: { name: string; bloodGroup: string | null; newUser?: bo
 
 function initialScreen(): Screen {
   const hash = window.location.hash.replace('#', '') as Screen;
-  return NAV.some((n) => n.id === hash) || ['plan', 'labs', 'checkups', 'ai', 'data'].includes(hash) ? hash : 'home';
+  return NAV.some((n) => n.id === hash) || ['plan', 'labs', 'checkups', 'ai', 'data', 'apps'].includes(hash) ? hash : 'home';
 }
 
 export default function App({ user, clientId, onSignOut }: { user: AuthUser; clientId: string; onSignOut: () => void }) {
@@ -109,14 +113,14 @@ export default function App({ user, clientId, onSignOut }: { user: AuthUser; cli
           </button>
         ))}
         <div className="sidebar-foot">
-          <AccountMenu user={user} donorLabel={donorLabel} onSignOut={onSignOut} onReplayIntro={replayIntro} onYourData={() => go('data')} />
+          <AccountMenu user={user} donorLabel={donorLabel} onSignOut={onSignOut} onReplayIntro={replayIntro} onYourData={() => go('data')} onApps={() => go('apps')} />
         </div>
       </aside>
 
       <main className="main">
         <div className="mobile-top">
           <div className="brand" style={{ padding: 0 }}><span className="brand-mark"><Icon name="drop" size={18} stroke={2.4} /></span>{APP_NAME}</div>
-          <AccountMenu user={user} donorLabel={donorLabel} onSignOut={onSignOut} onReplayIntro={replayIntro} onYourData={() => go('data')} compact />
+          <AccountMenu user={user} donorLabel={donorLabel} onSignOut={onSignOut} onReplayIntro={replayIntro} onYourData={() => go('data')} onApps={() => go('apps')} compact />
         </div>
         <div className="topbar">
           {viewingAs}
@@ -130,6 +134,8 @@ export default function App({ user, clientId, onSignOut }: { user: AuthUser; cli
         {screen === 'donate' && <Donate {...page} />}
         {screen === 'ecosystem' && <Ecosystem {...page} />}
         {screen === 'ai' && <AIConsole />}
+        {screen === 'progress' && <Progress {...page} />}
+        {screen === 'apps' && <Connections {...page} />}
         {screen === 'data' && <YourData {...page} user={user} donorName={donor?.name || 'this donor'} onAccountDeleted={setDeleted} />}
       </main>
 
@@ -141,6 +147,7 @@ export default function App({ user, clientId, onSignOut }: { user: AuthUser; cli
         ))}
       </nav>
 
+      <WhyThis donorId={donorId} />
       <ChatSheet key={`${accountKey}|${donorId}`} accountKey={accountKey} donorId={donorId} go={go} clientId={clientId} screen={screen} />
     </div>
   );

@@ -1,0 +1,29 @@
+{
+  "_note": "Pairing and spacing tips shown with food suggestions (WHO, ICMR-NIN Dietary Guidelines for Indians 2024).",
+  "iron": [
+    { "id": "vitc", "text": "Have it with something sour: lemon, amla, guava or tomato help your body take up the iron.", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "tea", "text": "Keep tea and coffee an hour away from meals; they block iron.", "source": "WHO" },
+    { "id": "calcium", "text": "Have curd and milk at a different meal from your iron-rich food.", "source": "WHO" },
+    { "id": "kadai", "text": "Cooking sabzi or dal in an iron kadai adds a little iron.", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "sprout", "text": "Sprouting and fermenting (sprouts, idli, dosa) make iron easier to absorb.", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "fortified", "text": "Double-fortified salt and fortified rice from the ration shop add iron at no extra cost.", "source": "FSSAI fortification" }
+  ],
+  "b12": [{ "id": "dairy", "text": "Curd, milk and paneer each day add B12; with no dairy or eggs, food alone is often not enough.", "source": "ICMR-NIN 2020" }],
+  "vitd": [{ "id": "sun", "text": "15–20 minutes of mid-morning sun on your arms and face, most days.", "source": "ICMR-NIN Dietary Guidelines 2024" }],
+  "sugar": [
+    { "id": "plate", "text": "Fill half your plate with dal and vegetables first, then rice or roti.", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "walk", "text": "A 10-minute walk after your biggest meal.", "source": "ICMR guidelines for type 2 diabetes" }
+  ],
+  "bp": [
+    { "id": "salt", "text": "Less salt: pickles, papad, namkeen and packaged snacks hold the most.", "source": "ICMR / ACC-AHA 2017" },
+    { "id": "potassium", "text": "Fruit and greens each day add potassium, which helps BP.", "source": "ACC/AHA 2017" }
+  ],
+  "lipids": [
+    { "id": "oil", "text": "Measure cooking oil (about 4 teaspoons a day) and keep fried snacks to once a week.", "source": "ICMR-NIN Dietary Guidelines 2024" }
+  ],
+  "limit": {
+    "bp": ["Pickles", "Papad", "Namkeen", "Instant noodles"],
+    "sugar": ["Sweets and mithai", "Jaggery and dates", "Fruit juice", "Sugary tea"],
+    "lipids": ["Fried snacks", "Vanaspati", "Bakery items"]
+  }
+}

@@ -10,6 +10,10 @@ import Checkup from '../components/drop/Checkup';
 import { bookCheckup } from '../components/Copilot';
 import { habitOpener, openChat } from '../components/drop/chat';
 import BpReading from '../components/drop/BpReading';
+import { PlanShelf, PlanWeek, kept } from '../components/wellbeing/WeekPlan';
+import FoodPanel from '../components/wellbeing/FoodPanel';
+import { MARKER_FOCUS } from '../components/wellbeing/wellbeing';
+import type { WbSummary } from '../api';
 import './health.css';
 
 const MARKERS: { key: string; label: string; unit: string; good?: [number, number] }[] = [
@@ -54,6 +58,15 @@ export default function Health({ donorId, go, version, refresh, focus }: PagePro
   const { data, error, loading } = useLoad(() => api.health(donorId), [donorId, version]);
   const [dropView, setDropView] = useState<DropView | null>(null);
   useEffect(() => { api.drop(donorId).then(setDropView).catch(() => setDropView(null)); }, [donorId, version]);
+  // Between donations: a Week plan, once the Donor has one, fills Habits and This week
+  const [wb, setWb] = useState<WbSummary | null>(null);
+  useEffect(() => {
+    const load = () => api.wellbeing(donorId).then(setWb).catch(() => setWb(null));
+    load();
+    window.addEventListener('wellbeing:changed', load);
+    window.addEventListener('drop:changed', load);
+    return () => { window.removeEventListener('wellbeing:changed', load); window.removeEventListener('drop:changed', load); };
+  }, [donorId, version]);
   useEffect(() => {
     const reload = () => api.drop(donorId).then(setDropView).catch(() => {});
     window.addEventListener('drop:changed', reload);
@@ -91,6 +104,8 @@ export default function Health({ donorId, go, version, refresh, focus }: PagePro
 
   const goals = dropView?.goals || [];
   const active = goals.filter((g) => g.state === 'active');
+  // With connected apps or a Week plan, Habits and This week show them; otherwise the shells stay as they were
+  const measured = Boolean(wb && (wb.weekPlan || wb.habits.some((h) => h.metrics.length)));
   const upNext = goals.filter((g) => g.state === 'upnext');
 
   return (
@@ -103,11 +118,12 @@ export default function Health({ donorId, go, version, refresh, focus }: PagePro
         <button className="btn" onClick={() => go('labs')}><Icon name="upload" size={16} /> Add a lab report</button>
       </div>
       <DropLine donorId={donorId} screen="health" version={version} />
+      <button className="wb-link small" style={{ alignSelf: 'flex-start', justifySelf: 'start', textAlign: 'left' }} onClick={() => go('progress')}>See your progress between donations, and connect the apps you already use →</button>
 
       <div ref={planRef} className="stack">
-        <HabitShelf />
-        {dropView && <ThisWeek view={dropView} />}
-        {active.map((g) => <GoalCard key={g.id} goal={g} donorId={donorId} go={go} onChange={(v) => { changed(v); refresh(); }} />)}
+        {measured ? <PlanShelf habits={wb!.habits} plan={wb!.weekPlan} onPlan={(h) => planHabit(h.charAt(0).toUpperCase() + h.slice(1))} /> : <HabitShelf />}
+        {dropView && (measured ? <PlanWeek donorId={donorId} habits={wb!.habits} plan={wb!.weekPlan} weekLabel={weekLabel(dropView.clock.date)} onPlan={(h) => planHabit(h.charAt(0).toUpperCase() + h.slice(1))} /> : <ThisWeek view={dropView} />)}
+        {active.map((g) => <GoalCard key={g.id} goal={g} donorId={donorId} go={go} plan={wb?.weekPlan || null} fromApps={wb?.goalSignals.find((x) => x.goalId === g.id)?.text || null} onChange={(v) => { changed(v); refresh(); }} />)}
         {upNext.map((g) => <UpNextCard key={g.id} goal={g} />)}
       </div>
 
@@ -171,7 +187,7 @@ function ThisWeek({ view }: { view: DropView }) {
   );
 }
 
-function GoalCard({ goal: g, donorId, go, onChange }: { goal: DropGoal; donorId: string; go: (s: Screen) => void; onChange: (v: DropView) => void }) {
+function GoalCard({ goal: g, donorId, go, plan, fromApps, onChange }: { goal: DropGoal; donorId: string; go: (s: Screen) => void; plan: WbSummary['weekPlan']; fromApps: string | null; onChange: (v: DropView) => void }) {
   const [adding, setAdding] = useState(false);
   const steps = g.writeup?.steps || [];
   const addReading = () => (g.trend?.marker === 'bp' ? setAdding(!adding) : go('labs'));
@@ -190,7 +206,12 @@ function GoalCard({ goal: g, donorId, go, onChange }: { goal: DropGoal; donorId:
           <div className="row small bold mt-8"><Icon name="flag" size={16} />Target: {g.target}</div>
           {g.writeup && <p className="small mt-12" style={{ lineHeight: 1.55 }}><span className="pill pill-neutral" style={{ marginRight: 6 }}>Why it matters</span>{g.writeup.why}</p>}
           <div className="tiny muted bold mt-16">This week</div>
-          <div className="item muted mt-8">Nothing planned yet. Open {g.name} to plan this week.</div>
+          {(() => {
+            const mine = (plan?.items || []).filter((i) => i.goalId === g.id && !i.setAside);
+            return mine.length
+              ? mine.map((i) => <div key={i.id} className="item mt-8"><span className="grow"><b>{i.text}</b><small>{kept(i)} this week · tracked by {i.source}</small></span></div>)
+              : <div className="item muted mt-8">Nothing planned yet. Open {g.name} to plan this week.</div>;
+          })()}
           {steps.length > 0 && <div className="tiny muted bold mt-16">Steps that help</div>}
           <div className="stack mt-8" style={{ gap: 8 }}>
             {steps.map((s) => (
@@ -202,6 +223,7 @@ function GoalCard({ goal: g, donorId, go, onChange }: { goal: DropGoal; donorId:
             <button className="btn" aria-expanded={g.trend?.marker === 'bp' ? adding : undefined} onClick={addReading}>Add a reading</button>
           </div>
           {adding && <BpReading donorId={donorId} onSaved={(v) => { setAdding(false); onChange(v); }} />}
+          {g.trend && MARKER_FOCUS[g.trend.marker] && <GoalFoods donorId={donorId} marker={MARKER_FOCUS[g.trend.marker]} />}
           <details className="goal-more mt-12">
             <summary className="small bold"><Icon name="chevron" size={16} />Where these steps come from</summary>
             <ul className="small muted">{steps.map((s) => <li key={s.text}><b>{s.text}:</b> {s.evidence.join('; ')}</li>)}</ul>
@@ -216,6 +238,7 @@ function GoalCard({ goal: g, donorId, go, onChange }: { goal: DropGoal; donorId:
             <GoalChart trend={g.trend} />
             {(g.also || []).map((a) => <div key={a} className="row wrap small muted mt-8"><span className="pill pill-info">Also in this Goal</span>{a}</div>)}
             <div className="small muted mt-8"><Icon name="calendar" size={14} /> Next check: {g.nextCheck}</div>
+            {fromApps && <div className="row wrap small mt-8" style={{ alignItems: 'flex-start' }}><span className="pill pill-info">From your apps</span><span className="grow">{fromApps}</span></div>}
           </div>
         )}
       </div>
@@ -249,6 +272,17 @@ function GoalChart({ trend }: { trend: NonNullable<DropGoal['trend']> }) {
     </div>
     {points.some(home) && <div className="tiny faint">Hollow points: readings and reports you added.</div>}
     </>
+  );
+}
+
+/** Foods that fit you: local, affordable food for this Goal (collapsed, so the Goal card reads as before until opened). */
+function GoalFoods({ donorId, marker }: { donorId: string; marker: string }) {
+  const [food, setFood] = useState<Awaited<ReturnType<typeof api.wbFoods>> | null>(null);
+  return (
+    <details className="goal-more mt-12" onToggle={(e) => { if ((e.target as HTMLDetailsElement).open && !food) api.wbFoods(donorId, marker).then(setFood).catch(() => {}); }}>
+      <summary className="small bold"><Icon name="chevron" size={16} />Foods that fit you</summary>
+      {food ? <div className="mt-8"><FoodPanel donorId={donorId} food={food} compact /></div> : <p className="small muted">Loading…</p>}
+    </details>
   );
 }
 

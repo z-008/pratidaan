@@ -99,3 +99,33 @@ _Avoid_: Carousel, slideshow, impact story
 **Badge**:
 A lasting record of a real milestone in the Donor's impact, earned from their own data, kept on My Impact and made to be shared. Earning one never sends a Card.
 _Avoid_: Achievement, award, trophy, milestone
+
+## Between donations
+
+**Cycle report**:
+A Story when a donation's results arrive: each focus result before and after, its band, the comparison with donors of the same sex and age, what the donor's apps recorded alongside, and next Cycle's focus. Watched from Home or Progress; never shared.
+_Avoid_: Season, checkpoint report
+
+**Band**:
+Where one result sits: from the donation minimum through healthy to optimal, from published guidance. From results only; habits never change a band.
+_Avoid_: Grade, rating
+
+**Focus**:
+The one thing a Cycle is about: the first active Goal's marker, or, with no Goal, the result furthest from its best band. It has one or two leading targets from the donor's apps.
+_Avoid_: Objective, challenge
+
+**Connection** and **Signal**:
+An app the donor already uses (habit app, watch, food app) that Pratidaan reads, with a switch per data type; a Signal is one day's value from it (steps, sleep, a habit tick). Pratidaan doesn't track habits itself.
+_Avoid_: Integration (in the app's words), tracker
+
+**Food profile**:
+How the donor eats (diet, home food, staple, where they eat, budget, allergies), chosen by them, never inferred. Used only to pick foods; never shared. Separate from what Drop remembers.
+_Avoid_: Diet record, preferences
+
+**Care level**:
+For one result, whether food coaching leads or the doctor comes first: optimal, on the low side (food leads, a doctor's check recommended), below the donation level (food and a doctor within weeks), doctor first (rules only, no food plan) or urgent. Fixed rules; the doctor's line always goes with food.
+_Avoid_: Risk level, triage
+
+**Comeback Card** and **Adjustment**:
+When a routine slips, one Card offering a smaller step from a fixed list (shorter, at another time, indoors, while travelling), never nothing, with Why this?. Accepted, it makes a Week plan item lighter for a week; after 5 good days Drop offers to step back up. Its own allowance: at most one a week.
+_Avoid_: Nudge, streak reminder
