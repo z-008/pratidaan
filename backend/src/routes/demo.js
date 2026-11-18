@@ -37,6 +37,17 @@ router.post('/next', (req, res) => {
   return ok(res, drop.nextEvent(donorId));
 });
 
+/** Demo: the next 7 days become a rough week for the Donor being viewed; the clock runs until Drop offers a lighter week. */
+router.post('/rough-week', (req, res) => {
+  const donorId = String(req.body.donorId || '');
+  if (!store.getDonor(donorId)) return res.status(400).json({ success: false, error: 'donorId is required' });
+  try {
+    return ok(res, require('../domain/wellbeing').roughWeek(donorId));
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/reset', (req, res) => {
   chatCycles.archiveCurrentCycle();
   agentPlatform.onDemoReset();

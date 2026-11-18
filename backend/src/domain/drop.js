@@ -17,6 +17,8 @@ const donation = require('./donation');
 const { componentStory } = require('./story');
 const badgeRules = require('./badges');
 const goalRules = require('./goals');
+// Between-donation Cards (Week plans, Your day, comeback, food): added through the four hooks marked "coaching" below
+const coaching = require('./coaching');
 
 const PRIORITY = { urgent: 1, results: 2, donate: 3, checkin: 4, goal: 5, impact: 6, fold: 7 };
 const BUDGETS = {
@@ -100,6 +102,7 @@ function create(donorId) {
   if (counted) { st.sentByDay[today] = counted; st.sentByWeek[weekStart(today)] = counted; }
   log(st, `Demo starts ${fmt(today)}.`);
   deliver(st);
+  coaching.deliver(st, hooks);
   return st;
 }
 
@@ -403,8 +406,10 @@ function buildReport(st) {
   const ready = readiness(st);
   if (ready) slides.push(ready <= today ? 'I can donate now.' : `${dayNum(ready) - dayNum(today)} days until I can donate again.`);
 
+  const extraSlides = coaching.reportSlides(st, from, today); // only for a Donor using the between-donation features
+  slides.push(...extraSlides);
   const waiting = folded.filter((e) => !e.foldOnly).map((e) => ({ key: e.key, name: eventName(e) }));
-  pushCard(st, 'report', period, { slides, waiting, period, badgeSlide });
+  pushCard(st, 'report', period, { slides, waiting, period, badgeSlide, extraSlides: extraSlides.length });
   log(st, `${period === 'week' ? 'Weekly' : 'Monthly'} report sent: ${slides.length} slides, ${folded.length + foldedCards.length} item(s) folded in.`);
 }
 
@@ -486,7 +491,7 @@ function label(c) {
     'impact:impact': 'Impact', 'slots:donate': 'Donation slots', 'slots:care': 'Check-up', 'checkin:bp': 'Check-in · BP goal',
     'checkin:hb': 'Check-in · Hb goal', 'checkin:visit': 'Check-in', 'reminder:setup': 'Reminder', 'reminder:due': `Reminder · ${time12(c.data?.time || '21:00')}`,
     'report:week': 'Weekly report', 'report:month': 'Monthly report',
-  }[`${c.type}:${c.variant}`] || c.type;
+  }[`${c.type}:${c.variant}`] || coaching.label(c) || c.type;
 }
 
 /** What a Card says and offers, from its data. */
@@ -593,7 +598,7 @@ function words(st, c) {
         chips: (d.waiting || []).map((w) => ({ label: `Still waiting: ${w.name}`, value: { pull: w.key } })),
       };
     default:
-      return { text: c.receipt || '' };
+      return coaching.words(st, c) || { text: c.receipt || '' };
   }
 }
 
@@ -732,8 +737,14 @@ function answer(donorId, cardId, value) {
         done(`Hb ${v} saved to Health${value.source ? ` (from ${value.source})` : ''}`);
       }
       break;
-    default:
+    default: {
+      if (coaching.handles(c)) {
+        const r = coaching.answer(st, c, value, { done, handOff, pushCard });
+        if (r === 'stay') return finish(st, null, null);
+        if (r !== 'unhandled') break;
+      }
       done('Done');
+    }
   }
   return finish(st, { cardId: c.id, snapshot, effects }, c);
 }
@@ -933,7 +944,7 @@ function view(donorId) {
     waiting: st.events.filter((e) => e.status === 'pending' && e.at <= today).map((e) => ({ name: eventName(e), foldOnly: Boolean(e.foldOnly) })),
     later: st.cards.filter((c) => ['snoozed', 'hidden', 'folded'].includes(c.status)).map((c) => ({ label: label(c), status: c.status, snoozes: c.snoozes, reason: c.foldReason || null })),
     upcoming: st.events.filter((e) => e.status === 'pending' && e.at > today).sort((a, z) => a.at.localeCompare(z.at)).slice(0, 4).map((e) => ({ name: eventName(e), on: e.at })),
-    log: st.log.slice(0, 10),
+    log: mergedLog(st).slice(0, 10),
   };
 }
 
@@ -1107,6 +1118,7 @@ store.onStep(() => {
     st.memReceipt = null;
     st.undo = null;
     deliver(st);
+    coaching.deliver(st, hooks);
   }
 });
 store.onReset(() => { states.clear(); seed = null; });
@@ -1114,7 +1126,7 @@ store.onReset(() => { states.clear(); seed = null; });
 /** Demo "Next event": move the clock until this Donor gets a new Card, not counting their routine Reminders (max two months). */
 function nextEvent(donorId) {
   const st = get(donorId);
-  const count = () => st.cards.filter((c) => !(c.type === 'reminder' && c.variant === 'due')).length;
+  const count = () => st.cards.filter((c) => !(c.type === 'reminder' && c.variant === 'due') && !coaching.TYPES.includes(c.type)).length;
   const before = count();
   for (let i = 0; i < PARTS * 60; i += 1) {
     store.stepClock();
@@ -1123,11 +1135,31 @@ function nextEvent(donorId) {
   return store.clock();
 }
 
+/** What the between-donation Cards (coaching.js) may use from here. */
+// Between-donation log lines go in their own list (st.wb.log), so they never push Drop's own lines out of its 40-line log;
+// "What Drop knows" shows both, newest first
+function wbLog(st, text) {
+  if (!st.wb) return;
+  const list = (st.wb.log = st.wb.log || []);
+  list.unshift({ at: `${store.clock().date} ${store.clock().partName}`, text, wb: true, tick: nowTick() });
+  list.length = Math.min(list.length, 40);
+}
+const PART_INDEX = { morning: 0, afternoon: 1, evening: 2, night: 3 };
+const tickOfLog = (l) => (l.tick !== undefined ? l.tick : tickOf(l.at.slice(0, 10), PART_INDEX[l.at.slice(11)] || 0));
+function mergedLog(st) {
+  const extra = st.wb?.log || [];
+  if (!extra.length) return st.log;
+  return [...st.log, ...extra].map((l, i) => ({ l, i })).sort((a, z) => tickOfLog(z.l) - tickOfLog(a.l) || (a.l.wb === z.l.wb ? a.i - z.i : a.l.wb ? -1 : 1)).map(({ l }) => ({ at: l.at, text: l.text }));
+}
+const hooks = { pushCard: (...a) => pushCard(...a), log: (st, text) => wbLog(st, text), budget: (st) => budgetOf(st) };
+
 module.exports = {
+  activityMinutes,
   get, view, answer, undo, snooze, cancelBooking, recordBooking, forgetBooking, hide, reopen, forget, undoMemory, deleteReading, hideResult, nextEvent,
   openForWriting, setAi, words, label, setLanguage, offerCard, logReading, chatContext, chartPoints, readinessOf: (donorId) => readiness(get(donorId)),
   newBadges, seeBadges, goals: (donorId) => goalsOf(get(donorId)), stopGoal, startGoalAgain, goalChatOf: goalChat,
   rememberText: (donorId, text, replacesPattern) => { const st = get(donorId); remember(st, text, replacesPattern ? new RegExp(replacesPattern, 'i') : null); return view(donorId); },
   BUDGETS, PRIORITY,
-  _state: get, _addEvent: (donorId, ev) => addEvent(get(donorId), ev), _deliver: (donorId) => deliver(get(donorId)),
+  _state: get, _pushCard: (donorId, type, variant, data) => pushCard(get(donorId), type, variant, data), _log: (donorId, text) => hooks.log(get(donorId), text),
+  _addEvent: (donorId, ev) => addEvent(get(donorId), ev), _deliver: (donorId) => deliver(get(donorId)),
 };

@@ -297,7 +297,7 @@ Some of the console's feature descriptions are older than the current app:
 
 | Item | Status |
 |---|---|
-| **Week plans**, **Your day**, **Simplify my plan** | Agreed in CONTEXT.md; Habits and This week show empty shells, and the chat says saving a Week plan is coming |
+| **Week plans**, **Your day**, **Simplify my plan** | Built on 18 Nov 2026: see [Between donations](#between-donations-added-18-nov-2026). Without a Week plan, Habits and This week still show their shells |
 | **From your doctor** (prescriptions read and confirmed) | Placeholder ("Nothing added yet") |
 | **Past Cycles** | Server keeps this demo cycle’s Drop turns per persona; **Reset** archives to read-only past cycles. Demo personas include a sample earlier cycle. In-memory on Azure App Service (not Azure Blob Storage); Azure Blob agent logs mirror separately when configured. |
 | AI-written Goal write-ups | Safety-critical Goal text remains rule-written; Azure OpenAI is not allowed to change it |
@@ -306,3 +306,23 @@ Some of the console's feature descriptions are older than the current app:
 | Download a copy of your data | The privacy page says to email for one |
 | WhatsApp or SMS delivery, voice, real centre and clinic booking, real insurer link, wearable data | Out of scope for the prototype |
 | Doctor and counsellor consoles, infection-result disclosure workflow | Dropped from the first design (see the [problem brief](01-problem-brief.md#10-how-the-idea-changed)) |
+
+## Between donations (added 18 Nov 2026)
+
+Every demo persona starts with the apps they would already use connected (demo data) and a Food profile; Meera and Asha also with a Week plan; the New donor connects their own. Added on top of everything above, which works exactly as before (a golden test checks every existing persona against `v1-baseline`). The plan and the reasons are in [changes/2026-11-18-review-feedback-plan.md](changes/2026-11-18-review-feedback-plan.md); how it is built is in [changes/2026-11-18-technical-implementation-plan.md](changes/2026-11-18-technical-implementation-plan.md).
+
+| Where | What it does |
+|---|---|
+| **Home → Between donations** (tile after Next donation) | Cycle number and phase, the next free health check, this Cycle's focus and whether it is on track, connected apps; **Watch my Cycle report** when a donation's results are new |
+| **Progress** (`#progress`, after My health) | The Cycle and its focus targets; **Eat for your …** food coaching; **Your free health check**: each result's band, last donation's value and "Better than X% of women donors aged 30–39" (shown only from 50%); tap a result for its history with the Cycle's steps or sleep as bars, and an "alongside" sentence; last 7 days from the donor's apps; Cycle reports (each also downloads as FHIR); How you eat |
+| **Connected apps** (`#apps`, account menu) | Demo Habitify, Microsoft To Do, Fitbit, Oura and Cronometer with a switch per data type and Write back; Junction sandbox (a real API with generated data, needs `JUNCTION_API_KEY`); your own Habitify key or Microsoft To Do, kept in the browser tab only |
+| **My health** | With a Week plan, Habits and This week show its items, days kept and where the ticks come from; each Goal card gets **Foods that fit you** (collapsed) and the items that serve it |
+| **Drop** | New Cards: Week plan (asked for), Your day (opt-in, 9 pm for Asha), A lighter week (comeback), Step back up, Food for your iron, See a doctor first, Before your next donation. **Simplify my plan** in the ⋯ menu. The Weekly report adds slides after its existing ones |
+| **Your data** | Between donations: each connected app (Disconnect & delete), Week plan and Your day, Food profile; **Download my data** (JSON) |
+| **Demo bar** | **Simulate a rough week**: the next days get fewer steps, short sleep and skipped habits until Drop offers a lighter week |
+
+**Rules for the new Cards.** They reach only a donor who has used a between-donation feature. Unprompted ones have their own allowance: at most one a week, only at 7 pm, never on a day an existing Card was sent or while one could still go, never with an urgent Card open, and never counted in the Message budget. Next event ignores them. A Week plan Card the donor asked for and Your day are outside the budget, as CONTEXT.md says; See a doctor first goes at once.
+
+**Care levels (proposed, pending clinical review).** Iron: optimal; low-normal (Hb under the donor minimum + 1.0 or ferritin 15–29: food leads, a doctor's check recommended); below the donation level (food and a doctor within 3 weeks); doctor first (Hb under 10, small red cells with normal ferritin, or a red flag: rules only, no food plan); urgent (Hb under 7). BP, blood sugar, cholesterol, B12 and vitamin D have the same levels. Thresholds are in `data/ontology/care-levels.json`.
+
+**Food data.** 36 Indian foods in `data/nutrition/foods.json` with approximate per-serving nutrients, ₹ per serving, diet kind, regions, fasting, allergens and Hindi, Kannada and Tamil names. Values are marked `verified: false` until checked against IFCT 2017.

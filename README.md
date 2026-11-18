@@ -13,7 +13,8 @@ Pratidaan is an app for voluntary blood donors in India. A donation is split int
 
 1. **Their blood's journey.** Each component's path is shown from collection to the patient: an age band, the treatment and the type of hospital, released only when at least 5 patients share that description. When a part reaches a patient, Drop sends a short **Story** that ends on a shareable postcard. **Badges** record milestones ("5 patients", "Nothing wasted", "Helped a child"). **Circles** (family, workplace, friends) see what they have done together.
 2. **Health between donations.** Drop explains each donation's results in plain words. A finding worth acting on becomes a **Goal** with one target and two or three steps, each citing the protocol or guidance behind it. Drop checks in every two weeks, offers check-up slots, sets reminders the donor asks for, and says when they can donate again. It sends at most one new Card a day and is silent at night.
-3. **Better cover for staying healthy** (illustrative). Like a credit limit that rises with good repayment, the modelled health-insurance cover steps up (₹5 lakh → 6 → 7 → 8) at the same premium as the health score holds. It needs two monitored visits in 12 months and the donor's consent, and only the score is ever shared.
+3. **Every donation is a free health check, and the days in between count.** Pratidaan connects the habit apps, watches and food apps the donor already uses (Habitify, Microsoft To Do, Fitbit, Oura, Cronometer; demo data in this preview) instead of tracking habits itself. **Progress** shows where they are in the **Cycle** between donations, each result's band (from donation minimum to optimal), how it compares with donors their age, and what their apps recorded alongside it. **Week plans** fill the Movement, Food and Mind Habits. When a routine slips, Drop offers one smaller step (a **comeback Card**) with **Why this?**, and can update the habit app. **Food coaching** suggests local, affordable foods that fit the donor's diet and budget, always with a doctor's line; when a result is too low for food, the rules put the doctor first. Each donation's results come back as a **Cycle report**.
+4. **Better cover for staying healthy** (illustrative). Like a credit limit that rises with good repayment, the modelled health-insurance cover steps up (₹5 lakh → 6 → 7 → 8) at the same premium as the health score holds. It needs two monitored visits in 12 months and the donor's consent, and only the score is ever shared.
 
 Around the donor: an **ecosystem view** (what all donors' blood did for blood centres, hospitals, labs and public health), guided **booking** with an optional Microsoft Calendar event, and **Your data**, which shows everything kept and deletes any of it.
 
@@ -30,8 +31,11 @@ Choose who to be in **Viewing as** at the top of every screen. The demo starts o
 | **Vikram Gowda** (A+) | BP 184/118: an urgent Card that always sits first, can't be hidden and says to see a doctor today. His Goal suggests no exercise until a doctor has seen him. |
 | **Karthik Menon** (B+) | Prediabetic HbA1c (6.1%), can donate from 3 Nov, no Cards today. What a quiet Home looks like. |
 | **Rohan Verma** (AB+) | Hindi. One unit is withheld for safety with no reason shown; the counsellor contacts him privately. |
+| **Asha Khan** (AB+) | Iron fine for donating but on the low side (Hb 12.7, ferritin 25), with no Goal: food coaching in Hindi at about ₹9–14 a day and a doctor's check recommended. Starts with a Week plan and Your day. **Simulate a rough week** on the demo bar brings a comeback Card. |
 
-The team guide in [docs/drop/](docs/drop/README.md) has 20 click-through test scripts with expected results.
+The team guide in [docs/drop/](docs/drop/README.md) has 20 click-through test scripts with expected results; scripts 21–32 for the between-donation features are in [docs/changes/2026-11-18-wellbeing-build.md](docs/changes/2026-11-18-wellbeing-build.md).
+
+Every demo persona starts with the apps they would already use connected (demo data, labelled): Fitbit or Oura, Habitify or Microsoft To Do, and Cronometer for Meera, Karthik and Asha, plus a Food profile. So My health's Habits, each Goal card, Progress and the Home tile show their week against healthy targets. Meera and Asha also start with a Week plan. The New donor connects their own. Everything each persona did before (Cards, their timing and words, Goals, score, eligibility, cover, Badges) is unchanged: a golden test checks it against `v1-baseline`.
 
 ## Where AI is used, and where it isn't
 
@@ -54,8 +58,12 @@ All AI runs through **Azure OpenAI** using the web app's managed identity. If Az
 - Badges
 - recipient privacy (k-anonymity)
 - slot ranking
+- care levels (when food coaching leads and when the doctor comes first) and the doctor's line on every food suggestion
+- which foods are suggested (diet, region, budget and a safety check across all findings)
+- bands and the age-group comparison
+- when a routine has slipped, and which smaller step is offered
 
-The model can't change any of them.
+The model can't change any of them. In the Food and Habit Chats Drop can call new tools (find foods, open a Week plan Card, explain a recommendation); a check after the model replaces any food the rules didn't choose, any medicine and any unsupported number, and adds the doctor's line itself.
 
 ## Run it
 
@@ -99,7 +107,7 @@ One Node process serves the API and built app from Azure App Service F1. GitHub 
 ## Tests
 
 ```bash
-cd backend && npm test        # 167+ tests: findings, eligibility, cover, privacy, Drop's rules, Goals,
+cd backend && npm test        # 199 tests, including a golden test that every existing persona behaves as in v1-baseline: findings, eligibility, cover, privacy, Drop's rules, Goals,
                               # Intro, Badges, booking, sign-in, Your data, AI output checks
 cd frontend && npm run type-check
 ```

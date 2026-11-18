@@ -1,0 +1,5 @@
+{
+  "_note": "Home food style by district, used only as the starting choice in the Food profile; the donor can change it.",
+  "byDistrict": { "Bengaluru Urban": "south", "Bengaluru Rural": "south", "Mysuru": "south", "Tumakuru": "south", "Mandya": "south", "Ramanagara": "south", "Kolar": "south" },
+  "labels": { "south": "South Indian", "north": "North Indian", "east": "East Indian", "west": "West Indian", "northeast": "North-east Indian" }
+}

@@ -145,6 +145,9 @@ function careSlots(donor, withinDays) {
 }
 
 function run(name, input, donorId) {
+  // Between-donation tools live in wellbeingTools.js; only the Chats that list them can call them
+  const wellbeingTools = require('./wellbeingTools');
+  if (wellbeingTools.handles(name)) return wellbeingTools.run(name, input, donorId);
   const definition = DEFINITIONS.find((d) => d.name === name);
   if (!definition) return { error: `Unknown tool ${name}` };
   if (!llm.validate(input, definition.input_schema)) return { error: 'Invalid tool arguments' };
@@ -248,7 +251,8 @@ function switchLanguage(donorId, language) {
 }
 
 function definitions(names) {
-  return names ? DEFINITIONS.filter((d) => names.includes(d.name)) : DEFINITIONS;
+  // With no names: the existing tools only, so CHAT_TOOLS (and every existing Chat) is unchanged
+  return names ? [...DEFINITIONS, ...require('./wellbeingTools').DEFINITIONS].filter((d) => names.includes(d.name)) : DEFINITIONS;
 }
 
 module.exports = { definitions, run, careSlots, switchLanguage };

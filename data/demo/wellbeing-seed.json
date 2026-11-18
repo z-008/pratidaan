@@ -1,0 +1,462 @@
+{
+ "_note": "Demo storylines for the between-donation features (domain/coaching.js, integrations/demo.js). Signals are generated from these on demand, deterministically. Every demo Persona starts with the apps they would already use connected (labelled demo) and a Food profile set here explicitly, never inferred from a name; Week plans only where the Persona's story already has one (Meera's walking plan, Asha). The New donor connects their own.",
+ "storylines": {
+  "D-001": {
+   "history": "2023-10-01",
+   "steps": [
+    [
+     "2024-08-20",
+     9100
+    ],
+    [
+     "2025-07-15",
+     7800
+    ],
+    [
+     "2026-06-25",
+     6600
+    ],
+    [
+     "2026-10-03",
+     5200
+    ],
+    [
+     "9999-12-31",
+     5400
+    ]
+   ],
+   "sleep_min": 395,
+   "rhr_bpm": 78,
+   "habit_rate": 0.7,
+   "missDays": [
+    2,
+    4
+   ],
+   "rough": {
+    "barrier": "travel",
+    "steps": 0.45,
+    "sleep": -15,
+    "habits": 0.2
+   },
+   "foodProfile": {
+    "diet": "nonveg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "canteen",
+    "budget": "moderate",
+    "allergies": [],
+    "fasting": []
+   }
+  },
+  "D-002": {
+   "history": "2024-06-01",
+   "steps": [
+    [
+     "9999-12-31",
+     6800
+    ]
+   ],
+   "sleep_min": 430,
+   "rhr_bpm": 72,
+   "iron_mg": 11,
+   "habit_rate": 0.75,
+   "missDays": [
+    6
+   ],
+   "rough": {
+    "barrier": "festival",
+    "steps": 0.6,
+    "sleep": -40,
+    "habits": 0.3
+   },
+   "foodProfile": {
+    "diet": "veg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "home",
+    "budget": "tight",
+    "allergies": [],
+    "fasting": []
+   },
+   "water_ml": 1700
+  },
+  "D-003": {
+   "history": "2025-01-01",
+   "steps": [
+    [
+     "9999-12-31",
+     10500
+    ]
+   ],
+   "sleep_min": 445,
+   "rhr_bpm": 58,
+   "habit_rate": 0.9,
+   "missDays": [],
+   "rough": {
+    "barrier": "busy",
+    "steps": 0.6,
+    "sleep": -60,
+    "habits": 0.4
+   }
+  },
+  "D-017": {
+   "history": "2025-06-01",
+   "steps": [
+    [
+     "9999-12-31",
+     4000
+    ]
+   ],
+   "sleep_min": 360,
+   "rhr_bpm": 82,
+   "habit_rate": 0.5,
+   "missDays": [],
+   "rough": {
+    "barrier": "busy",
+    "steps": 0.6,
+    "sleep": -40,
+    "habits": 0.3
+   }
+  },
+  "D-175": {
+   "history": "2025-03-01",
+   "steps": [
+    [
+     "2025-08-09",
+     7400
+    ],
+    [
+     "2026-03-16",
+     6900
+    ],
+    [
+     "9999-12-31",
+     7200
+    ]
+   ],
+   "sleep_min": 410,
+   "rhr_bpm": 70,
+   "iron_mg": 13,
+   "habit_rate": 0.8,
+   "missDays": [
+    2,
+    4
+   ],
+   "rough": {
+    "barrier": "busy",
+    "steps": 0.5,
+    "sleep": -15,
+    "habits": 0.15
+   }
+  },
+  "default": {
+   "history": "2026-01-01",
+   "steps": [
+    [
+     "9999-12-31",
+     7000
+    ]
+   ],
+   "sleep_min": 420,
+   "rhr_bpm": 72,
+   "habit_rate": 0.75,
+   "missDays": [],
+   "rough": {
+    "barrier": "busy",
+    "steps": 0.55,
+    "sleep": -50,
+    "habits": 0.3
+   }
+  },
+  "D-050": {
+   "history": "2025-05-01",
+   "steps": [
+    [
+     "9999-12-31",
+     6200
+    ]
+   ],
+   "sleep_min": 400,
+   "rhr_bpm": 76,
+   "habit_rate": 0.7,
+   "missDays": [
+    0,
+    6
+   ],
+   "rough": {
+    "barrier": "busy",
+    "steps": 0.5,
+    "sleep": -15,
+    "habits": 0.2
+   },
+   "iron_mg": 15
+  },
+  "D-033": {
+   "history": "2025-06-01",
+   "steps": [
+    [
+     "9999-12-31",
+     8800
+    ]
+   ],
+   "sleep_min": 430,
+   "rhr_bpm": 64,
+   "habit_rate": 0.8,
+   "missDays": [],
+   "rough": {
+    "barrier": "travel",
+    "steps": 0.5,
+    "sleep": -15,
+    "habits": 0.2
+   }
+  }
+ },
+ "preset": {
+  "D-175": {
+   "connections": [
+    {
+     "provider": "fitbit_demo",
+     "consentedTypes": [
+      "steps",
+      "active_min",
+      "sleep_min",
+      "rhr_bpm"
+     ]
+    },
+    {
+     "provider": "habitify_demo",
+     "consentedTypes": [
+      "habit_done"
+     ],
+     "writeBack": true
+    },
+    {
+     "provider": "cronometer_demo",
+     "consentedTypes": [
+      "iron_mg",
+      "water_ml"
+     ]
+    }
+   ],
+   "foodProfile": {
+    "diet": "egg",
+    "region": "north",
+    "staple": "roti",
+    "eatsAt": "canteen",
+    "budget": "tight",
+    "allergies": [],
+    "fasting": []
+   },
+   "weekPlan": [
+    {
+     "habit": "food",
+     "text": "Iron add-on with lunch",
+     "perWeek": 5,
+     "measuredBy": "food_habit",
+     "focus": "iron"
+    },
+    {
+     "habit": "movement",
+     "text": "20-minute walk",
+     "perWeek": 3,
+     "minutes": 20,
+     "measuredBy": "active_min"
+    }
+   ],
+   "day": {
+    "time": "21:00"
+   },
+   "openFoodCard": "iron"
+  },
+  "D-001": {
+   "connections": [
+    {
+     "provider": "fitbit_demo",
+     "consentedTypes": [
+      "steps",
+      "active_min",
+      "sleep_min",
+      "rhr_bpm"
+     ]
+    },
+    {
+     "provider": "habitify_demo",
+     "consentedTypes": [
+      "habit_done"
+     ],
+     "writeBack": true
+    }
+   ],
+   "foodProfile": {
+    "diet": "nonveg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "canteen",
+    "budget": "moderate",
+    "allergies": [],
+    "fasting": []
+   }
+  },
+  "D-002": {
+   "connections": [
+    {
+     "provider": "fitbit_demo",
+     "consentedTypes": [
+      "steps",
+      "active_min",
+      "sleep_min",
+      "rhr_bpm"
+     ]
+    },
+    {
+     "provider": "cronometer_demo",
+     "consentedTypes": [
+      "iron_mg",
+      "water_ml"
+     ]
+    },
+    {
+     "provider": "todo_demo",
+     "consentedTypes": [
+      "habit_done"
+     ],
+     "writeBack": true
+    }
+   ],
+   "foodProfile": {
+    "diet": "veg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "home",
+    "budget": "tight",
+    "allergies": [],
+    "fasting": []
+   },
+   "weekPlan": [
+    {
+     "habit": "movement",
+     "text": "Brisk walk",
+     "perWeek": 3,
+     "minutes": 20,
+     "measuredBy": "active_min",
+     "forGoal": true
+    },
+    {
+     "habit": "food",
+     "text": "Iron add-on with lunch",
+     "perWeek": 5,
+     "measuredBy": "food_habit",
+     "focus": "iron",
+     "forGoal": true
+    }
+   ]
+  },
+  "D-003": {
+   "connections": [
+    {
+     "provider": "oura_demo",
+     "consentedTypes": [
+      "sleep_min",
+      "rhr_bpm",
+      "steps"
+     ]
+    },
+    {
+     "provider": "habitify_demo",
+     "consentedTypes": [
+      "habit_done"
+     ],
+     "writeBack": true
+    }
+   ],
+   "foodProfile": {
+    "diet": "egg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "home",
+    "budget": "flexible",
+    "allergies": [],
+    "fasting": []
+   }
+  },
+  "D-017": {
+   "connections": [
+    {
+     "provider": "fitbit_demo",
+     "consentedTypes": [
+      "steps",
+      "active_min",
+      "sleep_min",
+      "rhr_bpm"
+     ]
+    }
+   ],
+   "foodProfile": {
+    "diet": "nonveg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "home",
+    "budget": "moderate",
+    "allergies": [],
+    "fasting": []
+   }
+  },
+  "D-050": {
+   "connections": [
+    {
+     "provider": "fitbit_demo",
+     "consentedTypes": [
+      "steps",
+      "active_min",
+      "sleep_min",
+      "rhr_bpm"
+     ]
+    },
+    {
+     "provider": "cronometer_demo",
+     "consentedTypes": [
+      "iron_mg",
+      "water_ml"
+     ]
+    }
+   ],
+   "foodProfile": {
+    "diet": "veg",
+    "region": "south",
+    "staple": "rice",
+    "eatsAt": "tiffin",
+    "budget": "moderate",
+    "allergies": [],
+    "fasting": []
+   }
+  },
+  "D-033": {
+   "connections": [
+    {
+     "provider": "oura_demo",
+     "consentedTypes": [
+      "sleep_min",
+      "rhr_bpm",
+      "steps"
+     ]
+    },
+    {
+     "provider": "habitify_demo",
+     "consentedTypes": [
+      "habit_done"
+     ],
+     "writeBack": true
+    }
+   ],
+   "foodProfile": {
+    "diet": "veg",
+    "region": "north",
+    "staple": "roti",
+    "eatsAt": "home",
+    "budget": "moderate",
+    "allergies": [],
+    "fasting": []
+   }
+  }
+ }
+}

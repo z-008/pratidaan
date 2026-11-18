@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import type { DropAction, DropCard, SnoozeOption } from '../../api';
 import ScrollWheel from './ScrollWheel';
 import { openChat } from './chat';
+import { goTo, openWhy } from '../wellbeing/wellbeing';
 
 interface Props {
   card: DropCard;
@@ -38,6 +39,8 @@ export default function DropCardView({ card, busy, onAnswer, onSnooze, onHide, o
 
   const act = (a: DropAction) => {
     if (a.story) return onStory();
+    if (a.why) return openWhy(a.why); // "Why this?" opens the explanation; it doesn't answer the Card
+    if (a.go) { goTo(a.go); return onAnswer(a.value); }
     if (a.ask) return onAsk(a.ask);
     if (a.open) {
       openChat(a.open);

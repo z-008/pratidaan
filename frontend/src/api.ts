@@ -190,7 +190,8 @@ export interface DemoClock { date: string; part: number; partName: 'morning' | '
 export type DropCardType = 'results' | 'urgent' | 'checkin' | 'slots' | 'reminder' | 'impact' | 'report' | 'chart';
 /** Opens a Chat in the side sheet with Drop's line and questions. `answers` are fixed replies to a question, by rules. */
 export interface ChatOpen { text: string; questions: string[]; goalId?: string; answers?: Record<string, string> }
-export interface DropAction { label: string; value: unknown; story?: boolean; ask?: string; open?: ChatOpen }
+/** `go` opens a screen ("progress:iron" opens that marker), `why` opens the "Why this?" sheet for a recommendation id. */
+export interface DropAction { label: string; value: unknown; story?: boolean; ask?: string; open?: ChatOpen; go?: string; why?: string }
 export interface DropCard {
   id: string; type: DropCardType; variant: string; label: string; urgent: boolean; counted: boolean; createdOn: string;
   text: string; ruleText: string; byAi: boolean; main: DropAction | null; out: DropAction | null; chips: DropAction[];
@@ -278,6 +279,61 @@ export interface DropView {
   upcoming: { name: string; on: string }[]; log: { at: string; text: string }[];
 }
 export type SnoozeOption = 'hour' | 'tonight' | 'tomorrow' | 'week';
+
+/* ---------- Between donations (Progress, Connected apps, Food coaching, Week plans) ---------- */
+
+export type WbBandRef = { index: number; id: string; label: string; source: string };
+export interface WbBand {
+  marker: string; label: string; unit: string; value: string; date: string; band: WbBandRef; bands: string[];
+  previous: { text: string; date: string; band: WbBandRef | null } | null; moved: number; percentile: string | null;
+}
+export interface WbDoctor { urgency: 'recommended' | 'weeks' | 'first' | 'today'; text: string }
+export type WbLevel = 'optimal' | 'low_normal' | 'below' | 'doctor_first' | 'urgent' | 'not_needed';
+export interface WbCareLevel { marker: string; label: string; level: WbLevel; coaching: string; doctor: WbDoctor | null; rule: string; ruleId?: string; evidence?: string[] }
+export interface WbTarget { signal: string; text: string; habit: string; perWeek?: number; status: { state: 'on' | 'drift' | 'off' | 'none'; text: string } }
+export interface WbFocus { key: string; label: string; from: 'goal' | 'levelup' | 'keep'; reason: string; urgent: boolean; targets: WbTarget[]; source: string; status: { state: string; label: string } }
+export interface WbCycle { number: number; start: string; startStatus: string; day: number; length: number; nextFrom: string | null; daysTo: number | null; eligibleNow: boolean; phase: string; phaseLabel: string; text: string }
+export interface WbConnection { id: string; provider: string; label: string; kind: string; mode: 'demo' | 'sandbox' | 'live'; consentedTypes: string[]; writeBack: boolean; connectedOn: string; lastSync: string; dataTypes: string[] }
+export interface WbPlanItem {
+  id: string; habit: 'movement' | 'food' | 'mind'; text: string; original: string; perWeek: number; minutes: number | null; steppedDown: boolean;
+  forText: string | null; goalId: string | null; setAside: boolean; synced: string | null; source: string;
+  week: { keptDays: number; planned: number; days: { date: string; state: 'kept' | 'missed' | 'none' | 'future' }[] };
+}
+export interface WbWeekPlan { id: string; weekOf: string; endsOn: string; ended: boolean; endsText: string; items: WbPlanItem[] }
+export interface WbFoodProfile { diet: string; region: string; staple: string; eatsAt: string; budget: string; allergies: string[]; fasting: string[]; dislikes?: string[]; isDefault: boolean }
+export interface WbReportRef { visitId: string; date: string; status: string; title: string; seen: boolean }
+export interface WbMetric { signal: string; label: string; value: string; target: string | null; state: 'on' | 'drift' | 'off' | null; app: string; source?: string }
+export interface WbHabit { habit: 'movement' | 'food' | 'mind'; metrics: WbMetric[]; items: WbPlanItem[]; state: 'on' | 'drift' | 'off' | null; hint: string | null }
+export interface WbGoalSignals { goalId: string; text: string | null; app?: string | null }
+export interface WbReadiness { soon: boolean; from: string | null; eligibleNow: boolean; items: { id: string; text: string; state: 'on' | 'drift' | 'off' | null; source: string; note?: string | null }[]; done: number; total: number; note: string }
+export interface WbSummary {
+  habits: WbHabit[]; goalSignals: WbGoalSignals[]; readiness: WbReadiness | null;
+  active: boolean; newUser: boolean; cycle: WbCycle | null; focus: WbFocus | null; bands: WbBand[]; careLevels: WbCareLevel[];
+  connections: WbConnection[]; weekPlan: WbWeekPlan | null; day: { time: string } | null; foodProfile: WbFoodProfile | null;
+  reports: WbReportRef[]; unseenReport: WbReportRef | null;
+  week: { steps: number | null; sleepHours: number | null; activeMinutes: number | null; ironMg: number | null };
+}
+export interface WbFood { id: string; name: string; nameEn: string; serving: string; amount: string | null; cost: { min: number; max: number }; fitIn: string; pairWith: string[]; approx: boolean }
+export interface WbExplanation {
+  title: string; dataUsed: { text: string; source: string }[]; rule: { id: string; text: string }; guidance: { text: string; source: string }[];
+  preferences: string[]; effect: string | null; wouldChange: string | null; notUsed: string[];
+}
+export interface WbFoodSuggestion {
+  marker: string; label: string; level: WbCareLevel | null; profile: WbFoodProfile; tips: { id: string; text: string; source: string }[]; limit: string[];
+  foods: WbFood[]; doctor: WbDoctor | null; text: string; rulesOnly?: boolean; target?: { text: string } | null; costPerDay?: { min: number; max: number };
+  safety?: string[]; explanation?: WbExplanation;
+}
+export interface WbHistoryPoint { date: string; value: number; value2: number | null; text: string; signals: Record<string, number> }
+export interface WbMarker {
+  marker: string; label: string; unit: string; bands: { id: string; label: string; source: string }[]; row: WbBand | null;
+  history: { marker: string; linked: string[]; points: WbHistoryPoint[]; sentence: string | null };
+  signalLabels: Record<string, string>; food: WbFoodSuggestion | null;
+}
+export interface WbProvider { id: string; label: string; kind: string; mode: 'demo' | 'sandbox' | 'live'; dataTypes: string[]; canWrite: boolean; blurb: string; available: boolean }
+export interface WbApps { groups: { id: string; label: string }[]; providers: WbProvider[]; connections: WbConnection[] }
+export interface WbViews { summary: WbSummary; drop: DropView }
+export interface WbReport { visitId: string; date: string; status: string; title: string; slides: string[] }
+
 
 export class ApiError extends Error {
   status: number;
@@ -393,6 +449,40 @@ export const api = {
   demoAdvance: (parts: number) => post<DemoClock>('/demo/advance', { parts }),
   demoNext: (donorId: string) => post<DemoClock>('/demo/next', { donorId }),
   demoReset: () => post<DemoClock>('/demo/reset'),
+  demoRoughWeek: (donorId: string) => post<DemoClock>('/demo/rough-week', { donorId }),
+
+  /* Between donations */
+  wellbeing: (id: string) => request<WbSummary>(`/donors/${id}/wellbeing`),
+  wbMarker: (id: string, marker: string) => request<WbMarker>(`/donors/${id}/wellbeing/marker/${marker}`),
+  wbSignal: (id: string, signal: string, days = 56) => request<{ signal: string; label: string; points: { date: string; value: number; app: string; mode: string }[] }>(`/donors/${id}/wellbeing/signals/${signal}?days=${days}`),
+  wbApps: (id: string) => request<WbApps>(`/donors/${id}/wellbeing/apps`),
+  wbConnect: (id: string, provider: string, body: { consentedTypes?: string[]; writeBack?: boolean } = {}) => post<WbViews>(`/donors/${id}/wellbeing/apps`, { provider, ...body }),
+  wbUpdateApp: (id: string, connId: string, body: { consentedTypes?: string[]; writeBack?: boolean }) => request<WbViews>(`/donors/${id}/wellbeing/apps/${connId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  wbSyncApp: (id: string, connId: string) => post<WbViews>(`/donors/${id}/wellbeing/apps/${connId}/sync`),
+  wbDisconnect: (id: string, connId: string) => request<WbViews>(`/donors/${id}/wellbeing/apps/${connId}`, { method: 'DELETE' }),
+  wbFoodProfile: (id: string) => request<{ profile: WbFoodProfile; fields: Record<string, string[]> }>(`/donors/${id}/wellbeing/food-profile`),
+  wbSaveFoodProfile: (id: string, profile: Partial<WbFoodProfile>) => request<WbViews>(`/donors/${id}/wellbeing/food-profile`, { method: 'PUT', body: JSON.stringify(profile) }),
+  wbClearFoodProfile: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/food-profile`, { method: 'DELETE' }),
+  wbFoods: (id: string, marker: string) => request<WbFoodSuggestion>(`/donors/${id}/wellbeing/foods?marker=${marker}`),
+  wbOfferPlan: (id: string, habit: string) => post<{ cardId: string; view: DropView }>(`/donors/${id}/wellbeing/week-plan/offer`, { habit }),
+  wbSimplify: (id: string) => post<WbViews>(`/donors/${id}/wellbeing/week-plan/simplify`),
+  wbBringBack: (id: string, itemId: string) => post<WbViews>(`/donors/${id}/wellbeing/week-plan/items/${itemId}/bring-back`),
+  wbLogItem: (id: string, itemId: string, state: 'done' | 'skipped', barrier?: string) => post<WbViews>(`/donors/${id}/wellbeing/week-plan/items/${itemId}/log`, { state, barrier }),
+  wbDeletePlan: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/week-plan`, { method: 'DELETE' }),
+  wbSetDay: (id: string, time: string) => post<WbViews>(`/donors/${id}/wellbeing/day`, { time }),
+  wbClearDay: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/day`, { method: 'DELETE' }),
+  wbReport: (id: string, visitId: string) => request<WbReport>(`/donors/${id}/wellbeing/cycle-reports/${visitId}`),
+  wbReportSeen: (id: string, visitId: string) => post<WbSummary>(`/donors/${id}/wellbeing/cycle-reports/${visitId}/seen`),
+  wbExplain: (id: string, recId: string) => request<WbExplanation>(`/donors/${id}/wellbeing/explain/${encodeURIComponent(recId)}`),
+  wbExport: (id: string) => request<Record<string, unknown>>(`/donors/${id}/wellbeing/export`),
+  wbFhir: (id: string, visitId: string) => request<Record<string, unknown>>(`/donors/${id}/wellbeing/fhir/${visitId}`),
+  wbDeleteSignals: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/signals`, { method: 'DELETE' }),
+  wbDeleteHabitData: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/habit-data`, { method: 'DELETE' }),
+  /** Live accounts: the key or token goes in a header on each request and is never stored */
+  liveHabitify: (id: string, key: string) => request<{ id: string; name: string; daysThisWeek: number }[]>(`/donors/${id}/wellbeing/live/habitify`, { method: 'POST', headers: { 'X-Connector-Token': key } }),
+  liveHabitifyLog: (id: string, key: string, habitId: string) => request<unknown>(`/donors/${id}/wellbeing/live/habitify/log`, { method: 'POST', headers: { 'X-Connector-Token': key }, body: JSON.stringify({ habitId }) }),
+  liveTodoPlan: (id: string, token: string) => request<{ list: string; created: { itemId: string; taskId: string; title: string }[] }>(`/donors/${id}/wellbeing/live/todo/plan`, { method: 'POST', headers: { 'X-Connector-Token': token } }),
+  liveTodoCompleted: (id: string, token: string) => request<{ title: string; completedOn: string | null }[]>(`/donors/${id}/wellbeing/live/todo/completed`, { headers: { 'X-Connector-Token': token } }),
 };
 
 export const rupees = (n: number) => (n >= 100000 ? `₹${(n / 100000).toFixed(n % 100000 ? 1 : 0)} lakh` : `₹${n.toLocaleString('en-IN')}`);

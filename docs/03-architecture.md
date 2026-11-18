@@ -34,6 +34,10 @@ The F1 plan is a fixed free shared tier with limited daily CPU. There is no Azur
 | `backend/src/azure/` | Managed-identity tokens, private Blob JSON storage and per-account repository |
 | `backend/src/calendar/` | Microsoft Graph free/busy, event creation/deletion and mail |
 | `backend/src/data/store.js` | Synthetic demo data and in-memory demo state |
+| `backend/src/integrations/` | Connected apps: demo connector (persona storylines), Junction sandbox, Habitify and Microsoft To Do (live, nothing stored) |
+| `backend/src/domain/{signals,cycle,bands,links,careLevel,foodCoach,weekPlan,routine,adjustments,explain,coaching,wellbeing}.js` | Between donations: signals with consent, the Cycle and its report, bands and the age-group comparison, care levels, food coaching, Week plans, disruptions and adjustments, "Why this?", the new Cards |
+| `backend/src/routes/wellbeing.js` | `/api/donors/:id/wellbeing/...` |
+| `data/nutrition/`, `data/ontology/{bands,care-levels,marker-signals}.json`, `data/demo/wellbeing-seed.json` | Foods, nutrient needs, prices; bands, care levels, marker ↔ signal links; demo storylines |
 | `infra/` | Subscription budget alerts and Azure resource definitions in Bicep |
 | `scripts/` | Azure CLI setup, guarded deployment and GitHub OIDC configuration |
 
@@ -135,3 +139,11 @@ bash -n run.sh scripts/*.sh
 ```
 
 After deployment, verify `/api/health`, Microsoft sign-in, guest mode, Calendar free/busy, event creation, Graph mail, account deletion and the exact resources/costs in the Azure portal.
+
+## Between donations (added 18 Nov 2026)
+
+- **Additive by construction.** `drop.js` gains four hooks only: `coaching.deliver` after each clock step, coaching wording/answers for unknown Card types, extra Weekly report slides at the end, and Next event ignoring the new types. `copilot.js` adds the new tools only to Habit and Goal Chats (General gets `get_cycle` and `get_bands`), replaces the "Week plans are coming" line in those Chats, and runs `foodGuard` after the model. `tools.definitions()` with no names still returns the existing tools only.
+- **State.** Everything lives in the persona's Drop state (`st.wb`), so Reset clears it and Undo covers it. Signals are generated on demand by the demo connector (deterministic per persona and date). From the demo start its active minutes equal the Weekly report's existing simulated figure. Live accounts (Habitify key, Microsoft To Do token) arrive per request in `X-Connector-Token` and are never stored.
+- **Consent.** `signals.js` is the only read path and skips any data type the donor didn't allow; disconnecting deletes what was read.
+- **Isolation.** No between-donation module writes to the health score, eligibility, cover, Badges or Circles; `wellbeing.test.js` checks they are unchanged.
+- **Verification.** `backend/test/golden.test.js` replays a scripted clock for all seven existing personas and compares everything they show (Cards, log, findings, score, eligibility, cover, Badges, impact, Drop lines, Intro, rule answers) with `test/golden/baseline.json`, recorded from `v1-baseline`. Re-record only from that tag: `node test/golden/snapshot.js --write`.

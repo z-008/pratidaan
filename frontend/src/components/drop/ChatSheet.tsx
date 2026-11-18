@@ -7,7 +7,7 @@
  * and a stopped Goal has Start again.
  */
 import { useEffect, useRef, useState } from 'react';
-import { api, type DropGoal, type DropView } from '../../api';
+import { api, type DropGoal, type DropView, type WbWeekPlan } from '../../api';
 import type { Screen } from '../../App';
 import { Icon } from '../../ui';
 import Copilot, { type ChatOpener } from '../Copilot';
@@ -48,6 +48,9 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
   sheet.open = open;
 
   const reload = () => api.drop(donorId).then(setView).catch(() => {});
+  // The Week plan, for Simplify my plan and a Habit's subtitle (null until the Donor has one)
+  const [plan, setPlan] = useState<WbWeekPlan | null>(null);
+  useEffect(() => { if (chat) api.wellbeing(donorId).then((w) => setPlan(w.weekPlan)).catch(() => setPlan(null)); }, [chat, donorId, view]);
   const changed = () => window.dispatchEvent(new CustomEvent('drop:changed'));
 
   function show(id: ChatId, kind: ChatOpener['kind'], text?: string, questions?: string[], rules: Record<string, string> = {}) {
@@ -164,7 +167,7 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
 
   const name = goal ? goal.name : habit || (chat === 'past' ? 'Past Cycles' : 'General');
   const sub = goal ? `Your Goal · ${STATE[goal.state]}${goal.state === 'upnext' && goal.startsWhen ? `, starts when ${goal.startsWhen} is done` : ''}`
-    : habit ? 'Habit · no Week plan yet' : chat === 'past' ? 'Earlier Cycles · read-only' : 'Chat · this Cycle';
+    : habit ? (plan?.items.some((i) => i.habit === habit.toLowerCase() && !i.setAside) ? `Habit · Week plan until ${plan.endsText}` : 'Habit · no Week plan yet') : chat === 'past' ? 'Earlier Cycles · read-only' : 'Chat · this Cycle';
 
   const openGoal = (g: DropGoal) => show(`goal:${g.id}`, g.state === 'done' || g.state === 'stopped' ? 'say' : 'open', g.chat.text, g.chat.questions, g.chat.answers);
   const openHabit = (h: string) => { const o = habitOpener(h); show(`habit:${o.habit}`, 'open', o.text, o.questions); };
@@ -181,6 +184,24 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
       seq.current += 1;
       // Drop confirms in one line, in the Goal's own Chat
       if (now) { setAnswers(now.chat.answers || {}); setOpener({ id: seq.current, kind: 'say', text: line(now) }); }
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  /** Simplify my plan (CONTEXT.md): one item kept and made smaller, the rest set aside until brought back. */
+  async function simplify() {
+    setMenu(false);
+    setError(null);
+    try {
+      const r = await api.wbSimplify(donorId);
+      setPlan(r.summary.weekPlan);
+      setView(r.drop);
+      changed();
+      window.dispatchEvent(new CustomEvent('wellbeing:changed'));
+      const kept = r.summary.weekPlan?.items.find((i) => !i.setAside);
+      seq.current += 1;
+      setOpener({ id: seq.current, kind: 'say', text: `Done. This week it's just "${kept?.text || 'one thing'}", and the rest is set aside until you bring it back (My health, This week).` });
     } catch (e) {
       setError((e as Error).message);
     }
@@ -208,7 +229,9 @@ export default function ChatSheet({ accountKey, donorId, go, clientId, screen }:
             <button className="icon-btn" aria-label="More" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu(!menu)}><Icon name="dots" size={20} stroke={3} /></button>
             {menu && (
               <div className="sheet-menu" role="menu">
-                <button role="menuitem" disabled>Simplify my plan<small>Comes with Week plans</small></button>
+                {plan && plan.items.some((i) => !i.setAside)
+                  ? <button role="menuitem" onClick={simplify}>Simplify my plan<small>Keep one thing, smaller; set the rest aside</small></button>
+                  : <button role="menuitem" disabled>Simplify my plan<small>Comes with Week plans</small></button>}
                 {live && <button role="menuitem" onClick={addReading}>Add a reading</button>}
                 {!readOnly && <button role="menuitem" onClick={() => { setMenu(false); show(chat, 'checkup'); }}>Book a check-up</button>}
                 {live && (urgent

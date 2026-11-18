@@ -1,0 +1,24 @@
+{
+  "_note": "Which daily signals move which marker, for Progress ('alongside', never 'because') and for each Cycle's focus targets.",
+  "focus": {
+    "iron": { "label": "Iron", "markers": ["hb", "ferritin"], "signals": ["iron_mg", "food_habit"], "targets": [
+      { "signal": "food_habit", "perWeek": 5, "text": "Iron add-on with a meal, 5 days a week", "habit": "food" } ], "source": "WHO / ICMR-NIN: iron-rich food with vitamin C" },
+    "bp": { "label": "Blood pressure", "markers": ["bp"], "signals": ["steps", "active_min", "sleep_min"], "targets": [
+      { "signal": "active_min", "perWeek": 150, "text": "150 active minutes a week", "habit": "movement" },
+      { "signal": "sleep_min", "perNight": 420, "text": "7 hours' sleep on 5 nights", "habit": "mind" } ], "source": "ACC/AHA 2017: 150 minutes a week lowers BP by 5–7 mmHg" },
+    "sugar": { "label": "Blood sugar", "markers": ["hba1c"], "signals": ["steps", "active_min"], "targets": [
+      { "signal": "active_min", "perWeek": 150, "text": "150 active minutes a week, with a walk after meals", "habit": "movement" } ], "source": "ICMR guidelines for type 2 diabetes" },
+    "lipids": { "label": "Cholesterol", "markers": ["ldl", "tg"], "signals": ["active_min", "steps"], "targets": [
+      { "signal": "active_min", "perWeek": 150, "text": "150 active minutes a week", "habit": "movement" } ], "source": "NCEP ATP III lifestyle changes" }
+  },
+  "signals": {
+    "steps": { "label": "Steps a day", "unit": "steps", "agg": "mean" },
+    "active_min": { "label": "Active minutes a week", "unit": "min", "agg": "weekSum" },
+    "sleep_min": { "label": "Sleep a night", "unit": "h", "agg": "mean", "scale": 60 },
+    "rhr_bpm": { "label": "Resting heart rate", "unit": "bpm", "agg": "mean" },
+    "iron_mg": { "label": "Iron from food a day", "unit": "mg", "agg": "mean" },
+    "water_ml": { "label": "Water a day", "unit": "L", "agg": "mean", "scale": 1000 },
+    "food_habit": { "label": "Iron add-on days a week", "unit": "days", "agg": "weekSum" },
+    "habit_done": { "label": "Habit days a week", "unit": "days", "agg": "weekSum" }
+  }
+}

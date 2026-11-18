@@ -52,3 +52,19 @@ export async function microsoftGraphToken(clientId: string) {
   if (!result.accessToken) throw new Error('Microsoft Calendar was not connected');
   return result.accessToken;
 }
+
+/** Microsoft To Do (Connected apps): its own consent, separate from Calendar, so Calendar's scopes never change. */
+export async function microsoftTodoToken(clientId: string) {
+  const app = await readyApp(clientId, configuredAuthority);
+  const account: AccountInfo | undefined = app.getAllAccounts()[0];
+  const request = { scopes: ['User.Read', 'Tasks.ReadWrite'], ...(account ? { account } : {}) };
+  if (account) {
+    try {
+      const silent = await app.acquireTokenSilent(request);
+      if (silent.accessToken) return silent.accessToken;
+    } catch { /* interactive consent below */ }
+  }
+  const result = await app.acquireTokenPopup({ ...request, prompt: account ? undefined : 'select_account' });
+  if (!result.accessToken) throw new Error('Microsoft To Do was not connected');
+  return result.accessToken;
+}
