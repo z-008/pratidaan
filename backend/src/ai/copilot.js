@@ -355,7 +355,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
     }
   }
   // Between donations: what to improve or eat, the apps' week, readiness, why. One model call on rule-checked facts
-  const between = wellbeingTools.direct(donorId, chatKey, message);
+  const between = wellbeingTools.direct(donorId, chatKey, message, prior);
   if (between) {
     const finishBetween = async (reply, hist, byRules) => {
       const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, []));

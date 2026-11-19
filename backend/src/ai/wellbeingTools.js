@@ -55,14 +55,16 @@ const MARKER_OF = (m) => (/vitamin d\b|\bsun\b/.test(m) ? 'vitd' : /\bb12\b/.tes
  * Returns null for anything else (the agent with tools takes those). The model only writes the words: the
  * facts, the foods and the doctor lines come from the rules, and the reply is checked after.
  */
-function direct(donorId, chat, message) {
+function direct(donorId, chat, message, history = []) {
   const m = String(message || '').toLowerCase();
+  // A follow-up ("what else can I do?") stays on the result the conversation is about
+  const earlier = history.filter((t) => t.role === 'user' && typeof t.content === 'string').slice(-3).map((t) => t.content.toLowerCase()).reverse();
   const st = wellbeing.state(donorId);
   if (!wellbeing.signals.active(st) && !wellbeing.improvements.plan(st)) return null;
   const plan = wellbeing.improvements.plan(st);
   const language = LANGUAGE_NAMES[st.language] || 'English';
-  const marker = MARKER_OF(m);
-  const base = `You are Drop, the assistant in Pratidaan, an app for voluntary blood donors in India. Write in ${language}. Answer in two or three short, warm, practical sentences, using ONLY the FACTS below (from the donor's results and connected apps; prices are approximate). Never name a medicine, tablet, capsule or supplement, never say food replaces treatment, and don't give doctor advice yourself: the app adds it. Don't use headings or lists.`;
+  const marker = MARKER_OF(m) || earlier.map(MARKER_OF).find(Boolean) || null;
+  const base = `You are Drop, the assistant in Pratidaan, an app for voluntary blood donors in India. Write in ${language}. Answer in two or three short, warm, practical sentences, using ONLY the FACTS below (from the donor's results and connected apps; prices are approximate). Never name a medicine, tablet, capsule or supplement, never say food replaces treatment, and never mention doctors or seeing a doctor at all: the app adds that line itself. Don't use headings or lists.`;
   const tool = (name, input = {}) => run(name, input, donorId);
   if (/\bwhy\b/.test(m) && /\b(food|foods|suggest|plan|these|habit)/.test(m)) {
     const e = wellbeing.coaching.explanationFor(st, 'plan');
@@ -78,9 +80,10 @@ function direct(donorId, chat, message) {
   if (!planAsk || !plan || /\b(plan my week|week plan|plan (for|this) (the )?week|add .*to my week)\b/.test(m)) return null;
   const facts = tool('get_health_plan');
   if (marker && plan.needs.some((n) => n.marker === marker)) facts.askedAbout = wellbeing.improvements.LABELS[marker];
+  if (wellbeing.signals.goals(st).some((g) => g.state === 'active' && g.severity === 'urgent')) facts.urgent = 'Their blood pressure is very high: suggest no exercise, walking, jogging or sport at all, not even later or with a doctor\'s permission; food and sleep only.';
   return {
     feature: 'copilot_plan',
-    system: `${base} They asked about what to eat, which habits, or how to improve their results${facts.askedAbout ? `, in particular ${facts.askedAbout}: focus on that result` : ''}. Suggest at most three foods and one or two habits from the FACTS, say which result each helps, and how to fit it into their day. If they say they don't eat something, pick others from the FACTS and suggest they update How you eat on Progress.`,
+    system: `${base} They asked about what to eat, which habits, or how to improve their results${facts.askedAbout ? `, in particular ${facts.askedAbout}: focus on that result` : ''}. Suggest at most three foods and one or two habits from the FACTS (foodsThatHelpMost, or the foods listed under each result), say which result each helps, and how to fit it into their day. Only if they say they don't eat something, pick others from the FACTS and mention they can update How you eat on Progress.${facts.urgent ? ` ${facts.urgent}` : ''}`,
     facts,
     check: (r) => foodGuard.checkPlan(st, r, { marker: facts.askedAbout ? marker : null }).reply,
     rules: () => fallback(donorId, m, chat)?.reply || foodGuard.planReply(st),

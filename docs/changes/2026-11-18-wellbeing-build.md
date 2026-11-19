@@ -266,3 +266,8 @@ AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com AZURE_OPENAI_DEPLOYMEN
   - The last four turns go with each call, for follow-ups.
 - **Agent tool list trimmed** to the 7 tools that still matter there (2,267 tokens with the existing ones, down from 2,704).
 - **Cost:** a vitamin D question is now one call of about 1,300 tokens.
+- **Second live test on Azure:** five questions across four personas, all answered by the model at about 1,650 tokens each. It showed four slips, now caught by the checks after the model (and replayed in `drop-ai.test.js`):
+  - The model's own sentences about doctors are dropped, so only the rules' doctor line appears, once.
+  - Any exercise suggestion with an urgent Goal (Vikram) is replaced by the rule wording.
+  - A follow-up stays on the result the conversation is about.
+  - Any food the rules would suggest for one of the donor's results is accepted, not only the top three.

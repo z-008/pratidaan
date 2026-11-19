@@ -70,12 +70,29 @@ function checkPlan(st, reply, { marker } = {}) {
   if (!p) return { reply, replaced: false };
   const label = marker ? require('../domain/improvements').LABELS[marker] : null;
   const doctors = label ? p.doctors.filter((d) => d.labels.includes(label)) : p.doctors.slice(0, 2);
-  const allowed = new Set([...p.foods.map((f) => f.id), ...p.needs.flatMap((n) => n.foods.map((f) => f.id)), 'lemon', 'tomato', 'amla', 'guava']);
+  // Any food the rules would suggest for one of their results (the full lists, not only the top three) is fine
+  const allowed = new Set([...p.foods.map((f) => f.id), ...p.needs.flatMap((n) => n.foods.map((f) => f.id)),
+    ...p.needs.filter((n) => ['iron', 'b12', 'vitd', 'bp', 'sugar', 'lipids'].includes(n.marker)).flatMap((n) => foodCoach.suggest(st, n.marker).foods.map((f) => f.id)),
+    ...(p.keep ? foodCoach.suggest(st, 'iron').foods.map((f) => f.id) : []), 'lemon', 'tomato', 'amla', 'guava']);
   const stray = mentioned(reply).filter((id) => !allowed.has(id));
-  const reason = MEDICINE.test(reply) ? 'medicine' : stray.length ? `food not chosen by the rules: ${stray.join(', ')}` : null;
-  let out = reason ? (label ? needReply(st, marker) : planReply(st)) : reply;
+  // With an urgent Goal there is no exercise at all, not even "after checking with a doctor"
+  const urgent = require('../domain/signals').goals(st).some((g) => g.state === 'active' && g.severity === 'urgent');
+  const moves = urgent && EXERCISE.test(reply);
+  const reason = MEDICINE.test(reply) ? 'medicine' : stray.length ? `food not chosen by the rules: ${stray.join(', ')}` : moves ? 'exercise with an urgent Goal' : null;
+  // The doctor's words are the rules' own: the model's sentences about doctors are dropped, then the rule lines added once
+  let out = withoutDoctorTalk(reason ? (label ? needReply(st, marker) : planReply(st)) : reply);
   for (const d of doctors) if (!out.includes(d.text)) out = `${out.trim()} ${d.text}`;
   return { reply: out, replaced: Boolean(reason), reason };
+}
+
+const EXERCISE = /\b(walk|walking|walks|jog|jogging|run|running|exercise|workout|gym|cycling|yoga|stairs|sport)\b|सैर|टहल|दौड़|व्यायाम|ಓಟ|ನಡಿಗೆ|ಜಾಗಿಂಗ್|நடை|ஓட்ட|உடற்பயிற்சி/i;
+const DOCTOR_TALK = /doctor|clinician|physician|app will add|डॉक्टर|चिकित्सक|ವೈದ್ಯ|மருத்துவ|వైద్య|ഡോക്ടർ/i;
+
+/** A reply without its own sentences about seeing a doctor (the rules add theirs). */
+function withoutDoctorTalk(text) {
+  const parts = String(text).split(/(?<=[.!?।])\s+/);
+  const kept = parts.map((p) => p.replace(/\s*\([^)]*app will add[^)]*\)/i, '')).filter((p) => !DOCTOR_TALK.test(p));
+  return (kept.length ? kept : parts).join(' ').replace(/[;,]\s*$/, '.').trim();
 }
 
 function numbersIn(text) { return (String(text).match(/\d+(?:\.\d+)?/g) || []).map(Number); }
@@ -99,4 +116,4 @@ function check(st, reply, { marker = 'iron' } = {}) {
   return { reply: out, replaced: Boolean(reason), reason };
 }
 
-module.exports = { check, checkPlan, ruleReply, planReply, needReply, whyReply, mentioned };
+module.exports = { check, checkPlan, ruleReply, planReply, needReply, whyReply, mentioned, withoutDoctorTalk };

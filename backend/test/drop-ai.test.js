@@ -178,3 +178,21 @@ test('with the model unavailable, the rules answer the same questions for every 
     store.resetDemo();
   }
 });
+
+test('live-model slips are caught: its own doctor sentences, exercise with an urgent Goal, a follow-up keeps its result', async () => {
+  // The model writes its own doctor line (and a note about the app): only the rules' line remains, once
+  const dup = await ask('D-175', 'How can I raise my vitamin D?', { say: () => 'Walk in the morning sun and use +F oil. कारण जानने के लिए 3 हफ्ते के भीतर डॉक्टर से मिलें।' });
+  assert.equal((dup.reply.match(/डॉक्टर/g) || []).length, 1, dup.reply);
+  // Vikram's BP is urgent: any exercise, even "after checking with your clinician", is replaced by the rule wording
+  const v = await ask('D-017', 'Can I start jogging to bring my BP down?', { say: () => 'Try light jogging after checking with your clinician (the app will add that advice), and sleep 7 hours.' });
+  assert.ok(!/jogging|walking|app will add/i.test(v.reply), v.reply);
+  assert.match(v.reply, /Please see a doctor today/);
+  // A follow-up with no result named stays on vitamin D (its doctor line only)
+  const history = [{ role: 'user', content: 'How can I raise my vitamin D?' }, { role: 'assistant', content: dup.reply }];
+  const next = await ask('D-175', "I don't eat much dairy. What else can I do?", { history });
+  assert.match(next.calls[0].system, /in particular Vitamin D/);
+  assert.ok(!next.reply.includes('कम क्यों है'), 'not the iron and B12 doctor line');
+  // Meera's model names a vegetarian iron food outside the top three: kept, not replaced
+  const meera = await ask('D-002', 'Cheap breakfast ideas for my iron?', { chat: 'habit:food', say: () => 'Ragi dosa with a squeeze of lemon makes a cheap iron-rich breakfast.' });
+  assert.match(meera.reply, /Ragi dosa/);
+});
