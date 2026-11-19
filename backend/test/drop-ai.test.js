@@ -16,7 +16,8 @@ const improvements = require('../src/domain/improvements');
 const drop = require('../src/domain/drop');
 
 const original = llm.call;
-test.afterEach(() => { llm.call = original; store.resetDemo(); });
+const originalAvailable = llm.available;
+test.afterEach(() => { llm.call = original; llm.available = originalAvailable; store.resetDemo(); });
 const user = { sub: 'test-drop-ai', name: 'Guest' };
 const PERSONAS = { 'D-001': 'Arjun', 'D-002': 'Meera', 'D-003': 'Ananya', 'D-017': 'Vikram', 'D-050': 'Karthik', 'D-033': 'Rohan', 'D-175': 'Asha' };
 
@@ -45,6 +46,8 @@ function standIn(say, calls) {
       return { stop_reason: 'end_turn', content: [{ type: 'text', text: say(JSON.parse(r.content), r.name, question) }] };
     }
     const q = typeof last.content === 'string' ? last.content : '';
+    // One-call answers: no tools, the rule-checked FACTS are in the system prompt
+    if (!req.tools && /\nFACTS: /.test(req.system)) return { stop_reason: 'end_turn', content: [{ type: 'text', text: say(JSON.parse(req.system.split('\nFACTS: ')[1]), req.feature, q) }] };
     const t = toolFor(q);
     if (t && req.tools.some((d) => d.name === t.name)) return { stop_reason: 'tool_use', content: [{ type: 'tool_use', id: `${t.name}:0`, name: t.name, input: t.input }] };
     return { stop_reason: 'end_turn', content: [{ type: 'text', text: 'Happy to help with that.' }] };
@@ -53,6 +56,10 @@ function standIn(say, calls) {
 
 /** A faithful answer: the plan's own foods and habits, and the result each helps. */
 const faithful = (r, tool, question = '') => {
+  if (tool === 'copilot_plan') return r.plan === null ? r.note : `Try ${r.foodsThatHelpMost.slice(0, 2).map((f) => `${f.name} (helps ${f.helps.join(' and ').toLowerCase()})`).join(' and ')}, and ${r.habitsThatHelpMost[0].habit.toLowerCase()}.`;
+  if (tool === 'copilot_apps') return `This week: ${r.habits.filter((h) => !/sleep/i.test(question) || h.habit === 'mind').flatMap((h) => h.measured).slice(0, 2).join('; ')}.`;
+  if (tool === 'copilot_readiness') return `Before your next donation: ${r.checklist.slice(0, 2).join('; ')}.`;
+  if (tool === 'copilot_plan_why') return `Because: ${r.reasons.slice(0, 2).join('; ')}.`;
   if (tool === 'get_health_plan') return r.plan === null ? r.note : `${r.headline} Try ${r.foodsThatHelpMost.slice(0, 2).map((f) => `${f.name} (helps ${f.helps.join(' and ').toLowerCase()})`).join(' and ')}, and ${r.habitsThatHelpMost[0].habit.toLowerCase()}.`;
   if (tool === 'get_habits_from_apps') return `This week: ${r.habits.filter((h) => !/sleep/i.test(question) || h.habit === 'mind').flatMap((h) => h.measured).slice(0, 2).join('; ')}.`;
   if (tool === 'get_readiness') return `Before your next donation: ${r.checklist.slice(0, 2).join('; ')}.`;
@@ -64,28 +71,34 @@ const faithful = (r, tool, question = '') => {
 
 async function ask(donorId, message, { chat = 'general', history = [], say = faithful, calls = [] } = {}) {
   llm.call = standIn(say, calls);
+  llm.available = () => true; // as on Azure with the model configured
   const r = await copilot.chat({ user, donorId, history, message, userName: PERSONAS[donorId], chat });
   return { ...r, calls };
 }
 
-test('every Chat offers Drop the between-donation tools, and its context carries the plan from the results', async () => {
+test('questions for the agent: every Chat offers the between-donation tools, and its context carries the plan from the results', async () => {
   for (const chat of ['general', 'habit:food', 'habit:movement', 'habit:mind']) {
-    const { calls } = await ask('D-175', 'What should I improve in my health?', { chat });
+    store.resetDemo();
+    const { calls } = await ask('D-175', 'Can you plan my week for walking?', { chat });
     const names = calls[0].tools.map((t) => t.name);
     for (const t of ['get_health_plan', 'get_habits_from_apps', 'get_readiness', 'find_foods', 'offer_week_plan']) assert.ok(names.includes(t), `${chat}: ${t}`);
+    assert.ok(!names.includes('get_food_profile') && !names.includes('get_signal_summary'), 'the agent list stays short');
     assert.match(calls[0].system, /From their results: Your results ask for: vitamin D/);
     assert.match(calls[0].system, /Their apps, last 7 days/);
     assert.ok(!/saving a Week plan .* is coming soon/.test(calls[0].system), 'no more "coming soon"');
   }
 });
 
-test('"What should I improve?" is answered by the model from the plan, for every Persona, with every doctor line added', async () => {
+test('"What should I improve?" is answered by the model in one call from the plan, for every Persona, with the doctor lines added', async () => {
   for (const id of Object.keys(PERSONAS)) {
     const r = await ask(id, 'What should I improve in my health?');
-    assert.ok(r.steps.some((s) => s.tool === 'get_health_plan'), `${id} used the plan`);
+    assert.equal(r.calls.length, 1, `${id}: one model call`);
+    assert.equal(r.calls[0].feature, 'copilot_plan');
+    assert.ok(!r.calls[0].tools, `${id}: no tool list sent`);
     assert.ok(!r.offline, `${id} answered by the model`);
     const plan = improvements.plan(drop._state(id));
-    for (const d of plan.doctors) assert.ok(r.reply.includes(d.text), `${id}: doctor line "${d.text}"`);
+    for (const d of plan.doctors.slice(0, 2)) assert.ok(r.reply.includes(d.text), `${id}: doctor line "${d.text}"`);
+    assert.ok(plan.foods.slice(0, 2).every((f) => r.reply.includes(f.name)), `${id}: the plan's foods`);
     assert.ok(!/tablet|supplement|capsule/i.test(r.reply), `${id}: no medicine`);
   }
 });
@@ -102,11 +115,11 @@ test("the model can't slip in a medicine or a food the rules didn't choose: the 
 test('multi-turn: the follow-up keeps the conversation and gets its own tool', async () => {
   const calls = [];
   const first = await ask('D-001', 'How did I sleep this week?', { calls });
-  assert.ok(first.steps.some((s) => s.tool === 'get_habits_from_apps'));
+  assert.equal(calls[0].feature, 'copilot_apps');
   assert.match(first.reply, /Sleep/);
   const history = [{ role: 'user', content: 'How did I sleep this week?' }, { role: 'assistant', content: first.reply }];
   const second = await ask('D-001', 'What habits should I build to improve that?', { history, calls });
-  assert.ok(second.steps.some((s) => s.tool === 'get_health_plan'));
+  assert.equal(calls[calls.length - 1].feature, 'copilot_plan');
   const lastCall = calls[calls.length - 1];
   assert.ok(lastCall.messages.some((m) => m.role === 'assistant' && /Sleep/.test(typeof m.content === 'string' ? m.content : JSON.stringify(m.content))), 'the first answer is in the history');
   assert.match(second.reply, /See a doctor within 3 weeks/);
@@ -125,10 +138,21 @@ test('a Week plan asked for in any Chat opens a Card the Donor taps to save', as
 
 test('readiness, apps and the Cycle report are answered from their tools', async () => {
   const ready = await ask('D-003', 'Am I ready for my next donation?');
-  assert.ok(ready.steps.some((s) => s.tool === 'get_readiness'));
+  assert.equal(ready.calls[0].feature, 'copilot_readiness');
   assert.match(ready.reply, /Haemoglobin/);
   const report = await ask('D-001', 'Show my cycle report compared with last time');
   assert.ok(report.steps.some((s) => s.tool === 'get_cycle_report'));
+});
+
+test("a question about one result gets that result's foods and only its doctor line; a follow-up about diet stays in the plan", async () => {
+  const vd = await ask('D-175', 'How can I raise my vitamin D?');
+  assert.match(vd.calls[0].system, /in particular Vitamin D/);
+  assert.match(vd.reply, /3 हफ़्तों/, 'vitamin D: see a doctor within 3 weeks (in Hindi)');
+  assert.ok(!vd.reply.includes('कम क्यों है'), 'not the other results\' doctor lines');
+  const history = [{ role: 'user', content: 'How can I raise my vitamin D?' }, { role: 'assistant', content: vd.reply }];
+  const next = await ask('D-175', "I don't eat much dairy. What else can I do?", { history });
+  assert.equal(next.calls[0].feature, 'copilot_plan');
+  assert.ok(next.calls[0].messages.length >= 3, 'the conversation so far goes with it');
 });
 
 test('Vikram (urgent BP): the plan says see a doctor today and suggests no exercise', async () => {
@@ -139,6 +163,7 @@ test('Vikram (urgent BP): the plan says see a doctor today and suggests no exerc
 
 test('with the model unavailable, the rules answer the same questions for every Persona', async () => {
   llm.call = async () => { throw new llm.LLMUnavailable('offline'); };
+  llm.available = () => false;
   for (const id of Object.keys(PERSONAS)) {
     for (const [chat, q, expect] of [
       ['general', 'What should I improve in my health?', /results/i],

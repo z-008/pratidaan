@@ -354,6 +354,34 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
       return finishResults(grounded.reply, prior);
     }
   }
+  // Between donations: what to improve or eat, the apps' week, readiness, why. One model call on rule-checked facts
+  const between = wellbeingTools.direct(donorId, chatKey, message);
+  if (between) {
+    const finishBetween = async (reply, hist, byRules) => {
+      const ui = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, []));
+      await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: reply, history: hist, actions: ui });
+      agentPlatform.appendEvent(sessionId, { role: 'user', text: message }).catch(() => {});
+      agentPlatform.appendEvent(sessionId, { role: 'assistant', text: reply }).catch(() => {});
+      return { reply, steps: [], actions: ui, history: hist, ...(byRules ? { answeredByRules: true, offline: true, reason: llm.status().reason || 'AI unavailable' } : {}) };
+    };
+    if (llm.available(1500)) {
+      try {
+        const recent = prior.filter((t) => typeof t.content === 'string').slice(-4);
+        const response = await llm.call({
+          feature: between.feature,
+          system: `${between.system}\nFACTS: ${JSON.stringify(between.facts)}`,
+          messages: [...recent, { role: 'user', content: message }],
+          maxTokens: 400,
+          effort: 'minimal',
+          guardrailKind: 'chat',
+        });
+        const said = guardrails.sanitizeReply(llm.text(response)).reply;
+        if (said && !isNote(said)) return finishBetween(between.check(said), [...recent, { role: 'user', content: message }, { role: 'assistant', content: between.check(said) }], false);
+      } catch { /* rules below */ }
+    }
+    const rule = between.rules();
+    if (rule) return finishBetween(rule, prior, true);
+  }
   const run = (sys, toolNames) => runAgent({ feature: 'copilot', system: sys, messages, donorId, toolNames, maxTokens: 2000, maxSteps: 5, effort: 'low' });
   let result;
   try {

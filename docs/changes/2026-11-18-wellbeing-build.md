@@ -257,3 +257,12 @@ AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com AZURE_OPENAI_DEPLOYMEN
 - **Guard in `drop.js`:** its hooks into the between-donation features are wrapped (`coachingSafe`), so a fault there, such as a missing data file, is logged and Drop's existing Cards carry on. Checked with a production-mode package without `data/nutrition`: every persona's Drop view still worked.
 - **Microsoft To Do permission:** `scripts/deploy-azure.sh` adds `Tasks.ReadWrite` to the app registration, looked up by name from Microsoft Graph.
 - **AI limits:** `LLM_RATE_LIMIT_TOKENS_PER_DAY` and `LLM_MAX_CALLS_PER_DAY` in `infra/main.bicep` to be raised for the review period (Sandeep). Round 3 adds about 1,500 tokens to each model call.
+
+**Drop on Azure (19 Nov 2026, after the first live test).**
+- **What the live model showed:** asked "How can I raise my vitamin D?", it picked the general care-level and check-up tools, wrote no answer, and used about 7,000 tokens in 3 calls.
+- **Change: one call, no tools.** Questions about what to improve, what to eat, habits, the apps' week, readiness and "why" are now answered in one model call on rule-checked facts. This is the same pattern Drop already uses for impact, BP and results.
+  - The facts and the foods come from the rules; the model writes the answer in the donor's language.
+  - The plan check adds the doctor line for the result asked about (or the two most important).
+  - The last four turns go with each call, for follow-ups.
+- **Agent tool list trimmed** to the 7 tools that still matter there (2,267 tokens with the existing ones, down from 2,704).
+- **Cost:** a vitamin D question is now one call of about 1,300 tokens.

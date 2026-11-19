@@ -52,11 +52,13 @@ test('Add to my week turns the plan into Week plan items (food add-on, movement,
   assert.ok(p.items.find((i) => i.habit === 'movement').text.match(/sun/));
 });
 
-test("Drop's answers built on the plan: only its foods, no medicines, every doctor line added; offline, the rules answer", () => {
+test("Drop's answers built on the plan: only its foods, no medicines, the doctor lines added; offline, the rules answer", () => {
   const st = drop._state('D-175');
   const ok = foodGuard.checkPlan(st, 'Try eggs for breakfast and a sun walk.');
   assert.equal(ok.replaced, false);
-  for (const d of plan('D-175').doctors) assert.ok(ok.reply.includes(d.text));
+  for (const d of plan('D-175').doctors.slice(0, 2)) assert.ok(ok.reply.includes(d.text));
+  const vd = foodGuard.checkPlan(st, 'Eggs and a sun walk.', { marker: 'vitd' });
+  assert.equal(vd.reply.split('डॉक्टर').length - 1, 1, 'only the vitamin D doctor line');
   assert.equal(foodGuard.checkPlan(st, 'Take a vitamin D sachet.').replaced, true);
   assert.equal(foodGuard.checkPlan(st, 'Chicken liver will fix it.').replaced, true);
   const offline = wellbeingTools.fallback('D-175', 'what should i improve?');

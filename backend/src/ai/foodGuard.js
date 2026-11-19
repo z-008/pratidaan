@@ -65,14 +65,16 @@ function whyReply(st) {
 }
 
 /** A model answer built from get_health_plan: only the plan's foods, no medicines, and every doctor line it carries. */
-function checkPlan(st, reply) {
+function checkPlan(st, reply, { marker } = {}) {
   const p = require('../domain/improvements').plan(st);
   if (!p) return { reply, replaced: false };
+  const label = marker ? require('../domain/improvements').LABELS[marker] : null;
+  const doctors = label ? p.doctors.filter((d) => d.labels.includes(label)) : p.doctors.slice(0, 2);
   const allowed = new Set([...p.foods.map((f) => f.id), ...p.needs.flatMap((n) => n.foods.map((f) => f.id)), 'lemon', 'tomato', 'amla', 'guava']);
   const stray = mentioned(reply).filter((id) => !allowed.has(id));
   const reason = MEDICINE.test(reply) ? 'medicine' : stray.length ? `food not chosen by the rules: ${stray.join(', ')}` : null;
-  let out = reason ? planReply(st) : reply;
-  for (const d of p.doctors) if (!out.includes(d.text)) out = `${out.trim()} ${d.text}`;
+  let out = reason ? (label ? needReply(st, marker) : planReply(st)) : reply;
+  for (const d of doctors) if (!out.includes(d.text)) out = `${out.trim()} ${d.text}`;
   return { reply: out, replaced: Boolean(reason), reason };
 }
 

@@ -36,9 +36,55 @@ const NAMES = DEFINITIONS.map((d) => d.name);
 const habitOf = (chat) => (String(chat).startsWith('habit:') ? String(chat).slice(6) : null);
 const isGoal = (chat) => String(chat).startsWith('goal:');
 
+// The tools the agent gets for between-donation questions that the direct answers below don't cover
+// (each tool definition is sent with every model call, so the list stays short)
+const AGENT_TOOLS = ['get_health_plan', 'get_habits_from_apps', 'get_readiness', 'get_cycle_report', 'find_foods', 'offer_week_plan', 'explain_recommendation'];
+
 /** Every Chat gets the between-donation tools, so Drop answers questions about them with the model (rules only when it is offline). */
 function namesFor() {
-  return NAMES;
+  return AGENT_TOOLS;
+}
+
+const LANGUAGE_NAMES = { en: 'English', hi: 'Hindi', kn: 'Kannada', ta: 'Tamil', te: 'Telugu', ml: 'Malayalam' };
+const MARKER_OF = (m) => (/vitamin d\b|\bsun\b/.test(m) ? 'vitd' : /\bb12\b/.test(m) ? 'b12' : /\b(iron|haemoglobin|hemoglobin|anaemi|anemi|ferritin)\b/.test(m) ? 'iron'
+  : /\b(bp|blood pressure|salt)\b/.test(m) ? 'bp' : /\b(sugar|hba1c|diabet)/.test(m) ? 'sugar' : /\b(cholesterol|ldl|triglycer)/.test(m) ? 'lipids' : /\b(weight|bmi)\b/.test(m) ? 'weight' : null);
+
+/**
+ * Between-donation questions Drop answers in one model call from rule-checked facts (like its impact, BP and
+ * results answers): what to improve, what to eat or which habits, the week from the apps, readiness, and why.
+ * Returns null for anything else (the agent with tools takes those). The model only writes the words: the
+ * facts, the foods and the doctor lines come from the rules, and the reply is checked after.
+ */
+function direct(donorId, chat, message) {
+  const m = String(message || '').toLowerCase();
+  const st = wellbeing.state(donorId);
+  if (!wellbeing.signals.active(st) && !wellbeing.improvements.plan(st)) return null;
+  const plan = wellbeing.improvements.plan(st);
+  const language = LANGUAGE_NAMES[st.language] || 'English';
+  const marker = MARKER_OF(m);
+  const base = `You are Drop, the assistant in Pratidaan, an app for voluntary blood donors in India. Write in ${language}. Answer in two or three short, warm, practical sentences, using ONLY the FACTS below (from the donor's results and connected apps; prices are approximate). Never name a medicine, tablet, capsule or supplement, never say food replaces treatment, and don't give doctor advice yourself: the app adds it. Don't use headings or lists.`;
+  const tool = (name, input = {}) => run(name, input, donorId);
+  if (/\bwhy\b/.test(m) && /\b(food|foods|suggest|plan|these|habit)/.test(m)) {
+    const e = wellbeing.coaching.explanationFor(st, 'plan');
+    return { feature: 'copilot_plan_why', system: `${base} They asked why Drop suggests these foods and habits: explain from the reasons.`, facts: { reasons: e.dataUsed.map((d) => d.text), rule: e.rule.text, theirChoices: e.preferences, wouldChange: e.wouldChange }, check: (r) => r, rules: () => foodGuard.whyReply(st) };
+  }
+  if (/\b(ready|prepare|prep)\b/.test(m) && /donat/.test(m)) {
+    return { feature: 'copilot_readiness', system: `${base} They asked if they are ready for their next donation: go through the checklist briefly, say what is good and what to work on, and that the blood centre decides on the day.`, facts: tool('get_readiness'), check: (r) => r, rules: () => fallback(donorId, m, chat)?.reply };
+  }
+  if (/\b(sleep|slept|steps|active|walked|walking|my apps|fitbit|oura|watch|water)\b/.test(m) && !/\b(eat|food|plan my week|week plan)\b/.test(m)) {
+    return { feature: 'copilot_apps', system: `${base} They asked about their week from their apps: give the numbers they asked about against the healthy target, and one small next step if one is below target.`, facts: tool('get_habits_from_apps'), check: (r) => r, rules: () => fallback(donorId, m, chat)?.reply };
+  }
+  const planAsk = /\b(improve|healthier|work on|what should i (eat|do|change)|habits?|vitamin|b12|deficien|eat|food|foods|diet|breakfast|lunch|dinner|snack|what else|instead|don'?t eat|dairy|eggs?|vegetarian|cost|how much|cheap|raise|lower|increase|bring (it|my))/.test(m);
+  if (!planAsk || !plan || /\b(plan my week|week plan|plan (for|this) (the )?week|add .*to my week)\b/.test(m)) return null;
+  const facts = tool('get_health_plan');
+  if (marker && plan.needs.some((n) => n.marker === marker)) facts.askedAbout = wellbeing.improvements.LABELS[marker];
+  return {
+    feature: 'copilot_plan',
+    system: `${base} They asked about what to eat, which habits, or how to improve their results${facts.askedAbout ? `, in particular ${facts.askedAbout}: focus on that result` : ''}. Suggest at most three foods and one or two habits from the FACTS, say which result each helps, and how to fit it into their day. If they say they don't eat something, pick others from the FACTS and suggest they update How you eat on Progress.`,
+    facts,
+    check: (r) => foodGuard.checkPlan(st, r, { marker: facts.askedAbout ? marker : null }).reply,
+    rules: () => fallback(donorId, m, chat)?.reply || foodGuard.planReply(st),
+  };
 }
 
 const handles = (name) => NAMES.includes(name);
@@ -208,4 +254,4 @@ function fallback(donorId, m, chat = 'general') {
   return null;
 }
 
-module.exports = { DEFINITIONS, NAMES, namesFor, handles, run, chatLine, context, afterReply, fallback };
+module.exports = { DEFINITIONS, NAMES, AGENT_TOOLS, namesFor, handles, run, chatLine, context, afterReply, fallback, direct };
