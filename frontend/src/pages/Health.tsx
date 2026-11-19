@@ -12,6 +12,7 @@ import { habitOpener, openChat } from '../components/drop/chat';
 import BpReading from '../components/drop/BpReading';
 import { PlanShelf, PlanWeek, kept } from '../components/wellbeing/WeekPlan';
 import FoodPanel from '../components/wellbeing/FoodPanel';
+import HealthPlan from '../components/wellbeing/HealthPlan';
 import { MARKER_FOCUS } from '../components/wellbeing/wellbeing';
 import type { WbSummary } from '../api';
 import './health.css';
@@ -119,6 +120,8 @@ export default function Health({ donorId, go, version, refresh, focus }: PagePro
       </div>
       <DropLine donorId={donorId} screen="health" version={version} />
       <button className="wb-link small" style={{ alignSelf: 'flex-start', justifySelf: 'start', textAlign: 'left' }} onClick={() => go('progress')}>See your progress between donations, and connect the apps you already use →</button>
+
+      {wb?.plan && <HealthPlan donorId={donorId} plan={wb.plan} compact onOpen={() => { try { sessionStorage.setItem('pratidaan.progress.focus', 'plan'); } catch { /* tab only */ } go('progress'); }} />}
 
       <div ref={planRef} className="stack">
         {measured ? <PlanShelf habits={wb!.habits} plan={wb!.weekPlan} onPlan={(h) => planHabit(h.charAt(0).toUpperCase() + h.slice(1))} /> : <HabitShelf />}

@@ -1,0 +1,17 @@
+{
+  "_note": "Everyday habits that help each result, besides food (CONTEXT.md: Habit). Rules pick them from the Donor's results; the AI may only word them. habit: movement | food | mind. measuredBy: the app signal that shows whether it is kept, when there is one. PROPOSED, pending clinical review.",
+  "habits": [
+    { "id": "H-VITC-PAIR", "for": ["iron"], "habit": "food", "text": "Something sour with your iron-rich meal (lemon, amla, guava or tomato)", "perWeek": 7, "measuredBy": "you", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "H-TEA-GAP", "for": ["iron"], "habit": "food", "text": "Tea and coffee an hour away from meals", "perWeek": 7, "measuredBy": "you", "source": "WHO" },
+    { "id": "H-KADAI", "for": ["iron"], "habit": "food", "text": "Cook dal or sabzi in an iron kadai", "perWeek": 3, "measuredBy": "you", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "H-SUN-WALK", "for": ["vitd"], "habit": "movement", "text": "A 15–20 minute walk in mid-morning sun, arms uncovered", "perWeek": 5, "minutes": 15, "measuredBy": "you", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "H-DAIRY", "for": ["b12"], "habit": "food", "text": "Curd, milk or paneer once a day", "perWeek": 7, "measuredBy": "you", "source": "ICMR-NIN 2020", "diets": ["veg", "egg", "nonveg", "jain"] },
+    { "id": "H-BRISK", "for": ["bp", "sugar", "lipids", "weight", "hdl"], "habit": "movement", "text": "A 30-minute brisk walk", "perWeek": 5, "minutes": 30, "measuredBy": "active_min", "source": "WHO 2020; ACC/AHA 2017: 150 minutes a week lowers BP by 5–7 mmHg" },
+    { "id": "H-AFTER-MEAL", "for": ["sugar"], "habit": "movement", "text": "A 10-minute walk after your biggest meal", "perWeek": 5, "minutes": 10, "measuredBy": "active_min", "source": "ICMR guidelines for type 2 diabetes" },
+    { "id": "H-SALT", "for": ["bp"], "habit": "food", "text": "No pickle, papad or namkeen on most days; less salt in cooking", "perWeek": 6, "measuredBy": "you", "source": "ICMR / ACC-AHA 2017: sodium under 2,300 mg a day" },
+    { "id": "H-PLATE", "for": ["sugar", "weight"], "habit": "food", "text": "Half the plate dal and vegetables first, then rice or roti", "perWeek": 7, "measuredBy": "you", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "H-OIL", "for": ["lipids", "weight"], "habit": "food", "text": "Measure cooking oil (about 4 teaspoons a day); fried snacks once a week", "perWeek": 7, "measuredBy": "you", "source": "ICMR-NIN Dietary Guidelines 2024" },
+    { "id": "H-SLEEP", "for": ["bp", "sugar", "weight"], "habit": "mind", "text": "7 hours' sleep with the same wake-up time", "perWeek": 5, "minutes": 420, "measuredBy": "sleep_min", "source": "AASM / CDC: short sleep raises BP and blood sugar" },
+    { "id": "H-NO-ALCOHOL", "for": ["liver", "lipids"], "habit": "food", "text": "No alcohol, and fewer fried and sugary foods", "perWeek": 7, "measuredBy": "you", "source": "General medical advice for a raised liver enzyme" }
+  ]
+}

@@ -250,6 +250,38 @@
       "source": "donation_sample",
       "labId": "LAB-01",
       "availableOn": "2026-10-11"
+    },
+    {
+      "donorId": "D-175",
+      "visitId": null,
+      "date": "2026-09-28",
+      "source": "uploaded_report",
+      "labId": null,
+      "lab": "City Diagnostics (outside lab report)",
+      "id": "OBS-D-175-EXT-vitd",
+      "code": "1989-3",
+      "key": "vitd",
+      "name": "Vitamin D",
+      "value": 16,
+      "unit": "ng/mL",
+      "low": 30,
+      "high": 100
+    },
+    {
+      "donorId": "D-175",
+      "visitId": null,
+      "date": "2026-09-28",
+      "source": "uploaded_report",
+      "labId": null,
+      "lab": "City Diagnostics (outside lab report)",
+      "id": "OBS-D-175-EXT-b12",
+      "code": "2132-9",
+      "key": "b12",
+      "name": "Vitamin B12",
+      "value": 260,
+      "unit": "pg/mL",
+      "low": 200,
+      "high": 900
     }
   ],
   "components": [

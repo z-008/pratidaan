@@ -60,6 +60,8 @@ router.get('/live/todo/completed', act((donorId, req) => msTodo.completed(token(
 router.get('/food-profile', act((donorId) => ({ profile: foodCoach.profile(state(donorId)), fields: foodCoach.FIELDS })));
 router.put('/food-profile', act((donorId, req) => { foodCoach.setProfile(state(donorId), req.body || {}); drop._log(donorId, 'Food profile saved (chosen by you; never shared).'); return withViews(donorId); }));
 router.delete('/food-profile', act((donorId) => { foodCoach.clearProfile(state(donorId)); return withViews(donorId); }));
+router.get('/plan', act((donorId) => wellbeing.improvements.plan(state(donorId))));
+router.post('/plan/add-to-week', act((donorId) => { wellbeing.addPlanToWeek(donorId); return withViews(donorId); }));
 router.get('/foods', act((donorId, req) => foodCoach.suggest(state(donorId), String(req.query.marker || 'iron'), { maxCost: Number(req.query.maxCost) || undefined })));
 
 /* Week plans and Your day */

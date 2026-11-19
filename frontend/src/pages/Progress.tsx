@@ -14,7 +14,8 @@ import StoryViewer from '../components/drop/StoryViewer';
 import BandBar from '../components/wellbeing/BandBar';
 import FoodPanel from '../components/wellbeing/FoodPanel';
 import FoodProfileSheet from '../components/wellbeing/FoodProfileSheet';
-import { BUDGETS, DIETS, FOCUS_MARKER, HABITS, MARKER_FOCUS, REGIONS, SIGNAL_NAMES, STATUS_PILL, dayLabel, openWhy, takeFocus, wellbeingChanged } from '../components/wellbeing/wellbeing';
+import HealthPlan from '../components/wellbeing/HealthPlan';
+import { BUDGETS, DIETS, FOCUS_MARKER, HABITS, REGIONS, SIGNAL_NAMES, STATUS_PILL, dayLabel, openWhy, takeFocus, wellbeingChanged } from '../components/wellbeing/wellbeing';
 import '../components/wellbeing/wellbeing.css';
 
 const PHASES = ['Recover', 'Build', 'Get ready', 'Ready to donate'];
@@ -38,7 +39,11 @@ export default function Progress({ donorId, go, version }: PageProps) {
     return () => { window.removeEventListener('wellbeing:changed', bump); window.removeEventListener('drop:changed', bump); };
   }, []);
   // A Card's "See foods" opens the marker it was about
-  useEffect(() => { const f = takeFocus(); if (f) setOpen(FOCUS_MARKER[f] || f); }, []);
+  useEffect(() => {
+    const f = takeFocus();
+    if (f === 'plan') setTimeout(() => document.getElementById('health-plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+    else if (f) setOpen(FOCUS_MARKER[f] || f);
+  }, []);
 
   if (loading && !data) return <Loading />;
   if (error || !data) return <ErrorNote error={error || 'Could not load'} />;
@@ -63,15 +68,13 @@ export default function Progress({ donorId, go, version }: PageProps) {
 
   const watch = (visitId: string) => api.wbReport(donorId, visitId).then(setStory).catch(() => {});
   const focusMarker = data.focus ? FOCUS_MARKER[data.focus.key] : null;
-  const foodFor = data.careLevels.find((l) => ['low_normal', 'below', 'doctor_first', 'urgent'].includes(l.level) && ['iron', 'b12', 'vitd'].includes(l.marker))
-    || data.careLevels.find((l) => l.marker === data.focus?.key);
 
   return (
     <div className="stack fade-in wb">
       {head}
       <CycleCard data={data} />
       {data.readiness && data.readiness.items.length > 0 && <ReadyCard data={data} />}
-      {foodFor && <FoodCard donorId={donorId} marker={foodFor.marker} version={tick} />}
+      {data.plan && <HealthPlan donorId={donorId} plan={data.plan} />}
 
       <section className="card">
         <div className="row between wrap" style={{ marginBottom: 8 }}>
@@ -85,7 +88,7 @@ export default function Progress({ donorId, go, version }: PageProps) {
           {data.bands.map((b) => (
             <div key={b.marker}>
               <BandRow row={b} focus={b.marker === focusMarker} open={open === b.marker} onToggle={() => setOpen(open === b.marker ? null : b.marker)} />
-              {open === b.marker && <MarkerDetail donorId={donorId} marker={b.marker} version={tick} hideFood={Boolean(foodFor && MARKER_FOCUS[b.marker] === foodFor.marker)} />}
+              {open === b.marker && <MarkerDetail donorId={donorId} marker={b.marker} version={tick} hideFood={false} />}
             </div>
           ))}
         </div>
@@ -244,11 +247,6 @@ function HistoryChart({ data }: { data: WbMarker }) {
   );
 }
 
-function FoodCard({ donorId, marker, version }: { donorId: string; marker: string; version: number }) {
-  const { data } = useLoad(() => api.wbFoods(donorId, marker), [donorId, marker, version]);
-  if (!data) return null;
-  return <section className="card"><FoodPanel donorId={donorId} food={data} /></section>;
-}
 
 /** Before the next donation: what the results and the apps say about feeling well on the day (never a rule). */
 function ReadyCard({ data }: { data: WbSummary }) {

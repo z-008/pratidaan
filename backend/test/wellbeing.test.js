@@ -69,9 +69,9 @@ test('the AI food check: stray foods, medicines and numbers fall back to the rul
   assert.equal(foodGuard.check(st, 'Eat 45 grams of bajra.').replaced, true, 'a number no rule gave');
 });
 
-test('existing Chats keep their tools; Habit and Goal Chats get the new ones', () => {
+test('the existing tool list is unchanged; every Chat also gets the between-donation tools', () => {
   assert.ok(!tools.definitions().some((d) => d.name === 'find_foods'), 'the default list is unchanged');
-  assert.deepEqual(wellbeingTools.namesFor('general'), ['get_cycle', 'get_bands']);
+  for (const t of ['get_health_plan', 'get_habits_from_apps', 'get_readiness', 'find_foods', 'offer_week_plan']) assert.ok(wellbeingTools.namesFor('general').includes(t), t);
   assert.ok(wellbeingTools.namesFor('habit:food').includes('find_foods'));
   assert.ok(tools.definitions(['find_foods']).length === 1);
   assert.ok(tools.run('find_foods', { marker: 'iron' }, 'D-175').foods.length);

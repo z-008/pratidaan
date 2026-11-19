@@ -25,6 +25,10 @@ const DEFINITIONS = [
   { name: 'get_food_profile', description: 'How the donor eats: diet, region, staple, where they eat, budget, allergies and fasting days (as labels).', input_schema: obj({}) },
   { name: 'get_care_level', description: 'For one marker, whether food coaching leads or a doctor comes first, with the doctor advice that must go with it.', input_schema: obj({ marker: { type: 'string', enum: MARKERS } }, ['marker']) },
   { name: 'find_foods', description: 'Local, affordable foods that fit the donor\'s Food profile for one marker, chosen by rules, with amounts, price per day, how to fit each in and pairing tips. Mention only these foods.', input_schema: obj({ marker: { type: 'string', enum: MARKERS }, maxCost: { type: 'number' } }, ['marker']) },
+  { name: 'get_health_plan', description: 'What the donor\'s results ask of them: every result that needs improving (iron, vitamin D, B12, BP, blood sugar, cholesterol, weight, liver) with its level, the foods and everyday habits that help, the combined list that helps most at once, how each habit is going from their apps, and the doctor advice that must go with it. Use for "what should I improve", "what should I eat", "what habits", "how do I get healthier".', input_schema: obj({}) },
+  { name: 'get_habits_from_apps', description: 'This week from the donor\'s connected apps, per Habit (Movement, Food, Mind), against healthy targets (active minutes, steps, sleep, resting heart rate, iron from food, water), and for each Goal what changed since it started. Aggregates only.', input_schema: obj({}) },
+  { name: 'get_readiness', description: 'Before their next donation: a checklist from their last results and apps (Hb, BP, recent sleep, water, iron, resting heart rate). A checklist only: the blood centre decides on the day.', input_schema: obj({}) },
+  { name: 'get_cycle_report', description: 'The Cycle report for their latest donation (what changed in their results since the donation before, with what their apps recorded alongside).', input_schema: obj({}) },
   { name: 'explain_recommendation', description: 'The rules\' explanation for a food suggestion (id "food:<marker>") or a Card (id "card:<cardId>").', input_schema: obj({ id: { type: 'string' } }, ['id']) },
 ];
 const NAMES = DEFINITIONS.map((d) => d.name);
@@ -32,10 +36,9 @@ const NAMES = DEFINITIONS.map((d) => d.name);
 const habitOf = (chat) => (String(chat).startsWith('habit:') ? String(chat).slice(6) : null);
 const isGoal = (chat) => String(chat).startsWith('goal:');
 
-/** The extra tools a Chat gets. */
-function namesFor(chat) {
-  if (habitOf(chat) || isGoal(chat)) return NAMES;
-  return ['get_cycle', 'get_bands'];
+/** Every Chat gets the between-donation tools, so Drop answers questions about them with the model (rules only when it is offline). */
+function namesFor() {
+  return NAMES;
 }
 
 const handles = (name) => NAMES.includes(name);
@@ -80,6 +83,35 @@ function run(name, input, donorId) {
       if (s.rulesOnly) return { rulesOnly: true, say: s.text };
       return { foods: s.foods.map((f) => ({ name: f.name, english: f.nameEn, serving: f.serving, amount: f.amount, rupeesPerDay: `${f.cost.min}–${f.cost.max}`, fitIn: f.fitIn, pairWith: f.pairWith })), tips: s.tips.map((t) => t.text), limit: s.limit, leftOut: s.safety, dailyNeed: s.target?.text || null, doctorAdvice: s.doctor?.text || null };
     }
+    case 'get_health_plan': {
+      const p = wellbeing.improvements.plan(st);
+      if (!p) return { plan: null, note: 'No results yet: their first donation includes a free health check' };
+      return {
+        headline: p.headline,
+        results: p.needs.map((n) => ({ result: n.label, level: n.levelWords, why: n.rule, evidence: n.evidence, foods: n.foods.map((f) => f.name), habits: n.habits.map((h) => h.text) })),
+        foodsThatHelpMost: p.foods.map((f) => ({ name: f.name, english: f.nameEn, helps: f.helps, rupeesPerDay: `${f.cost.min}–${f.cost.max}`, fitIn: f.fitIn })),
+        habitsThatHelpMost: p.habits.map((h) => ({ habit: h.text, helps: h.helps, fromApps: h.status ? `${h.status.text} (${h.status.state === 'on' ? 'on target' : 'not yet on target'}, ${h.status.app})` : null })),
+        doctorAdvice: p.doctors.map((d) => `${d.labels.join(', ')}: ${d.text}`),
+        diet: wellbeing.foodCoach.DIET_WORDS[p.profile.diet],
+        note: 'Mention only these foods and habits. The app adds the doctor advice itself.',
+      };
+    }
+    case 'get_habits_from_apps': {
+      const s = wellbeing.summary(donorId);
+      return {
+        habits: s.habits.map((h) => ({ habit: h.habit, measured: h.metrics.map((m) => `${m.label}: ${m.value}${m.target ? ` (healthy: ${m.target}; ${m.state === 'on' ? 'on target' : m.state === 'drift' ? 'nearly' : 'below target'})` : ''} from ${m.app}`), weekPlan: h.items.map((i) => `${i.text}: ${i.week.keptDays} of ${i.perWeek} days`), notConnected: h.hint })),
+        goals: s.goalSignals.filter((g) => g.text).map((g) => g.text),
+        connectedApps: s.connections.map((c) => `${c.label}${c.mode === 'demo' ? ' (demo)' : ''}`),
+      };
+    }
+    case 'get_readiness': {
+      const r = wellbeing.habits.readiness(st);
+      return r ? { canDonateFrom: r.eligibleNow ? 'now' : r.from, checklist: r.items.map((i) => `${i.text}: ${i.state === 'on' ? 'good' : 'not yet'} (${i.source})`), lookingGood: `${r.done} of ${r.total}`, note: r.note } : { note: 'No results yet' };
+    }
+    case 'get_cycle_report': {
+      const latest = wellbeing.cycle.reports(st)[0];
+      return latest ? { report: wellbeing.cycle.report(st, latest.visitId).slides } : { report: null, note: 'Their first Cycle report comes with their next donation\'s results' };
+    }
     case 'explain_recommendation': {
       const e = wellbeing.coaching.explanationFor(st, input.id);
       return { rule: e.rule, dataUsed: e.dataUsed.map((d) => d.text), guidance: e.guidance.map((g) => `${g.text} (${g.source})`), preferences: e.preferences, wouldChange: e.wouldChange };
@@ -91,13 +123,11 @@ function run(name, input, donorId) {
 /** Replaces the "saving a Week plan is coming" line in Habit and Goal Chats, now that Week plans exist. */
 function chatLine(donorId, chat) {
   const habit = habitOf(chat);
-  if (!habit && !isGoal(chat)) return null;
   const goal = isGoal(chat) ? drop.goals(donorId).find((g) => `goal:${g.id}` === chat) : null;
-  const where = goal ? `the Chat about their Goal "${goal.name}"` : `the Chat about their ${habit.charAt(0).toUpperCase()}${habit.slice(1)} Habit`;
-  const food = habit === 'food' || (goal && /haemoglobin|iron|BP|sugar|cholesterol/i.test(goal.name))
-    ? ' For food questions call find_foods and suggest only foods it returns, in their words (local names), with the price and how to fit each in; never name a medicine, tablet or supplement, never say food replaces treatment, and do not add doctor advice yourself (the app adds it). If find_foods says rulesOnly, say exactly what it says.'
-    : '';
-  return `\nThis conversation is ${where}. If they ask for a plan for the week, call offer_week_plan${habit ? ` with habit "${habit}"` : ''}: it opens a Card they tap to save (and can add to their habit app). Never claim you saved or scheduled anything yourself.${food}`;
+  const where = goal ? `the Chat about their Goal "${goal.name}"` : habit ? `the Chat about their ${habit.charAt(0).toUpperCase()}${habit.slice(1)} Habit` : 'their General Chat';
+  const food = ' For what to eat or which habits to build, call get_health_plan (all their results) or find_foods (one result) and suggest only the foods and habits they return, in the donor\'s words (local names), with the price and how to fit each in, and say which result each helps. Never name a medicine, tablet or supplement, never say food replaces treatment, and do not write doctor advice yourself: the app adds it. If a result is "See a doctor first" or find_foods says rulesOnly, say only what it says.';
+  const apps = ' For their activity, sleep, food or water this week call get_habits_from_apps; before a donation, get_readiness; for their latest results compared with the donation before, get_cycle_report. Quote numbers only from these tools.';
+  return `\nThis conversation is ${where}. If they ask for a plan for the week, call offer_week_plan${habit ? ` with habit "${habit}"` : ' with the Habit that fits (movement, food or mind)'}: it opens a Card they tap to save (and can add to their habit app). Never claim you saved or scheduled anything yourself.${food}${apps}`;
 }
 
 /** Between-donation facts for every Chat: aggregates and labels only, never raw logs (and none if the Donor turned it off). */
@@ -113,6 +143,8 @@ function context(donorId, chat) {
   const week = wellbeing.habits.weekLine(st);
   if (week) lines.push(`Their apps, last 7 days: ${week}. You may mention these when relevant; they never change the score, eligibility or cover.`);
   if (p) lines.push(`Week plan until ${p.endsOn}: ${p.items.map((i) => `${i.text} (kept ${i.week.keptDays} of ${i.perWeek} this week${i.setAside ? ', set aside' : ''})`).join('; ')}.`);
+  const plan = wellbeing.improvements.plan(st);
+  if (plan) lines.push(`From their results: ${plan.headline}`);
   if (habitOf(chat) === 'food') {
     const prof = wellbeing.foodCoach.profile(st);
     lines.push(`Food profile: ${wellbeing.foodCoach.DIET_WORDS[prof.diet]}, ${prof.region} Indian food, ${wellbeing.foodCoach.BUDGET_WORDS[prof.budget]}${prof.isDefault ? ' (not set yet)' : ''}.`);
@@ -123,21 +155,55 @@ function context(donorId, chat) {
 /** After the model: food answers are checked against the rules and always end with the doctor's line. */
 function afterReply({ donorId, chat, reply, steps = [], actions = [] }) {
   const usedFood = steps.some((s) => s.tool === 'find_foods');
-  if (habitOf(chat) !== 'food' && !usedFood) return { reply, actions };
-  return { reply: foodGuard.check(wellbeing.state(donorId), reply, { marker: (steps.find((s) => s.tool === 'find_foods')?.input?.marker) || 'iron' }).reply, actions };
+  const usedPlan = steps.some((s) => s.tool === 'get_health_plan');
+  if (habitOf(chat) !== 'food' && !usedFood && !usedPlan) return { reply, actions };
+  const st = wellbeing.state(donorId);
+  if (usedPlan && !usedFood) return { reply: foodGuard.checkPlan(st, reply).reply, actions };
+  return { reply: foodGuard.check(st, reply, { marker: (steps.find((s) => s.tool === 'find_foods')?.input?.marker) || 'iron' }).reply, actions };
 }
 
 /** Rule answers for food and plan questions when the AI is unavailable (checked after every existing rule answer). */
-function fallback(donorId, m) {
+function fallback(donorId, m, chat = 'general') {
   const st = wellbeing.state(donorId);
-  if (/\b(week plan|plan (for|this) (the )?week|plan my week)\b/.test(m)) {
-    const habit = /food|eat|diet/.test(m) ? 'food' : /sleep|mind|stress/.test(m) ? 'mind' : 'movement';
+  if (/\b(week plan|plan (for|this) (the )?week|plan my week|add (that|it|this|them)? ?to my week)\b/.test(m)) {
+    const habit = /food|eat|diet/.test(m) ? 'food' : /sleep|mind|stress/.test(m) ? 'mind' : /walk|move|active|exercise/.test(m) ? 'movement' : habitOf(chat) || 'movement';
     const r = wellbeing.offerWeekPlan(donorId, habit);
-    return { reply: 'Here is a plan for this week from your Goal. Tap Save to keep it.', actions: [{ type: 'card', cardId: r.cardId }] };
+    const fromGoal = wellbeing.signals.goals(st).some((g) => g.state === 'active');
+    return { reply: `Here is a plan for this week from your ${fromGoal ? 'Goal' : 'results'}. Tap Save to keep it.`, actions: [{ type: 'card', cardId: r.cardId }] };
+  }
+  const named = /vitamin d\b|\bsun\b/.test(m) ? 'vitd' : /\bb12\b/.test(m) ? 'b12' : /\b(iron|haemoglobin|hemoglobin|anaemi|anemi|ferritin)\b/.test(m) ? 'iron'
+    : /\b(bp|blood pressure)\b/.test(m) ? 'bp' : /\b(sugar|hba1c|diabet)/.test(m) ? 'sugar' : /\b(cholesterol|ldl|triglycer)/.test(m) ? 'lipids' : /\b(weight|bmi)\b/.test(m) ? 'weight' : null;
+  if (named && /\b(raise|improve|increase|lower|reduce|bring|eat|food|foods|habit|what else|help|fix|deficien|low|high)/.test(m)) {
+    return { reply: foodGuard.needReply(st, named), actions: [] };
+  }
+  if (/\bwhy\b/.test(m) && /\b(food|foods|suggest|plan|these|habit)/.test(m)) return { reply: foodGuard.whyReply(st), actions: [] };
+  if (/\b(don'?t|do not|can'?t|never) eat\b|\b(i'?m|i am) (vegetarian|vegan|jain)\b|\bno (eggs?|meat|fish|dairy)\b/.test(m)) {
+    return { reply: 'Tell Drop how you eat under Progress → How you eat (diet, budget, allergies) and every suggestion changes to fit. Nothing you choose there is shared.', actions: [{ type: 'navigate', screen: 'progress' }] };
+  }
+  if (/\b(cost|price|how much|rupees|afford|cheap)\b/.test(m)) {
+    const p = wellbeing.improvements.plan(st);
+    if (p && p.foods.length) {
+      const three = p.foods.slice(0, 3);
+      return { reply: `${three.map((f) => `${f.name}: ₹${f.cost.min}–${f.cost.max} a day`).join('; ')}. About ₹${three.reduce((a, f) => a + f.cost.min, 0)}–${three.reduce((a, f) => a + f.cost.max, 0)} a day for all three (approximate Bengaluru prices).`, actions: [] };
+    }
+  }
+  if (/\b(improve|healthier|work on|my plan|health plan|what should i (do|change)|habits?|deficien)/.test(m)) {
+    return { reply: foodGuard.planReply(st), actions: [{ type: 'navigate', screen: 'progress' }] };
+  }
+  if (/\b(sleep|slept|steps|active|walked|my week|my apps|fitbit|oura|watch|water)\b/.test(m)) {
+    const h = wellbeing.summary(donorId);
+    // The numbers the question is about: sleep → Mind, steps or walking → Movement, water or iron → Food
+    const want = /sleep|slept/.test(m) ? ['mind'] : /steps|active|walk/.test(m) ? ['movement'] : /water|iron/.test(m) ? ['food'] : ['movement', 'food', 'mind'];
+    const lines = h.habits.filter((x) => want.includes(x.habit)).flatMap((x) => x.metrics).map((x) => `${x.label}: ${x.value}${x.target ? ` (healthy: ${x.target})` : ''}`);
+    return { reply: lines.length ? `From your apps this week: ${lines.slice(0, 4).join('; ')}.` : 'No app shares this yet. You can connect your watch or food app under Connected apps.', actions: [] };
+  }
+  if (/\b(ready|prepare|get ready|before (my )?donat)/.test(m)) {
+    const r = wellbeing.habits.readiness(st);
+    if (r) return { reply: `Before your next donation: ${r.items.map((i) => `${i.text} (${i.state === 'on' ? 'good' : 'not yet'})`).join('; ')}. ${r.note}`, actions: [] };
   }
   if (/\b(eat|food|foods|diet|breakfast|lunch|dinner|snack|cheap|budget|khana|meal)\b/.test(m)) {
-    const marker = /\b(bp|blood pressure|salt)\b/.test(m) ? 'bp' : /\b(sugar|hba1c|diabet)/.test(m) ? 'sugar' : /cholesterol|ldl|fat/.test(m) ? 'lipids' : /b12/.test(m) ? 'b12' : 'iron';
-    return { reply: foodGuard.ruleReply(st, marker), actions: [] };
+    const marker = /\b(bp|blood pressure|salt)\b/.test(m) ? 'bp' : /\b(sugar|hba1c|diabet)/.test(m) ? 'sugar' : /cholesterol|ldl|fat/.test(m) ? 'lipids' : /b12/.test(m) ? 'b12' : /vitamin d|sun/.test(m) ? 'vitd' : /iron|haemoglobin|hemoglobin|anaemi|anemi/.test(m) ? 'iron' : null;
+    return { reply: marker ? foodGuard.ruleReply(st, marker) : foodGuard.planReply(st), actions: [] };
   }
   return null;
 }

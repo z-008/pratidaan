@@ -102,7 +102,7 @@ function create(donorId) {
   if (counted) { st.sentByDay[today] = counted; st.sentByWeek[weekStart(today)] = counted; }
   log(st, `Demo starts ${fmt(today)}.`);
   deliver(st);
-  coaching.deliver(st, hooks);
+  safeCoaching(st);
   return st;
 }
 
@@ -491,7 +491,7 @@ function label(c) {
     'impact:impact': 'Impact', 'slots:donate': 'Donation slots', 'slots:care': 'Check-up', 'checkin:bp': 'Check-in · BP goal',
     'checkin:hb': 'Check-in · Hb goal', 'checkin:visit': 'Check-in', 'reminder:setup': 'Reminder', 'reminder:due': `Reminder · ${time12(c.data?.time || '21:00')}`,
     'report:week': 'Weekly report', 'report:month': 'Monthly report',
-  }[`${c.type}:${c.variant}`] || coaching.label(c) || c.type;
+  }[`${c.type}:${c.variant}`] || coachingSafe(() => coaching.label(c), null) || c.type;
 }
 
 /** What a Card says and offers, from its data. */
@@ -598,7 +598,7 @@ function words(st, c) {
         chips: (d.waiting || []).map((w) => ({ label: `Still waiting: ${w.name}`, value: { pull: w.key } })),
       };
     default:
-      return coaching.words(st, c) || { text: c.receipt || '' };
+      return coachingSafe(() => coaching.words(st, c), null) || { text: c.receipt || '' };
   }
 }
 
@@ -1118,7 +1118,7 @@ store.onStep(() => {
     st.memReceipt = null;
     st.undo = null;
     deliver(st);
-    coaching.deliver(st, hooks);
+    safeCoaching(st);
   }
 });
 store.onReset(() => { states.clear(); seed = null; });
@@ -1134,6 +1134,20 @@ function nextEvent(donorId) {
   }
   return store.clock();
 }
+
+/**
+ * The between-donation features never take down Drop's existing Cards: if anything in them fails (a missing
+ * data file on a server, a bad record), Drop carries on as before and the error is logged.
+ */
+function coachingSafe(fn, fallback) {
+  try {
+    return fn();
+  } catch (error) {
+    console.error('Between-donation feature error (Drop carries on):', error.message);
+    return fallback;
+  }
+}
+function safeCoaching(st) { coachingSafe(() => coaching.deliver(st, hooks), null); }
 
 /** What the between-donation Cards (coaching.js) may use from here. */
 // Between-donation log lines go in their own list (st.wb.log), so they never push Drop's own lines out of its 40-line log;

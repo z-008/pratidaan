@@ -45,6 +45,7 @@ All AI runs through **Azure OpenAI** using the web app's managed identity. If Az
 |---|---|---|
 | **Drop's chat** | Home, and the **Ask Drop** side sheet on every other screen | An agent with 18 donor-scoped tools: reads results, trends, impact, cover and Circles; shows a chart; offers check-up slots or a reminder; saves a BP reading; remembers a schedule or language preference; switches language; opens a screen. It answers in English, Hindi, Kannada, Tamil, Telugu or Malayalam, in one or two sentences. In a Goal's Chat it follows that Goal's steps. |
 | **Lab-report reader** | My health → Add an outside lab report; Meera's Check-in | Reads a photo or text of a report from any lab, maps test names to 16 LOINC-coded markers and converts units. The output is schema-checked and range-checked, and the donor confirms before anything is saved. |
+| **Health between donations** | Every Chat, plus Progress | Drop answers questions about the plan from the donor's results (what to improve, foods and habits), their apps' week, readiness for the next donation, Week plans and Cycle reports with tools that read the rules. A check after the model keeps only the foods the rules chose, removes any medicine and adds every doctor line. Live check: `node backend/test/live/drop-conversations.js` |
 | **The Intro in your language** | New donor, Home | Translates the scripted Intro the first time each line is shown. A translation is kept only if every number and placeholder survives. |
 
 **Kept deterministic on purpose**, because these decide safety, money or privacy:

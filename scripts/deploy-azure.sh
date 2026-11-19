@@ -55,6 +55,9 @@ az ad app permission add --id "$APP_ID" --api "$GRAPH_ID" --api-permissions \
   e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope \
   1ec239c2-d7c9-4623-a91a-a9775856bb36=Scope \
   e383f46e-2787-4529-855e-0e479a3ffac0=Scope >/dev/null || true
+# Tasks.ReadWrite (Connected apps → Microsoft To Do), looked up by name so the ID is always Microsoft Graph's own
+TASKS_ID="$(az ad sp show --id "$GRAPH_ID" --query "oauth2PermissionScopes[?value=='Tasks.ReadWrite'].id | [0]" -o tsv 2>/dev/null || true)"
+[[ -n "$TASKS_ID" ]] && az ad app permission add --id "$APP_ID" --api "$GRAPH_ID" --api-permissions "$TASKS_ID=Scope" >/dev/null || true
 
 az group create --name "$AZURE_RESOURCE_GROUP" --location "$AZURE_LOCATION" >/dev/null
 SESSION_SECRET="$(openssl rand -hex 32)"
@@ -77,7 +80,7 @@ RELEASE_DIR="$(mktemp -d /tmp/pratidaan-azure-release.XXXXXX)"
 mkdir -p "$RELEASE_DIR/backend" "$RELEASE_DIR/frontend" "$RELEASE_DIR/data"
 cp -R backend/src backend/node_modules backend/package.json "$RELEASE_DIR/backend/"
 cp -R frontend/dist "$RELEASE_DIR/frontend/"
-cp -R data/synthetic data/ontology data/demo "$RELEASE_DIR/data/"
+cp -R data/synthetic data/ontology data/demo data/nutrition "$RELEASE_DIR/data/"
 (cd "$RELEASE_DIR" && zip -qr release.zip backend frontend data)
 
 az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$WEBAPP_NAME" \

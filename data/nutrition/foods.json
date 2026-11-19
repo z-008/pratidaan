@@ -1,42 +1,1482 @@
 {
-  "_note": "Indian foods for Drop's food coaching. Nutrients are per serving and APPROXIMATE, from published Indian food composition data (ICMR-NIN). Each value must be checked against IFCT 2017 (code and page) before release: 'verified' is false until then. Prices are curated ₹ ranges per serving (Bengaluru, Nov 2026), not quotes. Local names should be checked by a native speaker. kind: plant | dairy | egg | meat | fish. root: a root vegetable, onion or garlic (not Jain).",
-  "asOf": "2026-11",
-  "foods": [
-    { "id": "ragi", "en": "Ragi (finger millet)", "names": { "hi": "रागी (मंडुआ)", "kn": "ರಾಗಿ", "ta": "கேழ்வரகு" }, "group": "millet", "serving": "1 ragi roti or mudde (50 g flour)", "kind": "plant", "root": false, "fasting": false, "regions": ["south", "west"], "allergens": [], "per": { "iron": 2.0, "fibre": 5.6, "protein": 3.7 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [4, 6], "fitIn": { "south": "as ragi mudde or dosa for breakfast", "default": "as a ragi roti in place of one wheat roti" }, "pair": ["lemon", "tomato"], "verified": false },
-    { "id": "bajra", "en": "Bajra (pearl millet)", "names": { "hi": "बाजरा", "kn": "ಸಜ್ಜೆ", "ta": "கம்பு" }, "group": "millet", "serving": "1 bajra roti (50 g flour)", "kind": "plant", "root": false, "fasting": false, "regions": ["north", "west"], "allergens": [], "per": { "iron": 3.0, "fibre": 5.7, "protein": 5.8 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [3, 5], "fitIn": { "north": "as a bajra roti with your sabzi", "default": "as a bajra roti twice a week" }, "pair": ["lemon"], "verified": false },
-    { "id": "jowar", "en": "Jowar (sorghum)", "names": { "hi": "ज्वार", "kn": "ಜೋಳ", "ta": "சோளம்" }, "group": "millet", "serving": "1 jowar roti (50 g flour)", "kind": "plant", "root": false, "fasting": false, "regions": ["south", "west", "north"], "allergens": [], "per": { "iron": 2.0, "fibre": 5.0, "protein": 5.0 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [3, 5], "fitIn": { "south": "as jolada rotti with your palya", "default": "as a jowar roti in place of rice at dinner" }, "pair": ["tomato"], "verified": false },
-    { "id": "horsegram", "en": "Horse gram", "names": { "hi": "कुलथी", "kn": "ಹುರುಳಿ", "ta": "கொள்ளு" }, "group": "pulse", "serving": "1 katori cooked (30 g dry)", "kind": "plant", "root": false, "fasting": false, "regions": ["south"], "allergens": [], "per": { "iron": 2.1, "fibre": 1.6, "protein": 6.6 }, "goodFor": ["iron", "sugar"], "flags": {}, "cost": [3, 5], "fitIn": { "south": "as huruli saaru or kollu rasam", "default": "as a soup or sundal twice a week" }, "pair": ["lemon", "tomato"], "verified": false },
-    { "id": "rajma", "en": "Rajma (kidney beans)", "names": { "hi": "राजमा", "kn": "ರಾಜ್ಮಾ", "ta": "ராஜ்மா" }, "group": "pulse", "serving": "1 katori cooked (30 g dry)", "kind": "plant", "root": false, "fasting": false, "regions": ["north", "all"], "allergens": [], "per": { "iron": 1.5, "fibre": 4.5, "protein": 7.0, "potassium": 400 }, "goodFor": ["iron", "sugar", "lipids", "bp"], "flags": {}, "cost": [4, 6], "fitIn": { "north": "as rajma with rice or roti", "default": "as rajma once a week" }, "pair": ["tomato", "lemon"], "verified": false },
-    { "id": "kalachana", "en": "Kala chana (black chickpeas)", "names": { "hi": "काला चना", "kn": "ಕಪ್ಪು ಕಡಲೆ", "ta": "கருப்பு கொண்டைக்கடலை" }, "group": "pulse", "serving": "1 katori cooked (30 g dry)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 1.9, "fibre": 5.0, "protein": 5.8 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [3, 4], "fitIn": { "south": "as chana sundal for an evening snack", "default": "as a chana chaat with lemon" }, "pair": ["lemon", "tomato"], "verified": false },
-    { "id": "roastedchana", "en": "Roasted chana", "names": { "hi": "भुना चना", "kn": "ಹುರಿಗಡಲೆ", "ta": "பொட்டுக்கடலை" }, "group": "pulse", "serving": "1 handful (30 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 1.6, "fibre": 4.8, "protein": 6.0 }, "goodFor": ["iron", "sugar"], "flags": {}, "cost": [3, 5], "fitIn": { "default": "as your 4 pm snack instead of biscuits" }, "pair": ["amla"], "verified": false },
-    { "id": "sproutedmoong", "en": "Sprouted moong", "names": { "hi": "अंकुरित मूंग", "kn": "ಮೊಳಕೆ ಹೆಸರುಕಾಳು", "ta": "முளைகட்டிய பாசிப்பயறு" }, "group": "pulse", "serving": "1 katori (70 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 1.2, "vitc": 9, "fibre": 3.0, "protein": 5.0 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [4, 6], "fitIn": { "south": "as kosambari with lemon", "default": "as a sprout salad with lemon" }, "pair": ["lemon"], "verified": false },
-    { "id": "masoor", "en": "Masoor dal", "names": { "hi": "मसूर दाल", "kn": "ಮಸೂರ್ ಬೇಳೆ", "ta": "மசூர் பருப்பு" }, "group": "pulse", "serving": "1 katori cooked (30 g dry)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 2.0, "fibre": 3.0, "protein": 7.5 }, "goodFor": ["iron", "sugar"], "flags": {}, "cost": [3, 5], "fitIn": { "default": "as your daily dal, with tomato" }, "pair": ["tomato", "lemon"], "verified": false },
-    { "id": "drumstickleaves", "en": "Drumstick leaves (moringa)", "names": { "hi": "सहजन के पत्ते", "kn": "ನುಗ್ಗೆ ಸೊಪ್ಪು", "ta": "முருங்கைக் கீரை" }, "group": "greens", "serving": "1 katori cooked (50 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["south", "all"], "allergens": [], "per": { "iron": 1.5, "vitc": 100, "potassium": 170 }, "goodFor": ["iron", "bp"], "flags": {}, "cost": [3, 5], "fitIn": { "south": "in your sambar or as a palya, three days a week", "default": "stirred into your dal, three days a week" }, "pair": [], "verified": false },
-    { "id": "amaranth", "en": "Amaranth leaves (chaulai)", "names": { "hi": "चौलाई", "kn": "ದಂಟಿನ ಸೊಪ್ಪು", "ta": "முளைக்கீரை" }, "group": "greens", "serving": "1 katori cooked (75 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 2.0, "vitc": 60, "potassium": 300 }, "goodFor": ["iron", "bp"], "flags": {}, "cost": [4, 6], "fitIn": { "south": "as a soppu palya or in dal", "default": "as a sabzi with roti" }, "pair": ["lemon"], "verified": false },
-    { "id": "spinach", "en": "Spinach (palak)", "names": { "hi": "पालक", "kn": "ಪಾಲಕ್", "ta": "பசலைக் கீரை" }, "group": "greens", "serving": "1 katori cooked (75 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 1.3, "vitc": 20, "potassium": 400 }, "goodFor": ["iron", "bp"], "flags": {}, "cost": [4, 6], "fitIn": { "default": "as palak dal or palak sabzi" }, "pair": ["lemon", "tomato"], "verified": false },
-    { "id": "methi", "en": "Methi (fenugreek) leaves", "names": { "hi": "मेथी", "kn": "ಮೆಂತ್ಯ ಸೊಪ್ಪು", "ta": "வெந்தயக் கீரை" }, "group": "greens", "serving": "1 katori cooked (50 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 1.0, "fibre": 2.5 }, "goodFor": ["iron", "sugar", "lipids"], "flags": {}, "cost": [3, 5], "fitIn": { "default": "in a methi thepla or with dal" }, "pair": ["lemon"], "verified": false },
-    { "id": "gardencress", "en": "Garden cress seeds (halim)", "names": { "hi": "हलीम (चंसुर)", "kn": "ಅಳವೆ ಬೀಜ", "ta": "ஆளி விதை (அலிவ்)" }, "group": "seeds", "serving": "1 teaspoon soaked (5 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["west", "north", "south"], "allergens": [], "per": { "iron": 3.0 }, "goodFor": ["iron"], "flags": {}, "cost": [1, 2], "fitIn": { "default": "soaked in milk or lemon water, a few times a week" }, "pair": ["lemon"], "verified": false },
-    { "id": "sesame", "en": "Sesame (til)", "names": { "hi": "तिल", "kn": "ಎಳ್ಳು", "ta": "எள்" }, "group": "seeds", "serving": "1 tablespoon (10 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": ["sesame"], "per": { "iron": 0.9, "protein": 1.8 }, "goodFor": ["iron"], "flags": {}, "cost": [1, 2], "fitIn": { "south": "as ellu podi with rice or idli", "default": "sprinkled on sabzi or as til chutney" }, "pair": [], "verified": false },
-    { "id": "poha", "en": "Poha (flattened rice)", "names": { "hi": "पोहा", "kn": "ಅವಲಕ್ಕಿ", "ta": "அவல்" }, "group": "cereal", "serving": "1 plate (50 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 2.0, "fibre": 0.6 }, "goodFor": ["iron"], "flags": {}, "cost": [3, 5], "fitIn": { "default": "for breakfast, with peas and a squeeze of lemon" }, "pair": ["lemon"], "verified": false },
-    { "id": "rajgira", "en": "Rajgira (amaranth seed)", "names": { "hi": "राजगिरा", "kn": "ರಾಜಗಿರಿ", "ta": "ராஜ்கிரா" }, "group": "seeds", "serving": "1 rajgira laddoo or roti (30 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["north", "west", "all"], "allergens": [], "per": { "iron": 2.3, "protein": 4.0 }, "goodFor": ["iron"], "flags": {}, "cost": [5, 7], "fitIn": { "default": "as a rajgira roti or laddoo on fasting days" }, "pair": ["lemon"], "verified": false },
-    { "id": "peanuts", "en": "Peanuts", "names": { "hi": "मूंगफली", "kn": "ಕಡಲೆಕಾಯಿ", "ta": "வேர்க்கடலை" }, "group": "nuts", "serving": "1 handful (30 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": ["peanut"], "per": { "iron": 0.7, "protein": 7.5 }, "goodFor": ["lipids"], "flags": {}, "cost": [3, 5], "fitIn": { "default": "as a roasted handful instead of fried snacks" }, "pair": [], "verified": false },
-    { "id": "jaggery", "en": "Jaggery (gur)", "names": { "hi": "गुड़", "kn": "ಬೆಲ್ಲ", "ta": "வெல்லம்" }, "group": "sweet", "serving": "1 small piece (10 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "iron": 0.4, "sugar": 9.5 }, "goodFor": ["iron"], "flags": { "highSugar": true }, "cost": [1, 2], "fitIn": { "default": "a small piece after lunch, with lemon" }, "pair": ["lemon"], "verified": false },
-    { "id": "dates", "en": "Dates", "names": { "hi": "खजूर", "kn": "ಖರ್ಜೂರ", "ta": "பேரீச்சம்பழம்" }, "group": "sweet", "serving": "3 dates (25 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "iron": 0.3, "sugar": 16, "potassium": 170 }, "goodFor": ["iron"], "flags": { "highSugar": true }, "cost": [4, 6], "fitIn": { "default": "as a sweet in place of mithai" }, "pair": [], "verified": false },
-    { "id": "egg", "en": "Egg", "names": { "hi": "अंडा", "kn": "ಮೊಟ್ಟೆ", "ta": "முட்டை" }, "group": "egg", "serving": "1 egg", "kind": "egg", "root": false, "fasting": false, "regions": ["all"], "allergens": ["egg"], "per": { "iron": 0.9, "b12": 0.5, "vitd": 40, "protein": 6.3 }, "goodFor": ["iron", "b12", "vitd"], "flags": {}, "cost": [6, 8], "fitIn": { "default": "boiled, with breakfast" }, "pair": ["tomato"], "verified": false },
-    { "id": "chickenliver", "en": "Chicken liver", "names": { "hi": "चिकन कलेजी", "kn": "ಕೋಳಿ ಲಿವರ್", "ta": "கோழி ஈரல்" }, "group": "meat", "serving": "1 small katori (50 g)", "kind": "meat", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 4.5, "b12": 8.0, "protein": 8.5 }, "goodFor": ["iron", "b12"], "flags": {}, "cost": [10, 15], "fitIn": { "default": "as a liver fry once a week" }, "pair": ["lemon", "onion"], "verified": false },
-    { "id": "sardine", "en": "Sardine (mathi)", "names": { "hi": "सार्डिन मछली", "kn": "ಬೂತಾಯಿ ಮೀನು", "ta": "மத்தி மீன்" }, "group": "fish", "serving": "1 piece curry (75 g)", "kind": "fish", "root": false, "fasting": false, "regions": ["south", "west", "east"], "allergens": ["fish"], "per": { "iron": 1.8, "b12": 6.0, "vitd": 200, "protein": 15 }, "goodFor": ["iron", "b12", "vitd", "lipids"], "flags": {}, "cost": [10, 15], "fitIn": { "default": "as a fish curry once a week" }, "pair": ["lemon"], "verified": false },
-    { "id": "chicken", "en": "Chicken", "names": { "hi": "चिकन", "kn": "ಕೋಳಿ ಮಾಂಸ", "ta": "கோழி" }, "group": "meat", "serving": "1 katori curry (75 g)", "kind": "meat", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "iron": 0.8, "b12": 0.3, "protein": 18 }, "goodFor": ["iron"], "flags": {}, "cost": [15, 20], "fitIn": { "default": "grilled or as a home curry, with greens on the side" }, "pair": ["lemon"], "verified": false },
-    { "id": "curd", "en": "Curd", "names": { "hi": "दही", "kn": "ಮೊಸರು", "ta": "தயிர்" }, "group": "dairy", "serving": "1 katori (100 g)", "kind": "dairy", "root": false, "fasting": true, "regions": ["all"], "allergens": ["dairy"], "per": { "b12": 0.4, "protein": 3.1 }, "goodFor": ["b12"], "flags": {}, "cost": [5, 8], "fitIn": { "default": "with lunch, but not with your iron-rich meal" }, "pair": [], "verified": false },
-    { "id": "milk", "en": "Milk (fortified where available)", "names": { "hi": "दूध", "kn": "ಹಾಲು", "ta": "பால்" }, "group": "dairy", "serving": "1 glass (200 ml)", "kind": "dairy", "root": false, "fasting": true, "regions": ["all"], "allergens": ["dairy"], "per": { "b12": 0.9, "vitd": 80, "protein": 6.4 }, "goodFor": ["b12", "vitd"], "flags": {}, "cost": [8, 12], "fitIn": { "default": "a glass at bedtime, away from iron-rich meals" }, "pair": [], "verified": false },
-    { "id": "paneer", "en": "Paneer", "names": { "hi": "पनीर", "kn": "ಪನೀರ್", "ta": "பனீர்" }, "group": "dairy", "serving": "50 g", "kind": "dairy", "root": false, "fasting": true, "regions": ["north", "all"], "allergens": ["dairy"], "per": { "b12": 0.4, "protein": 9.0 }, "goodFor": ["b12"], "flags": {}, "cost": [15, 20], "fitIn": { "default": "in a sabzi or bhurji" }, "pair": [], "verified": false },
-    { "id": "amla", "en": "Amla (Indian gooseberry)", "names": { "hi": "आंवला", "kn": "ನೆಲ್ಲಿಕಾಯಿ", "ta": "நெல்லிக்காய்" }, "group": "fruit", "serving": "1 amla (30 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "vitc": 75 }, "goodFor": ["iron"], "flags": {}, "cost": [2, 4], "fitIn": { "default": "with your iron-rich meal, to help absorb the iron" }, "pair": [], "seasons": ["winter"], "verified": false },
-    { "id": "guava", "en": "Guava", "names": { "hi": "अमरूद", "kn": "ಸೀಬೆಹಣ್ಣು", "ta": "கொய்யா" }, "group": "fruit", "serving": "1 guava (100 g)", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "vitc": 200, "fibre": 5.0, "potassium": 400 }, "goodFor": ["iron", "bp", "sugar"], "flags": {}, "cost": [5, 8], "fitIn": { "default": "after lunch, to help absorb iron" }, "pair": [], "verified": false },
-    { "id": "lemon", "en": "Lemon", "names": { "hi": "नींबू", "kn": "ನಿಂಬೆಹಣ್ಣು", "ta": "எலுமிச்சை" }, "group": "fruit", "serving": "½ lemon squeezed", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "vitc": 15 }, "goodFor": [], "flags": {}, "cost": [2, 3], "fitIn": { "default": "squeezed over dal, greens or sprouts" }, "pair": [], "verified": false },
-    { "id": "tomato", "en": "Tomato", "names": { "hi": "टमाटर", "kn": "ಟೊಮೆಟೊ", "ta": "தக்காளி" }, "group": "vegetable", "serving": "1 tomato", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": [], "per": { "vitc": 15, "potassium": 240 }, "goodFor": [], "flags": {}, "cost": [2, 4], "fitIn": { "default": "cooked into dal or as a side salad" }, "pair": [], "verified": false },
-    { "id": "onion", "en": "Onion", "names": { "hi": "प्याज़", "kn": "ಈರುಳ್ಳಿ", "ta": "வெங்காயம்" }, "group": "vegetable", "serving": "½ onion", "kind": "plant", "root": true, "fasting": false, "regions": ["all"], "allergens": [], "per": { "vitc": 4 }, "goodFor": [], "flags": {}, "cost": [1, 3], "fitIn": { "default": "raw on the side" }, "pair": [], "verified": false },
-    { "id": "banana", "en": "Banana", "names": { "hi": "केला", "kn": "ಬಾಳೆಹಣ್ಣು", "ta": "வாழைப்பழம்" }, "group": "fruit", "serving": "1 banana", "kind": "plant", "root": false, "fasting": true, "regions": ["all"], "allergens": [], "per": { "potassium": 360, "sugar": 14 }, "goodFor": ["bp"], "flags": { "highPotassium": true }, "cost": [5, 8], "fitIn": { "default": "as a mid-morning snack instead of a packaged one" }, "pair": [], "verified": false },
-    { "id": "coconutwater", "en": "Tender coconut water", "names": { "hi": "नारियल पानी", "kn": "ಎಳನೀರು", "ta": "இளநீர்" }, "group": "drink", "serving": "1 glass (250 ml)", "kind": "plant", "root": false, "fasting": true, "regions": ["south", "all"], "allergens": [], "per": { "potassium": 500, "sugar": 6 }, "goodFor": ["bp"], "flags": { "highPotassium": true }, "cost": [40, 60], "fitIn": { "default": "in place of a soft drink" }, "pair": [], "verified": false },
-    { "id": "oats", "en": "Oats", "names": { "hi": "ओट्स", "kn": "ಓಟ್ಸ್", "ta": "ஓட்ஸ்" }, "group": "cereal", "serving": "1 bowl (40 g)", "kind": "plant", "root": false, "fasting": false, "regions": ["all"], "allergens": ["gluten"], "per": { "iron": 1.5, "fibre": 4.0 }, "goodFor": ["lipids", "sugar"], "flags": {}, "cost": [6, 8], "fitIn": { "default": "as a savoury oats upma for breakfast" }, "pair": ["tomato"], "verified": false },
-    { "id": "brownrice", "en": "Hand-pounded rice", "names": { "hi": "हाथ कुटा चावल", "kn": "ಕೈಕುಟ್ಟು ಅಕ್ಕಿ", "ta": "கைக்குத்தல் அரிசி" }, "group": "cereal", "serving": "1 cup cooked (in place of white rice)", "kind": "plant", "root": false, "fasting": false, "regions": ["south", "east", "all"], "allergens": [], "per": { "fibre": 2.5, "iron": 0.6 }, "goodFor": ["sugar"], "flags": {}, "cost": [4, 6], "fitIn": { "default": "in place of half your white rice" }, "pair": [], "verified": false }
-  ]
+ "_note": "Indian foods for Drop's food coaching. Nutrients are per serving and APPROXIMATE, from published Indian food composition data (ICMR-NIN). Each value must be checked against IFCT 2017 (code and page) before release: 'verified' is false until then. Prices are curated ₹ ranges per serving (Bengaluru, Nov 2026), not quotes. Local names should be checked by a native speaker. kind: plant | dairy | egg | meat | fish. root: a root vegetable, onion or garlic (not Jain).",
+ "asOf": "2026-11",
+ "foods": [
+  {
+   "id": "ragi",
+   "en": "Ragi (finger millet)",
+   "names": {
+    "hi": "रागी (मंडुआ)",
+    "kn": "ರಾಗಿ",
+    "ta": "கேழ்வரகு"
+   },
+   "group": "millet",
+   "serving": "1 ragi roti or mudde (50 g flour)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south",
+    "west"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.0,
+    "fibre": 5.6,
+    "protein": 3.7
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "south": "as ragi mudde or dosa for breakfast",
+    "default": "as a ragi roti in place of one wheat roti"
+   },
+   "pair": [
+    "lemon",
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "bajra",
+   "en": "Bajra (pearl millet)",
+   "names": {
+    "hi": "बाजरा",
+    "kn": "ಸಜ್ಜೆ",
+    "ta": "கம்பு"
+   },
+   "group": "millet",
+   "serving": "1 bajra roti (50 g flour)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "north",
+    "west"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 3.0,
+    "fibre": 5.7,
+    "protein": 5.8
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "north": "as a bajra roti with your sabzi",
+    "default": "as a bajra roti twice a week"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "jowar",
+   "en": "Jowar (sorghum)",
+   "names": {
+    "hi": "ज्वार",
+    "kn": "ಜೋಳ",
+    "ta": "சோளம்"
+   },
+   "group": "millet",
+   "serving": "1 jowar roti (50 g flour)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south",
+    "west",
+    "north"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.0,
+    "fibre": 5.0,
+    "protein": 5.0
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "south": "as jolada rotti with your palya",
+    "default": "as a jowar roti in place of rice at dinner"
+   },
+   "pair": [
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "horsegram",
+   "en": "Horse gram",
+   "names": {
+    "hi": "कुलथी",
+    "kn": "ಹುರುಳಿ",
+    "ta": "கொள்ளு"
+   },
+   "group": "pulse",
+   "serving": "1 katori cooked (30 g dry)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.1,
+    "fibre": 1.6,
+    "protein": 6.6
+   },
+   "goodFor": [
+    "iron",
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "south": "as huruli saaru or kollu rasam",
+    "default": "as a soup or sundal twice a week"
+   },
+   "pair": [
+    "lemon",
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "rajma",
+   "en": "Rajma (kidney beans)",
+   "names": {
+    "hi": "राजमा",
+    "kn": "ರಾಜ್ಮಾ",
+    "ta": "ராஜ்மா"
+   },
+   "group": "pulse",
+   "serving": "1 katori cooked (30 g dry)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "north",
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.5,
+    "fibre": 4.5,
+    "protein": 7.0,
+    "potassium": 400
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids",
+    "bp"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "north": "as rajma with rice or roti",
+    "default": "as rajma once a week"
+   },
+   "pair": [
+    "tomato",
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "kalachana",
+   "en": "Kala chana (black chickpeas)",
+   "names": {
+    "hi": "काला चना",
+    "kn": "ಕಪ್ಪು ಕಡಲೆ",
+    "ta": "கருப்பு கொண்டைக்கடலை"
+   },
+   "group": "pulse",
+   "serving": "1 katori cooked (30 g dry)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.9,
+    "fibre": 5.0,
+    "protein": 5.8
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    4
+   ],
+   "fitIn": {
+    "south": "as chana sundal for an evening snack",
+    "default": "as a chana chaat with lemon"
+   },
+   "pair": [
+    "lemon",
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "roastedchana",
+   "en": "Roasted chana",
+   "names": {
+    "hi": "भुना चना",
+    "kn": "ಹುರಿಗಡಲೆ",
+    "ta": "பொட்டுக்கடலை"
+   },
+   "group": "pulse",
+   "serving": "1 handful (30 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.6,
+    "fibre": 4.8,
+    "protein": 6.0
+   },
+   "goodFor": [
+    "iron",
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "default": "as your 4 pm snack instead of biscuits"
+   },
+   "pair": [
+    "amla"
+   ],
+   "verified": false
+  },
+  {
+   "id": "sproutedmoong",
+   "en": "Sprouted moong",
+   "names": {
+    "hi": "अंकुरित मूंग",
+    "kn": "ಮೊಳಕೆ ಹೆಸರುಕಾಳು",
+    "ta": "முளைகட்டிய பாசிப்பயறு"
+   },
+   "group": "pulse",
+   "serving": "1 katori (70 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.2,
+    "vitc": 9,
+    "fibre": 3.0,
+    "protein": 5.0
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "south": "as kosambari with lemon",
+    "default": "as a sprout salad with lemon"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "masoor",
+   "en": "Masoor dal",
+   "names": {
+    "hi": "मसूर दाल",
+    "kn": "ಮಸೂರ್ ಬೇಳೆ",
+    "ta": "மசூர் பருப்பு"
+   },
+   "group": "pulse",
+   "serving": "1 katori cooked (30 g dry)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.0,
+    "fibre": 3.0,
+    "protein": 7.5
+   },
+   "goodFor": [
+    "iron",
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "default": "as your daily dal, with tomato"
+   },
+   "pair": [
+    "tomato",
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "drumstickleaves",
+   "en": "Drumstick leaves (moringa)",
+   "names": {
+    "hi": "सहजन के पत्ते",
+    "kn": "ನುಗ್ಗೆ ಸೊಪ್ಪು",
+    "ta": "முருங்கைக் கீரை"
+   },
+   "group": "greens",
+   "serving": "1 katori cooked (50 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south",
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.5,
+    "vitc": 100,
+    "potassium": 170
+   },
+   "goodFor": [
+    "iron",
+    "bp"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "south": "in your sambar or as a palya, three days a week",
+    "default": "stirred into your dal, three days a week"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "amaranth",
+   "en": "Amaranth leaves (chaulai)",
+   "names": {
+    "hi": "चौलाई",
+    "kn": "ದಂಟಿನ ಸೊಪ್ಪು",
+    "ta": "முளைக்கீரை"
+   },
+   "group": "greens",
+   "serving": "1 katori cooked (75 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.0,
+    "vitc": 60,
+    "potassium": 300
+   },
+   "goodFor": [
+    "iron",
+    "bp"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "south": "as a soppu palya or in dal",
+    "default": "as a sabzi with roti"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "spinach",
+   "en": "Spinach (palak)",
+   "names": {
+    "hi": "पालक",
+    "kn": "ಪಾಲಕ್",
+    "ta": "பசலைக் கீரை"
+   },
+   "group": "greens",
+   "serving": "1 katori cooked (75 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.3,
+    "vitc": 20,
+    "potassium": 400
+   },
+   "goodFor": [
+    "iron",
+    "bp"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "default": "as palak dal or palak sabzi"
+   },
+   "pair": [
+    "lemon",
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "methi",
+   "en": "Methi (fenugreek) leaves",
+   "names": {
+    "hi": "मेथी",
+    "kn": "ಮೆಂತ್ಯ ಸೊಪ್ಪು",
+    "ta": "வெந்தயக் கீரை"
+   },
+   "group": "greens",
+   "serving": "1 katori cooked (50 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 1.0,
+    "fibre": 2.5
+   },
+   "goodFor": [
+    "iron",
+    "sugar",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "default": "in a methi thepla or with dal"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "gardencress",
+   "en": "Garden cress seeds (halim)",
+   "names": {
+    "hi": "हलीम (चंसुर)",
+    "kn": "ಅಳವೆ ಬೀಜ",
+    "ta": "ஆளி விதை (அலிவ்)"
+   },
+   "group": "seeds",
+   "serving": "1 teaspoon soaked (5 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "west",
+    "north",
+    "south"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 3.0
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    1,
+    2
+   ],
+   "fitIn": {
+    "default": "soaked in milk or lemon water, a few times a week"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "sesame",
+   "en": "Sesame (til)",
+   "names": {
+    "hi": "तिल",
+    "kn": "ಎಳ್ಳು",
+    "ta": "எள்"
+   },
+   "group": "seeds",
+   "serving": "1 tablespoon (10 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "sesame"
+   ],
+   "per": {
+    "iron": 0.9,
+    "protein": 1.8
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    1,
+    2
+   ],
+   "fitIn": {
+    "south": "as ellu podi with rice or idli",
+    "default": "sprinkled on sabzi or as til chutney"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "poha",
+   "en": "Poha (flattened rice)",
+   "names": {
+    "hi": "पोहा",
+    "kn": "ಅವಲಕ್ಕಿ",
+    "ta": "அவல்"
+   },
+   "group": "cereal",
+   "serving": "1 plate (50 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.0,
+    "fibre": 0.6
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "default": "for breakfast, with peas and a squeeze of lemon"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "rajgira",
+   "en": "Rajgira (amaranth seed)",
+   "names": {
+    "hi": "राजगिरा",
+    "kn": "ರಾಜಗಿರಿ",
+    "ta": "ராஜ்கிரா"
+   },
+   "group": "seeds",
+   "serving": "1 rajgira laddoo or roti (30 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "north",
+    "west",
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 2.3,
+    "protein": 4.0
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    5,
+    7
+   ],
+   "fitIn": {
+    "default": "as a rajgira roti or laddoo on fasting days"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "peanuts",
+   "en": "Peanuts",
+   "names": {
+    "hi": "मूंगफली",
+    "kn": "ಕಡಲೆಕಾಯಿ",
+    "ta": "வேர்க்கடலை"
+   },
+   "group": "nuts",
+   "serving": "1 handful (30 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "peanut"
+   ],
+   "per": {
+    "iron": 0.7,
+    "protein": 7.5
+   },
+   "goodFor": [
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    3,
+    5
+   ],
+   "fitIn": {
+    "default": "as a roasted handful instead of fried snacks"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "jaggery",
+   "en": "Jaggery (gur)",
+   "names": {
+    "hi": "गुड़",
+    "kn": "ಬೆಲ್ಲ",
+    "ta": "வெல்லம்"
+   },
+   "group": "sweet",
+   "serving": "1 small piece (10 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 0.4,
+    "sugar": 9.5
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {
+    "highSugar": true
+   },
+   "cost": [
+    1,
+    2
+   ],
+   "fitIn": {
+    "default": "a small piece after lunch, with lemon"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "dates",
+   "en": "Dates",
+   "names": {
+    "hi": "खजूर",
+    "kn": "ಖರ್ಜೂರ",
+    "ta": "பேரீச்சம்பழம்"
+   },
+   "group": "sweet",
+   "serving": "3 dates (25 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 0.3,
+    "sugar": 16,
+    "potassium": 170
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {
+    "highSugar": true
+   },
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "default": "as a sweet in place of mithai"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "egg",
+   "en": "Egg",
+   "names": {
+    "hi": "अंडा",
+    "kn": "ಮೊಟ್ಟೆ",
+    "ta": "முட்டை"
+   },
+   "group": "egg",
+   "serving": "1 egg",
+   "kind": "egg",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "egg"
+   ],
+   "per": {
+    "iron": 0.9,
+    "b12": 0.5,
+    "vitd": 40,
+    "protein": 6.3
+   },
+   "goodFor": [
+    "iron",
+    "b12",
+    "vitd"
+   ],
+   "flags": {},
+   "cost": [
+    6,
+    8
+   ],
+   "fitIn": {
+    "default": "boiled, with breakfast"
+   },
+   "pair": [
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "chickenliver",
+   "en": "Chicken liver",
+   "names": {
+    "hi": "चिकन कलेजी",
+    "kn": "ಕೋಳಿ ಲಿವರ್",
+    "ta": "கோழி ஈரல்"
+   },
+   "group": "meat",
+   "serving": "1 small katori (50 g)",
+   "kind": "meat",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 4.5,
+    "b12": 8.0,
+    "protein": 8.5
+   },
+   "goodFor": [
+    "iron",
+    "b12"
+   ],
+   "flags": {},
+   "cost": [
+    10,
+    15
+   ],
+   "fitIn": {
+    "default": "as a liver fry once a week"
+   },
+   "pair": [
+    "lemon",
+    "onion"
+   ],
+   "verified": false
+  },
+  {
+   "id": "sardine",
+   "en": "Sardine (mathi)",
+   "names": {
+    "hi": "सार्डिन मछली",
+    "kn": "ಬೂತಾಯಿ ಮೀನು",
+    "ta": "மத்தி மீன்"
+   },
+   "group": "fish",
+   "serving": "1 piece curry (75 g)",
+   "kind": "fish",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south",
+    "west",
+    "east"
+   ],
+   "allergens": [
+    "fish"
+   ],
+   "per": {
+    "iron": 1.8,
+    "b12": 6.0,
+    "vitd": 200,
+    "protein": 15
+   },
+   "goodFor": [
+    "iron",
+    "b12",
+    "vitd",
+    "lipids"
+   ],
+   "flags": {},
+   "cost": [
+    10,
+    15
+   ],
+   "fitIn": {
+    "default": "as a fish curry once a week"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "chicken",
+   "en": "Chicken",
+   "names": {
+    "hi": "चिकन",
+    "kn": "ಕೋಳಿ ಮಾಂಸ",
+    "ta": "கோழி"
+   },
+   "group": "meat",
+   "serving": "1 katori curry (75 g)",
+   "kind": "meat",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "iron": 0.8,
+    "b12": 0.3,
+    "protein": 18
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    15,
+    20
+   ],
+   "fitIn": {
+    "default": "grilled or as a home curry, with greens on the side"
+   },
+   "pair": [
+    "lemon"
+   ],
+   "verified": false
+  },
+  {
+   "id": "curd",
+   "en": "Curd",
+   "names": {
+    "hi": "दही",
+    "kn": "ಮೊಸರು",
+    "ta": "தயிர்"
+   },
+   "group": "dairy",
+   "serving": "1 katori (100 g)",
+   "kind": "dairy",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "dairy"
+   ],
+   "per": {
+    "b12": 0.4,
+    "protein": 3.1
+   },
+   "goodFor": [
+    "b12"
+   ],
+   "flags": {},
+   "cost": [
+    5,
+    8
+   ],
+   "fitIn": {
+    "default": "with lunch, but not with your iron-rich meal"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "milk",
+   "en": "Milk (fortified where available)",
+   "names": {
+    "hi": "दूध",
+    "kn": "ಹಾಲು",
+    "ta": "பால்"
+   },
+   "group": "dairy",
+   "serving": "1 glass (200 ml)",
+   "kind": "dairy",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "dairy"
+   ],
+   "per": {
+    "b12": 0.9,
+    "vitd": 80,
+    "protein": 6.4
+   },
+   "goodFor": [
+    "b12",
+    "vitd"
+   ],
+   "flags": {},
+   "cost": [
+    8,
+    12
+   ],
+   "fitIn": {
+    "default": "a glass at bedtime, away from iron-rich meals"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "paneer",
+   "en": "Paneer",
+   "names": {
+    "hi": "पनीर",
+    "kn": "ಪನೀರ್",
+    "ta": "பனீர்"
+   },
+   "group": "dairy",
+   "serving": "50 g",
+   "kind": "dairy",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "north",
+    "all"
+   ],
+   "allergens": [
+    "dairy"
+   ],
+   "per": {
+    "b12": 0.4,
+    "protein": 9.0
+   },
+   "goodFor": [
+    "b12"
+   ],
+   "flags": {},
+   "cost": [
+    15,
+    20
+   ],
+   "fitIn": {
+    "default": "in a sabzi or bhurji"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "amla",
+   "en": "Amla (Indian gooseberry)",
+   "names": {
+    "hi": "आंवला",
+    "kn": "ನೆಲ್ಲಿಕಾಯಿ",
+    "ta": "நெல்லிக்காய்"
+   },
+   "group": "fruit",
+   "serving": "1 amla (30 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitc": 75
+   },
+   "goodFor": [
+    "iron"
+   ],
+   "flags": {},
+   "cost": [
+    2,
+    4
+   ],
+   "fitIn": {
+    "default": "with your iron-rich meal, to help absorb the iron"
+   },
+   "pair": [],
+   "seasons": [
+    "winter"
+   ],
+   "verified": false
+  },
+  {
+   "id": "guava",
+   "en": "Guava",
+   "names": {
+    "hi": "अमरूद",
+    "kn": "ಸೀಬೆಹಣ್ಣು",
+    "ta": "கொய்யா"
+   },
+   "group": "fruit",
+   "serving": "1 guava (100 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitc": 200,
+    "fibre": 5.0,
+    "potassium": 400
+   },
+   "goodFor": [
+    "iron",
+    "bp",
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    5,
+    8
+   ],
+   "fitIn": {
+    "default": "after lunch, to help absorb iron"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "lemon",
+   "en": "Lemon",
+   "names": {
+    "hi": "नींबू",
+    "kn": "ನಿಂಬೆಹಣ್ಣು",
+    "ta": "எலுமிச்சை"
+   },
+   "group": "fruit",
+   "serving": "½ lemon squeezed",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitc": 15
+   },
+   "goodFor": [],
+   "flags": {},
+   "cost": [
+    2,
+    3
+   ],
+   "fitIn": {
+    "default": "squeezed over dal, greens or sprouts"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "tomato",
+   "en": "Tomato",
+   "names": {
+    "hi": "टमाटर",
+    "kn": "ಟೊಮೆಟೊ",
+    "ta": "தக்காளி"
+   },
+   "group": "vegetable",
+   "serving": "1 tomato",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitc": 15,
+    "potassium": 240
+   },
+   "goodFor": [],
+   "flags": {},
+   "cost": [
+    2,
+    4
+   ],
+   "fitIn": {
+    "default": "cooked into dal or as a side salad"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "onion",
+   "en": "Onion",
+   "names": {
+    "hi": "प्याज़",
+    "kn": "ಈರುಳ್ಳಿ",
+    "ta": "வெங்காயம்"
+   },
+   "group": "vegetable",
+   "serving": "½ onion",
+   "kind": "plant",
+   "root": true,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitc": 4
+   },
+   "goodFor": [],
+   "flags": {},
+   "cost": [
+    1,
+    3
+   ],
+   "fitIn": {
+    "default": "raw on the side"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "banana",
+   "en": "Banana",
+   "names": {
+    "hi": "केला",
+    "kn": "ಬಾಳೆಹಣ್ಣು",
+    "ta": "வாழைப்பழம்"
+   },
+   "group": "fruit",
+   "serving": "1 banana",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "potassium": 360,
+    "sugar": 14
+   },
+   "goodFor": [
+    "bp"
+   ],
+   "flags": {
+    "highPotassium": true
+   },
+   "cost": [
+    5,
+    8
+   ],
+   "fitIn": {
+    "default": "as a mid-morning snack instead of a packaged one"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "coconutwater",
+   "en": "Tender coconut water",
+   "names": {
+    "hi": "नारियल पानी",
+    "kn": "ಎಳನೀರು",
+    "ta": "இளநீர்"
+   },
+   "group": "drink",
+   "serving": "1 glass (250 ml)",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "south",
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "potassium": 500,
+    "sugar": 6
+   },
+   "goodFor": [
+    "bp"
+   ],
+   "flags": {
+    "highPotassium": true
+   },
+   "cost": [
+    40,
+    60
+   ],
+   "fitIn": {
+    "default": "in place of a soft drink"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "oats",
+   "en": "Oats",
+   "names": {
+    "hi": "ओट्स",
+    "kn": "ಓಟ್ಸ್",
+    "ta": "ஓட்ஸ்"
+   },
+   "group": "cereal",
+   "serving": "1 bowl (40 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [
+    "gluten"
+   ],
+   "per": {
+    "iron": 1.5,
+    "fibre": 4.0
+   },
+   "goodFor": [
+    "lipids",
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    6,
+    8
+   ],
+   "fitIn": {
+    "default": "as a savoury oats upma for breakfast"
+   },
+   "pair": [
+    "tomato"
+   ],
+   "verified": false
+  },
+  {
+   "id": "brownrice",
+   "en": "Hand-pounded rice",
+   "names": {
+    "hi": "हाथ कुटा चावल",
+    "kn": "ಕೈಕುಟ್ಟು ಅಕ್ಕಿ",
+    "ta": "கைக்குத்தல் அரிசி"
+   },
+   "group": "cereal",
+   "serving": "1 cup cooked (in place of white rice)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "south",
+    "east",
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "fibre": 2.5,
+    "iron": 0.6
+   },
+   "goodFor": [
+    "sugar"
+   ],
+   "flags": {},
+   "cost": [
+    4,
+    6
+   ],
+   "fitIn": {
+    "default": "in place of half your white rice"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "mushroom",
+   "en": "Mushrooms (sun-dried or sun-exposed)",
+   "names": {
+    "hi": "मशरूम",
+    "kn": "ಅಣಬೆ",
+    "ta": "காளான்"
+   },
+   "group": "vegetable",
+   "serving": "1 katori cooked (75 g)",
+   "kind": "plant",
+   "root": false,
+   "fasting": false,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitd": 200,
+    "b12": 0.1,
+    "potassium": 300
+   },
+   "goodFor": [
+    "vitd"
+   ],
+   "flags": {},
+   "cost": [
+    10,
+    15
+   ],
+   "fitIn": {
+    "default": "in a sabzi or pulao; leave them in the sun for 30 minutes before cooking"
+   },
+   "pair": [],
+   "verified": false
+  },
+  {
+   "id": "fortifiedoil",
+   "en": "Vitamin D-fortified cooking oil (+F logo)",
+   "names": {
+    "hi": "फोर्टिफाइड तेल (+F)",
+    "kn": "ಫೋರ್ಟಿಫೈಡ್ ಎಣ್ಣೆ (+F)",
+    "ta": "செறிவூட்டப்பட்ட எண்ணெய் (+F)"
+   },
+   "group": "staple",
+   "serving": "your usual cooking oil",
+   "kind": "plant",
+   "root": false,
+   "fasting": true,
+   "regions": [
+    "all"
+   ],
+   "allergens": [],
+   "per": {
+    "vitd": 20
+   },
+   "goodFor": [
+    "vitd"
+   ],
+   "flags": {},
+   "cost": [
+    0,
+    1
+   ],
+   "fitIn": {
+    "default": "switch to oil with the FSSAI +F logo; same price, same cooking"
+   },
+   "pair": [],
+   "verified": false
+  }
+ ]
 }

@@ -15,12 +15,13 @@ const advance = (n) => { for (let i = 0; i < n; i += 1) store.stepClock(); };
 const open = (id) => drop.view(id).open;
 const of = (id, type, variant) => open(id).find((c) => c.type === type && (!variant || c.variant === variant));
 
-test('Asha starts set up: a food Card for her low-normal iron, with a doctor recommended', () => {
+test('Asha starts set up: a Card with the plan from her results (iron, vitamin D, B12…), with a doctor line', () => {
   const food = of('D-175', 'food', 'lownormal');
   assert.ok(food);
   assert.match(food.text, /डॉक्टर/); // her Drop language is Hindi
-  assert.equal(food.main.go, 'progress:iron');
-  assert.ok(food.chips.some((c) => c.why === 'food:iron'));
+  assert.match(food.text, /vitamin D/);
+  assert.equal(food.main.go, 'progress:plan');
+  assert.ok(food.chips.some((c) => c.why === 'plan'));
   const s = wellbeing.summary('D-175');
   assert.equal(s.active, true);
   assert.equal(s.connections.length, 3);

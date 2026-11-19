@@ -18,15 +18,17 @@ const COACHING = { optimal: 'maintain', low_normal: 'food', below: 'food_and_doc
 const URGENCY = { low_normal: 'recommended', below: 'weeks', doctor_first: 'first', urgent: 'today' };
 const LABELS = { iron: 'Iron', bp: 'Blood pressure', sugar: 'Blood sugar', lipids: 'Cholesterol', b12: 'Vitamin B12', vitd: 'Vitamin D' };
 
-function doctorFor(level, language) {
+function doctorFor(level, language, marker) {
   const urgency = URGENCY[level];
   if (!urgency) return null;
-  const t = ref.careLevels().doctor[urgency];
+  // "On the low side" fits iron and vitamins; BP, sugar and cholesterol creep up instead
+  const key = urgency === 'recommended' && ['bp', 'sugar', 'lipids'].includes(marker) ? 'recommendedHigh' : urgency;
+  const t = ref.careLevels().doctor[key];
   return { urgency, text: t[language] || t.en };
 }
 
 function result(marker, level, ruleId, rule, evidence, language) {
-  return { marker, label: LABELS[marker], level, ruleId, rule, evidence, coaching: COACHING[level], doctor: doctorFor(level, language), proposed: true };
+  return { marker, label: LABELS[marker], level, ruleId, rule, evidence, coaching: COACHING[level], doctor: doctorFor(level, language, marker), proposed: true };
 }
 
 function iron(donorId, v, language, redFlag) {
@@ -91,6 +93,7 @@ function lipids(v, language) {
   if (ldl >= c.ldlDoctorFirst || tg >= c.tgDoctorFirst) return result('lipids', 'doctor_first', 'LIPIDS-DF', `LDL ${c.ldlDoctorFirst}+ or triglycerides ${c.tgDoctorFirst}+: the doctor comes first.`, ev, language);
   if (ldl >= c.ldlBelow || tg >= c.tgBelow) return result('lipids', 'below', 'LIPIDS-BELOW', `LDL ${c.ldlBelow}+ or triglycerides ${c.tgBelow}+.`, ev, language);
   if (ldl >= c.ldlLowNormal) return result('lipids', 'low_normal', 'LIPIDS-LN', `LDL ${c.ldlLowNormal}–${c.ldlBelow - 1}: near optimal.`, ev, language);
+  if (v.hdl && v.hdl.value < 40) return result('lipids', 'low_normal', 'LIPIDS-HDL', `HDL ${v.hdl.value} mg/dL: under 40, the protective cholesterol is low.`, [...ev, `HDL ${v.hdl.value} mg/dL`], language);
   return result('lipids', 'optimal', 'LIPIDS-OK', `LDL under ${c.ldlLowNormal}.`, ev, language);
 }
 

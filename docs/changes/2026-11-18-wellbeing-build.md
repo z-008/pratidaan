@@ -187,3 +187,73 @@ The first build showed the between-donation features only for Asha. Now every de
 - **New Cards' log lines** go in their own list, so they never push Drop's lines out of its 40-line log. "What Drop knows" shows both.
 - **Coaching Cards left unanswered** go quietly after 6 days, so they never fold into the Weekly report.
 - **Results:** `npm test`: 205 pass. Frontend type-check and build pass. In the browser, every persona's Home tile, My health and Progress showed app data with no console errors.
+
+## Round 3: a plan from each donor's results, and Drop answers it with the model (19 Nov 2026)
+
+**A plan from the results, not just iron** (`backend/src/domain/improvements.js`, `data/nutrition/habits.json`):
+
+- **What it covers:** every result that needs improving gets its own foods and everyday habits:
+  - iron;
+  - vitamin D and B12 (from lab reports the donor adds);
+  - BP, blood sugar and cholesterol (including low HDL);
+  - weight;
+  - a raised liver enzyme.
+- **How it combines:** one plan that mixes foods and habits, with first place going to whatever helps most of the donor's results at once. Each food and habit says which results it helps.
+- **Examples:**
+  - Asha: vitamin D gets a mid-morning sun walk, fortified oil and eggs; B12 gets curd, milk or paneer.
+  - Arjun: BP, cholesterol and sugar share a brisk walk, millet swaps and less salt.
+- **Doctor lines:** the doctor advice for each result always shows, grouped when the same line covers several. It matches the Goal's protocol when there is one.
+- **Safety:** an urgent Goal gets no exercise; "see a doctor first" gets no food plan. Diet (vegan, Jain, vegetarian…), region and budget are respected.
+- **Demo data:** Asha has an outside lab report in `data/demo/overlay.json` (vitamin D 16, B12 260), so the mix shows.
+- **Where it appears:**
+  - **From your results: what to improve** on Progress and My health, with **Add to my week**, which turns the plan into Week plan items;
+  - Asha's Home Card;
+  - **Why this plan?**;
+  - Week plan suggestions, when no Goal step covers the Habit.
+
+**Drop answers through the model.**
+- **Tools:** every Chat (General included) now gets the between-donation tools:
+  - `get_health_plan`
+  - `get_habits_from_apps`
+  - `get_readiness`
+  - `get_cycle_report`
+  - `find_foods`
+  - `offer_week_plan`
+  - `explain_recommendation`
+  - `get_cycle`, `get_bands`
+- **Context:** Drop's context carries the plan's headline and the week from the apps.
+- **Check after the model:** `foodGuard.checkPlan` replaces any food the rules didn't choose and any medicine with the rule wording, and adds every doctor line.
+- **Readiness routing:** "Am I ready for my next donation?" now goes to the model. "When can I donate?" keeps its existing shortcut.
+- **Offline fallback:** rule answers for the same questions now follow what was asked: one result ("how can I raise my vitamin D?"), why these foods, cost, "I don't eat eggs", sleep, activity, readiness, add to my week. In Habit Chats they come first; in General they come after every existing rule answer, so those answers are unchanged.
+
+**Checks.**
+- `npm test`: **218 pass**. New tests:
+  - `improvements.test.js`.
+  - `drop-ai.test.js`, which runs Drop's real chat path with a scripted stand-in model across every persona: the tools each Chat offers, the context, multi-turn history, Week plan Cards, the plan and food checks, Vikram's urgent case, and the offline rules for every persona and Chat.
+- Golden test unchanged and passing.
+- Browser: the plan card for Asha, Arjun and Ananya; Add to my week.
+
+**Live check against Azure OpenAI.** Not run here, because no credentials were available. Run it yourself:
+
+```bash
+cd backend
+AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com AZURE_OPENAI_DEPLOYMENT=<deployment> AZURE_OPENAI_API_KEY=<key> node test/live/drop-conversations.js
+# one persona: … node test/live/drop-conversations.js D-175
+```
+
+- **What it runs:** for every persona, single questions and three multi-turn conversations in the General, Food, Mind and Movement Chats.
+- **What it checks in each answer:**
+  - answered by the model, not the rules;
+  - no medicine;
+  - every doctor line present when the plan came up;
+  - Hindi for Asha and Rohan;
+  - not too long.
+- **Output:** a report in `backend/test/live/last-run.md`, and a non-zero exit if a check fails.
+
+**Azure (19 Nov 2026).**
+- **`data/nutrition` is now in every deploy package:**
+  - the GitHub workflow and Dockerfile (Sandeep's commit 851304a);
+  - `scripts/deploy-azure.sh` (this change).
+- **Guard in `drop.js`:** its hooks into the between-donation features are wrapped (`coachingSafe`), so a fault there, such as a missing data file, is logged and Drop's existing Cards carry on. Checked with a production-mode package without `data/nutrition`: every persona's Drop view still worked.
+- **Microsoft To Do permission:** `scripts/deploy-azure.sh` adds `Tasks.ReadWrite` to the app registration, looked up by name from Microsoft Graph.
+- **AI limits:** `LLM_RATE_LIMIT_TOKENS_PER_DAY` and `LLM_MAX_CALLS_PER_DAY` in `infra/main.bicep` to be raised for the review period (Sandeep). Round 3 adds about 1,500 tokens to each model call.

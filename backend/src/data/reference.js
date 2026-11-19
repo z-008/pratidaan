@@ -22,6 +22,7 @@ module.exports = {
   regions: () => read('nutrition', 'regions.json'),
   absorption: () => read('nutrition', 'absorption.json'),
   adjustments: () => read('nutrition', 'adjustments.json'),
+  habitsLib: () => read('nutrition', 'habits.json').habits,
   bands: () => read('ontology', 'bands.json'),
   careLevels: () => read('ontology', 'care-levels.json'),
   markerSignals: () => read('ontology', 'marker-signals.json'),

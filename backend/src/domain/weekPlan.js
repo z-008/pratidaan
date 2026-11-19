@@ -49,6 +49,11 @@ function suggest(st, habit) {
     }
   }
   if (!items.length) {
+    const plan = require('./improvements').plan(st);
+    const h = plan && plan.habits.find((x) => x.habit === habit);
+    if (h) items.push({ habit, kind: 'session', perWeek: habit === 'movement' ? Math.min(h.perWeek, 3) : h.perWeek, minutes: h.minutes, measuredBy: h.measuredBy, text: h.text, forText: `for your ${h.helps.map((x) => (/^Vitamin/.test(x) ? `v${x.slice(1)}` : x.toLowerCase())).join(' and ')}`, source: h.source });
+  }
+  if (!items.length) {
     const fallback = {
       movement: { kind: 'session', perWeek: 3, minutes: 20, measuredBy: 'active_min', text: '20-minute walk' },
       food: { kind: 'guide', perWeek: 7, measuredBy: 'you', text: 'Greens or dal at lunch every day' },

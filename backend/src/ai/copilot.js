@@ -145,8 +145,10 @@ function replyMatchesQuestion(message, reply) {
 /** Common Home chips — one topic, rule-backed text, optional screen button (no full agent). */
 function chipShortcut(donorId, message) {
   const m = String(message || '').toLowerCase();
-  if (/\b(when can i donate|donate next|can i donate|next donation|eligible to donate)\b/.test(m)
-    || (/\bdonate\b/.test(m) && /\b(when|next|hold|eligible)\b/.test(m))) {
+  // "Am I ready for my next donation?" is about the readiness checklist: the model answers it with get_readiness
+  const readiness = /\b(ready|prepare|prep)\b/.test(m);
+  if (!readiness && (/\b(when can i donate|donate next|can i donate|next donation|eligible to donate)\b/.test(m)
+    || (/\bdonate\b/.test(m) && /\b(when|next|hold|eligible)\b/.test(m)))) {
     return { reply: screenLines.line(donorId, 'donate').text, actions: [{ type: 'navigate', screen: 'donate' }] };
   }
   if (/what do you remember/.test(m)) {
@@ -359,7 +361,7 @@ async function chat({ user, donorId, history, message, userName, chat: chatId })
   } catch (error) {
     if (!(error instanceof llm.LLMUnavailable)) throw error;
     // In the Food Chat, food and Week plan questions get the food rules first; everywhere else the existing rules come first
-    const food = chatKey === 'habit:food' ? wellbeingTools.fallback(donorId, String(message || '').toLowerCase()) : null;
+    const food = String(chatKey).startsWith('habit:') ? wellbeingTools.fallback(donorId, String(message || '').toLowerCase(), chatKey) : null;
     const rules = food ? { reply: food.reply, steps: [], actions: food.actions, history: null, offline: true, reason: llm.status().reason } : fallback(donorId, message);
     const actions = alignActionsToQuestion(donorId, message, uiActionsForMessage(donorId, message, rules.actions));
     await chatCycles.recordTurn(user, donorId, chatKey, { userText: message, assistantText: rules.reply, history: prior, actions });

@@ -1,15 +1,75 @@
 {
   "_note": "When food coaching leads and when the doctor does. PROPOSED thresholds, pending clinical sign-off against WHO and ICMR guidance. Doctor advice is fixed text, added by rules after any AI wording.",
-  "iron": { "optimalHbMargin": 1.0, "optimalFerritin": 30, "lowFerritin": 15, "hbDrop": 1.0, "doctorFirstHb": 10, "urgentHb": 7, "highFerritin": 300, "lowMcv": 80 },
-  "bp": { "lowNormal": [120, 80], "below": [130, 80], "doctorFirst": [160, 100], "urgent": [180, 120] },
-  "sugar": { "lowNormal": 5.5, "below": 5.7, "doctorFirst": 6.5 },
-  "lipids": { "ldlLowNormal": 100, "ldlBelow": 130, "tgBelow": 150, "ldlDoctorFirst": 190, "tgDoctorFirst": 500 },
-  "b12": { "lowNormal": 300, "below": 200, "doctorFirst": 150 },
-  "vitd": { "lowNormal": 30, "below": 20, "doctorFirst": 12 },
+  "iron": {
+    "optimalHbMargin": 1.0,
+    "optimalFerritin": 30,
+    "lowFerritin": 15,
+    "hbDrop": 1.0,
+    "doctorFirstHb": 10,
+    "urgentHb": 7,
+    "highFerritin": 300,
+    "lowMcv": 80
+  },
+  "bp": {
+    "lowNormal": [
+      120,
+      80
+    ],
+    "below": [
+      130,
+      80
+    ],
+    "doctorFirst": [
+      160,
+      100
+    ],
+    "urgent": [
+      180,
+      120
+    ]
+  },
+  "sugar": {
+    "lowNormal": 5.5,
+    "below": 5.7,
+    "doctorFirst": 6.5
+  },
+  "lipids": {
+    "ldlLowNormal": 100,
+    "ldlBelow": 130,
+    "tgBelow": 150,
+    "ldlDoctorFirst": 190,
+    "tgDoctorFirst": 500
+  },
+  "b12": {
+    "lowNormal": 300,
+    "below": 200,
+    "doctorFirst": 150
+  },
+  "vitd": {
+    "lowNormal": 30,
+    "below": 20,
+    "doctorFirst": 12
+  },
   "doctor": {
-    "recommended": { "en": "A doctor's check is recommended to find out why it's on the low side, even though you're within the limit.", "hi": "आप सीमा के भीतर हैं, फिर भी यह जानने के लिए डॉक्टर से जाँच कराने की सलाह है कि यह कम क्यों है।" },
-    "weeks": { "en": "See a doctor within 3 weeks to find the cause.", "hi": "कारण जानने के लिए 3 हफ़्तों के भीतर डॉक्टर से मिलें।" },
-    "first": { "en": "See a doctor first. Food can support your treatment after the visit.", "hi": "पहले डॉक्टर से मिलें। डॉक्टर से मिलने के बाद खाना इलाज में मदद कर सकता है।" },
-    "today": { "en": "Please see a doctor today.", "hi": "कृपया आज ही डॉक्टर से मिलें।" }
+    "recommended": {
+      "en": "A doctor's check is recommended to find out why it's on the low side, even though you're within the limit.",
+      "hi": "आप सीमा के भीतर हैं, फिर भी यह जानने के लिए डॉक्टर से जाँच कराने की सलाह है कि यह कम क्यों है।"
+    },
+    "weeks": {
+      "en": "See a doctor within 3 weeks to find the cause.",
+      "hi": "कारण जानने के लिए 3 हफ़्तों के भीतर डॉक्टर से मिलें।"
+    },
+    "first": {
+      "en": "See a doctor first. Food can support your treatment after the visit.",
+      "hi": "पहले डॉक्टर से मिलें। डॉक्टर से मिलने के बाद खाना इलाज में मदद कर सकता है।"
+    },
+    "today": {
+      "en": "Please see a doctor today.",
+      "hi": "कृपया आज ही डॉक्टर से मिलें।"
+    },
+    "recommendedHigh": {
+      "en": "A doctor's check is recommended to see why it's creeping up, even though you're within the limit.",
+      "hi": "आप सीमा के भीतर हैं, फिर भी यह जानने के लिए डॉक्टर से जाँच कराने की सलाह है कि यह क्यों बढ़ रहा है।"
+    }
   }
 }

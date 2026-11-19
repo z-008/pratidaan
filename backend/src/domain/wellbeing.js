@@ -17,6 +17,7 @@ const foodCoach = require('./foodCoach');
 const weekPlan = require('./weekPlan');
 const routine = require('./routine');
 const habits = require('./habits');
+const improvements = require('./improvements');
 const coaching = require('./coaching');
 const integrations = require('../integrations');
 const junction = require('../integrations/junction');
@@ -48,6 +49,7 @@ function summary(donorId) {
     foodProfile: w.foodProfile ? { ...w.foodProfile, isDefault: false } : null,
     reports: cycle.reports(st),
     habits: donor.newUser ? [] : habits.view(st),
+    plan: donor.newUser ? null : improvements.plan(st),
     goalSignals: donor.newUser ? [] : habits.goals(st),
     readiness: donor.newUser ? null : habits.readiness(st),
     unseenReport: signals.active(st) ? cycle.unseenReport(st) : null,
@@ -118,6 +120,35 @@ function disconnect(donorId, connId) {
   if (conn) drop._log(donorId, `Disconnected ${conn.label}; its data was deleted.`);
 }
 
+/**
+ * "Add to my week" on the plan from the Donor's results: its top food add-on, movement and sleep habit
+ * become Week plan items (the tap is the Donor's yes; nothing is saved without it).
+ */
+function addPlanToWeek(donorId) {
+  const st = state(donorId);
+  const p = improvements.plan(st);
+  if (!p) throw new Error('No results yet');
+  const items = [];
+  const habitApp = signals.ensure(st).connections.find((c) => c.kind === 'habit' && c.writeBack);
+  const nutrient = p.needs.find((n) => ['iron', 'vitd', 'b12'].includes(n.marker) && n.foods.length);
+  if (nutrient && p.foods.length) {
+    items.push({ habit: 'food', kind: 'session', perWeek: 5, measuredBy: 'food_habit', focus: nutrient.marker,
+      text: `Add-on with a meal: ${p.foods.slice(0, 2).map((f) => f.nameEn.split(' (')[0].toLowerCase()).join(' or ')}`, forText: `for your ${p.foods[0].helps.map((h) => (/^Vitamin/.test(h) ? `v${h.slice(1)}` : h.toLowerCase())).join(' and ')}`, source: 'ICMR-NIN Dietary Guidelines 2024' });
+  } else {
+    // The food habit that serves the most serious result first (salt for BP before oil for cholesterol)
+    const h = p.needs.map((n) => p.habits.find((x) => x.habit === 'food' && x.helps.includes(n.label))).find(Boolean) || p.habits.find((x) => x.habit === 'food');
+    if (h) items.push({ habit: 'food', kind: 'guide', perWeek: h.perWeek, measuredBy: 'you', text: h.text, forText: `for your ${h.helps.map((x) => x.toLowerCase()).join(' and ')}`, source: h.source });
+  }
+  for (const kind of ['movement', 'mind']) {
+    const h = p.habits.find((x) => x.habit === kind);
+    if (h) items.push({ habit: kind, kind: 'session', perWeek: kind === 'movement' ? Math.min(h.perWeek, 3) : h.perWeek, minutes: h.minutes, measuredBy: h.measuredBy, text: h.text, forText: `for your ${h.helps.map((x) => (/^Vitamin/.test(x) ? `v${x.slice(1)}` : x.toLowerCase())).join(' and ')}`, source: h.source });
+  }
+  const goal = signals.goals(st).find((g) => g.state === 'active');
+  const plan = weekPlan.save(st, items.map((i) => (goal && i.habit !== 'mind' ? { ...i, goalId: goal.id } : i)), { sync: habitApp });
+  drop._log(donorId, `Plan from your results added to the Week plan: ${items.map((i) => i.text).join('; ')}${habitApp ? ` · added to ${habitApp.label}` : ''}.`);
+  return plan;
+}
+
 /** Opens a Week plan Card for one Habit (a Card the Donor asked for: outside the budget). */
 function offerWeekPlan(donorId, habit) {
   const st = state(donorId);
@@ -182,7 +213,7 @@ function deleteHabitData(donorId) {
 
 module.exports = {
   state, summary, marker, signalSeries, connect, sync, updateConnection, disconnect, offerWeekPlan, roughWeek, exportData, deleteSignals, deleteHabitData,
-  foodCoach, weekPlan, cycle, coaching, routine, careLevel, signals, habits, weekStart,
+  foodCoach, weekPlan, cycle, coaching, routine, careLevel, signals, habits, improvements, weekStart, addPlanToWeek,
 };
 
 /** One donation's lab panel as a FHIR R4 Bundle (DiagnosticReport + Observations, LOINC-coded), for Download as FHIR. */

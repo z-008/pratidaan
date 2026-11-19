@@ -242,6 +242,22 @@ function words(st, c) {
       };
     }
     case 'food:lownormal': {
+      const plan = require('./improvements').plan(st);
+      if (plan && plan.needs.length > 1) {
+        const needs = plan.needs.slice(0, 3).map((n) => `${n.label.toLowerCase().replace(/^vitamin (\w+)/, (m, x) => `vitamin ${x.toUpperCase()}`)}: ${n.levelWords.toLowerCase()}`).join(', ');
+        const foods = plan.foods.slice(0, 3).map((f) => f.name).join(', ');
+        const habit = plan.habits[0];
+        const doc = plan.doctors[0];
+        return {
+          label: hi ? 'आपकी जाँच के आधार पर' : 'From your results',
+          text: (hi
+            ? `आपकी जाँच: ${needs}। खाने में: ${foods}। आदत: ${habit ? habit.text : ''}। ${doc ? doc.text : ''}`
+            : `Your results: ${needs}. To eat: ${foods}. A habit that helps: ${habit ? habit.text.toLowerCase() : ''}. ${doc ? doc.text : ''}`).replace(/\s+/g, ' ').trim(),
+          main: { label: hi ? 'मेरी योजना देखें' : 'See my plan', value: 'see', go: 'progress:plan' },
+          chips: [{ label: hi ? 'जाँच का समय चुनें' : 'Book a demo check-up', value: 'book' }, why('plan')],
+          out: { label: hi ? 'बाद में' : 'Later', value: 'later' },
+        };
+      }
       const s = foodCoach.suggest(st, d.marker || 'iron');
       const names = s.foods.slice(0, 3).map((f) => f.name).join(', ');
       const value = s.level?.evidence?.map((e) => e.split(' on ')[0]).join(', ') || '';
@@ -392,10 +408,11 @@ function explanationFor(st, recId) {
     const c = st.cards.find((x) => x.id === key);
     if (!c) throw new Error('That Card is gone');
     if (c.type === 'comeback' && c.variant === 'offer') return comebackExplanation(st, c.data.disruption, adjustmentOf(c.data.adjId));
-    if (c.type === 'food') return foodCoach.suggest(st, c.data.marker || 'iron').explanation;
+    if (c.type === 'food') { const p = require('./improvements').plan(st); return p && p.needs.length > 1 ? p.explanation : foodCoach.suggest(st, c.data.marker || 'iron').explanation; }
     throw new Error('No explanation for that Card');
   }
   if (kind === 'food') return foodCoach.suggest(st, key || 'iron').explanation;
+  if (kind === 'plan') return require('./improvements').plan(st).explanation;
   throw new Error('Unknown recommendation');
 }
 

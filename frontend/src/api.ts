@@ -306,7 +306,12 @@ export interface WbMetric { signal: string; label: string; value: string; target
 export interface WbHabit { habit: 'movement' | 'food' | 'mind'; metrics: WbMetric[]; items: WbPlanItem[]; state: 'on' | 'drift' | 'off' | null; hint: string | null }
 export interface WbGoalSignals { goalId: string; text: string | null; app?: string | null }
 export interface WbReadiness { soon: boolean; from: string | null; eligibleNow: boolean; items: { id: string; text: string; state: 'on' | 'drift' | 'off' | null; source: string; note?: string | null }[]; done: number; total: number; note: string }
+export interface WbPlanFood extends WbFood { helps: string[] }
+export interface WbPlanHabit { id: string; habit: 'movement' | 'food' | 'mind'; text: string; perWeek: number; minutes: number | null; measuredBy: string; source: string; helps: string[]; status: { state: 'on' | 'drift' | 'off' | null; text: string; app: string } | null }
+export interface WbNeed { marker: string; label: string; level: string; levelWords: string; rule: string; evidence: string[]; doctor: WbDoctor | null; foods: WbFood[]; habits: WbPlanHabit[] }
+export interface WbPlan { keep: boolean; headline: string; needs: WbNeed[]; foods: WbPlanFood[]; habits: WbPlanHabit[]; doctors: { urgency: WbDoctor['urgency']; text: string; labels: string[] }[]; profile: WbFoodProfile }
 export interface WbSummary {
+  plan: WbPlan | null;
   habits: WbHabit[]; goalSignals: WbGoalSignals[]; readiness: WbReadiness | null;
   active: boolean; newUser: boolean; cycle: WbCycle | null; focus: WbFocus | null; bands: WbBand[]; careLevels: WbCareLevel[];
   connections: WbConnection[]; weekPlan: WbWeekPlan | null; day: { time: string } | null; foodProfile: WbFoodProfile | null;
@@ -463,6 +468,7 @@ export const api = {
   wbFoodProfile: (id: string) => request<{ profile: WbFoodProfile; fields: Record<string, string[]> }>(`/donors/${id}/wellbeing/food-profile`),
   wbSaveFoodProfile: (id: string, profile: Partial<WbFoodProfile>) => request<WbViews>(`/donors/${id}/wellbeing/food-profile`, { method: 'PUT', body: JSON.stringify(profile) }),
   wbClearFoodProfile: (id: string) => request<WbViews>(`/donors/${id}/wellbeing/food-profile`, { method: 'DELETE' }),
+  wbPlanAdd: (id: string) => post<WbViews>(`/donors/${id}/wellbeing/plan/add-to-week`),
   wbFoods: (id: string, marker: string) => request<WbFoodSuggestion>(`/donors/${id}/wellbeing/foods?marker=${marker}`),
   wbOfferPlan: (id: string, habit: string) => post<{ cardId: string; view: DropView }>(`/donors/${id}/wellbeing/week-plan/offer`, { habit }),
   wbSimplify: (id: string) => post<WbViews>(`/donors/${id}/wellbeing/week-plan/simplify`),
