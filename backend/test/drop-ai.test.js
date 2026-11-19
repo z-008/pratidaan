@@ -196,3 +196,12 @@ test('live-model slips are caught: its own doctor sentences, exercise with an ur
   const meera = await ask('D-002', 'Cheap breakfast ideas for my iron?', { chat: 'habit:food', say: () => 'Ragi dosa with a squeeze of lemon makes a cheap iron-rich breakfast.' });
   assert.match(meera.reply, /Ragi dosa/);
 });
+
+test('only the offending sentence goes: a good answer with one stray food or exercise line keeps the rest', async () => {
+  const meera = await ask('D-002', 'Cheap breakfast ideas for my iron?', { chat: 'habit:food', say: () => 'Ragi dosa with lemon is a cheap iron-rich breakfast. Poha with peas works too. Chicken liver is great.' });
+  assert.match(meera.reply, /Ragi dosa/);
+  assert.ok(!/chicken liver/i.test(meera.reply), 'Meera is vegetarian');
+  const v = await ask('D-017', 'What should I improve? Can I jog?', { say: () => 'Have jowar roti and kala chana in place of fried snacks, and keep a fixed wake-up time. Light jogging could help later.' });
+  assert.match(v.reply, /jowar roti/);
+  assert.ok(!/jogging/i.test(v.reply));
+});

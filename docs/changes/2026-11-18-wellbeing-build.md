@@ -271,3 +271,7 @@ AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com AZURE_OPENAI_DEPLOYMEN
   - Any exercise suggestion with an urgent Goal (Vikram) is replaced by the rule wording.
   - A follow-up stays on the result the conversation is about.
   - Any food the rules would suggest for one of the donor's results is accepted, not only the top three.
+- **Third live test on Azure:**
+  - The check now removes only the sentence with a problem (a medicine, a food the rules don't allow, exercise with an urgent Goal, doctor talk). It falls back to the rule wording only when too little is left.
+  - Allowed foods are every food the rules allow for the donor's results (diet, allergies, region, budget, safety), via `foodCoach.allowedFoods`.
+  - Azure's model deployment is 5,000 tokens a minute. Back-to-back questions returned HTTP 429 and the rule answers took over, as designed. Raise the deployment capacity in `infra/main.bicep` along with the daily limits.

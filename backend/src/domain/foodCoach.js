@@ -99,18 +99,8 @@ function suggest(st, marker = 'iron', { maxCost } = {}) {
   const nutrient = NUTRIENT[marker];
   const safety = safetyRules(donorId);
   const cap = Math.min(maxCost || Infinity, BUDGETS[p.budget]);
-  const season = monthSeason();
-  const fasting = fastingToday(p);
   const recent = signals.ensure(st).foodSeen || {};
-  const pool = ref.foods().filter((f) => f.goodFor.includes(marker))
-    .filter((f) => allowedFor(p.diet, f))
-    .filter((f) => !(f.allergens || []).some((a) => (p.allergies || []).includes(a)))
-    .filter((f) => f.regions.includes('all') || f.regions.includes(p.region))
-    .filter((f) => !f.seasons || f.seasons.includes(season))
-    .filter((f) => !(p.dislikes || []).includes(f.id))
-    .filter((f) => !fasting || f.fasting)
-    .filter((f) => !safety.some((r) => (r.flag === 'iron' ? marker === 'iron' : f.flags?.[r.flag])))
-    .filter((f) => f.cost[1] <= cap);
+  const pool = allowedFoods(st, marker, p, cap, safety);
   const amount = (f) => f.per[nutrient] || 0;
   const best = Math.max(1, ...pool.map(amount));
   const perRupee = (f) => amount(f) / ((f.cost[0] + f.cost[1]) / 2);
@@ -174,10 +164,25 @@ function explainFor(st, s, level, foods, p, safety = []) {
   });
 }
 
+/** Every food the rules allow for this marker and Donor (diet, allergies, region, season, dislikes, fasting, safety, budget), before ranking. */
+function allowedFoods(st, marker, p = profile(st), cap = BUDGETS[p.budget], safety = safetyRules(st.donorId)) {
+  const season = monthSeason();
+  const fasting = fastingToday(p);
+  return ref.foods().filter((f) => f.goodFor.includes(marker))
+    .filter((f) => allowedFor(p.diet, f))
+    .filter((f) => !(f.allergens || []).some((a) => (p.allergies || []).includes(a)))
+    .filter((f) => f.regions.includes('all') || f.regions.includes(p.region))
+    .filter((f) => !f.seasons || f.seasons.includes(season))
+    .filter((f) => !(p.dislikes || []).includes(f.id))
+    .filter((f) => !fasting || f.fasting)
+    .filter((f) => !safety.some((r) => (r.flag === 'iron' ? marker === 'iron' : f.flags?.[r.flag])))
+    .filter((f) => f.cost[1] <= cap);
+}
+
 /** Remember which foods were suggested, so next week's list varies. */
 function markSeen(st, ids) {
   const seen = signals.ensure(st).foodSeen;
   for (const id of ids) seen[id] = store.today();
 }
 
-module.exports = { profile, setProfile, clearProfile, suggest, safetyRules, markSeen, allowedFor, DIET_WORDS, BUDGET_WORDS, FIELDS };
+module.exports = { profile, setProfile, clearProfile, suggest, allowedFoods, safetyRules, markSeen, allowedFor, DIET_WORDS, BUDGET_WORDS, FIELDS };
